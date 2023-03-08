@@ -6,6 +6,7 @@ import os
 import paho.mqtt.client as mqtt
 import uuid
 import signal
+import time
 
 from communication import Communication
 from odometry import Odometry
@@ -13,6 +14,27 @@ from planet import Direction, Planet
 
 client = None  # DO NOT EDIT
 
+def colorcheck():
+    cs = ev3.ColorSensor()
+    cs.mode = 'COL-COLOR'
+    cs.value()
+    if cs.value() == 1:
+        color = "black"
+    if cs.value() == 2:
+        color = "blue"
+    if cs.value() == 3:
+        color = "green"
+    if cs.value() == 4:
+        color = "yellow"
+    if cs.value() == 5:
+        color = "red"
+    if cs.value() == 6:
+        color = "white"
+    if cs.value() == 7:
+        color = "brown"
+    if cs.value() == 0:
+        color = "none"
+    return color
 
 def run():
     # DO NOT CHANGE THESE VARIABLES
@@ -36,11 +58,20 @@ def run():
                         format='%(asctime)s: %(message)s'  # Define default logging format
                         )
     logger = logging.getLogger('RoboLab')
+    
+    ## Test color sensor
+    i = 0
+    while i < 10:
+        print(colorcheck()
+        i += 1
+        time.sleep(2)
 
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    print("Hello World!")
+
+
+
 
 
 # DO NOT EDIT
@@ -58,4 +89,6 @@ if __name__ == '__main__':
         signal_handler(raise_interrupt=False)
     except Exception as e:
         signal_handler(raise_interrupt=False)
-        raise e
+        raise 
+
+
