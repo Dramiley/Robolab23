@@ -4,13 +4,11 @@
 import json
 import ssl
 import paho.mqtt.client as mqtt
-
 import sys
 
 sys.path.insert(0, 'communication')
-
-# import communication_facade from communication/communication_facade.py
 from communication_facade import CommunicationFacade
+from communication_logger import CommunicationLogger
 
 """
 We're using MQTT auf QoS Level 2 (exactly once) to communicate with the server.
@@ -77,7 +75,6 @@ class Communication:
         self.client.loop_stop()
         self.client.disconnect()
 
-    # DO NOT EDIT THE METHOD SIGNATURE
     def on_message(self, client, data, message):
         """
         Handles the callback if any message arrived
@@ -163,7 +160,7 @@ class Communication:
 
     def callback(self, message_type, payload):
         # load payload definitions from json file
-        with open('communication/payload_definitions.json') as json_file:
+        with open('communication/server_payload_definitions.json') as json_file:
             payload_definitions = json.load(json_file)
 
         # check if payload is valid
@@ -172,14 +169,6 @@ class Communication:
             if not self.validate_payload(payload, payload_definitions[message_type]):
                 self.logger.error('Payload is not valid')
                 return
-
-        """
-        call callback function and pass each payload definition as argument 
-        so e.g. 
-        payload_definition = ['x', 'y']
-        call
-        callback(x, y)
-        """
 
         # call callback
         # check if callback function signature matches the payload definition
@@ -201,18 +190,6 @@ class Communication:
 
         # payload is valid
         return True
-
-
-class CommunicationLogger:
-    """
-    Dummy logger class to replace the logger from the server
-    """
-
-    def debug(self, message):
-        print("==> CommunicationLog: " + message)
-
-    def error(self, message):
-        print("==> CommunicationError: " + message)
 
 
 def react_to_ready(planetName, startX, startY, startOrientation):
