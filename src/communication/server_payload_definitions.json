@@ -1,0 +1,41 @@
+{
+  "planet": [
+    "planetName",
+    "startX",
+    "startY",
+    "startOrientation"
+  ],
+  "notice": [
+    "message"
+  ],
+  "path": [
+    "startX",
+    "startY",
+    "startDirection",
+    "endX",
+    "endY",
+    "endDirection",
+    "pathStatus",
+    "pathWeight"
+  ],
+  "pathSelect": [
+    "startDirection"
+  ],
+  "pathUnveiled": [
+    "startX",
+    "startY",
+    "startDirection",
+    "endX",
+    "endY",
+    "endDirection",
+    "pathStatus",
+    "pathWeight"
+  ],
+  "target": [
+    "targetX",
+    "targetY"
+  ],
+  "done": [
+    "message"
+  ]
+}
