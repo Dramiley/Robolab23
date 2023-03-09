@@ -26,6 +26,9 @@ class Communication:
     client = None
     facade = None  # use the facade to send messages more eloquently
 
+    # short term memory
+    planet_name = None
+
     # callbacks
     """
     Dictionary to hold the callbacks for the different message types
@@ -91,31 +94,52 @@ class Communication:
             self.logger.error('Message type is not set')
             return
 
-        # check if message type has a callback
-        if payload['type'] in self.callbacks:
+        # if the type is planet, we need to subscribe to the planet channel
+        if payload['type'] == 'planet':
+            # save planet name
+            self.planet_name = payload['payload']['planetName']
+            # subscribe to planet channel
+            self.client.subscribe('planet/{}/{}'.format(self.planet_name, self.group_id), qos=2)
+            self.logger.debug('Subscribed to planet/{}/{}'.format(self.planet_name, self.group_id))
 
-            # call callback
+        # check if message type has a callback registered and call it
+        if payload['type'] in self.callbacks:
             self.callback(payload['type'], payload['payload'])
         else:
-            self.logger.error('No callback for message type: ' + payload['type'] + ' registered')
+            self.logger.error('No callback for message type ' + payload['type'] + ' registered')
 
     # In order to keep the logging working you must provide a topic string and
     # an already encoded JSON-Object as message.
-    def send_message(self, topic, message):
+
+    def send_planet_message(self, topic, message):
         """
-        Sends given message to specified channel
+        Sends given message to the current planet
         :param topic: String
         :param message: Object
         :return: void
         """
-        # self.logger.debug('Send to: ' + topic)
-        # self.logger.debug(json.dumps(message, indent=2))
+        # we must have a planet name
+        if self.facade.planet_name is None:
+            self.logger.error('No planet name set')
+            return
+
+        # send message
+        self.client.publish('planet/{}/{}'.format(self.planet_name, self.group_id), payload=message, qos=2)
+
+    def send_explorer_message(self, topic, message):
+        """
+        Sends given message for the current explorer without planet context
+        :param topic: String
+        :param message: Object
+        :return: void
+        """
 
         # send message
         self.client.publish('explorer/{}'.format(self.group_id), payload=message, qos=2)
 
-    # DO NOT EDIT THE METHOD SIGNATURE OR BODY
-    #
+    def send_message(self, topic, message):
+        self.send_explorer_message(topic, message)
+
     # This helper method encapsulated the original "on_message" method and handles
     # exceptions thrown by threads spawned by "paho-mqtt"
     def safe_on_message_handler(self, client, data, message):
