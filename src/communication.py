@@ -86,6 +86,10 @@ class Communication:
         payload = json.loads(message.payload.decode('utf-8'))
         self.logger.debug(json.dumps(payload, indent=2))
 
+        # if "from" is the client itself, ignore the message
+        if 'from' in payload and payload['from'] == "client":
+            return
+
         # check if message type is set
         if 'type' not in payload:
             self.logger.error('Message type is not set')
@@ -116,7 +120,7 @@ class Communication:
         :return: void
         """
         # we must have a planet name
-        if self.facade.planet_name is None:
+        if self.planet_name is None:
             self.logger.error('No planet name set')
             return
 
@@ -212,7 +216,19 @@ def dev_test():
     connection.facade.set_callback('planet', react_to_ready)
 
     # wait for message
-    time.sleep(5)
+    time.sleep(1)
+
+    # send path
+    connection.facade.path(1,4,90,34,3,90,"free")
+
+    # wait for message
+    time.sleep(1)
+
+    # pretend we're at the target
+    connection.facade.targetReached("we're at the target")
+
+    # wait for messages
+    time.sleep(1)
 
     # delete connection
     del connection
