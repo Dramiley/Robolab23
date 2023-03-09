@@ -17,3 +17,8 @@ class CommunicationFacade:
           }
         }''' % planet)
 
+    def ready(self):
+        self.communication.send_message('ready', '''{
+          "from": "client",
+          "type": "ready"
+        }''')

@@ -148,7 +148,7 @@ def dev_test():
     connection = Communication(mqtt_client=mqtt.Client(), logger=logger)
 
     # send message
-    connection.facade.testPlanet('earth')
+    connection.facade.ready()
 
     # wait for message
     time.sleep(5)
