@@ -9,14 +9,14 @@ import paho.mqtt.client as mqtt
 We're using MQTT auf QoS Level 2 (exactly once) to communicate with the server.
 """
 
-class Communication:
 
+class Communication:
     # setup secrets
     group_id = '046'
     password = 'PwQ3lFHkEl'
 
     # setup MQTT client
-    client = mqtt.Client(client_id=group_id, clean_session=False, protocol=mqtt.MQTTv31)
+    client = None
 
     """
     Class to hold the MQTT client communication
@@ -32,9 +32,14 @@ class Communication:
         :param logger: logging.Logger
         """
 
-        self.client.on_message = self.safe_on_message  # Assign pre-defined callback function to MQTT client
+        # save client
+        self.client = mqtt_client
+
+        # configure client
+        self.client.on_message = self.safe_on_message_handler  # Register callback function
         self.client.tls_set(tls_version=ssl.PROTOCOL_TLS)
-        self.client.username_pw_set(self.group_id, password=self.password)  # Your group credentials, see the python skill-test for your group password
+        self.client.username_pw_set(self.group_id,
+                                    password=self.password)  # Your group credentials, see the python skill-test for your group password
         self.client.connect('mothership.inf.tu-dresden.de', port=8883)
 
         # inital subscribe
@@ -105,4 +110,48 @@ class Communication:
             raise
 
 
-print("communication.py loaded")
+class CommunicationLogger:
+    def debug(self, message):
+        print(message)
+
+    def info(self, message):
+        print(message)
+
+    def warning(self, message):
+        print(message)
+
+    def error(self, message):
+        print(message)
+
+    def critical(self, message):
+        print(message)
+
+def dev_test():
+    import time
+
+    # have the print command as logger
+    logger = CommunicationLogger()
+
+    # create connection
+    connection = Communication(mqtt_client=mqtt.Client(), logger=logger)
+
+    # send message
+    connection.send_message(topic='explorer/046', message='''{
+      "from": "client",
+      "type": "testPlanet",
+      "payload": {
+        "planetName": "Merkur"
+      }
+    }''')
+
+    # wait for message
+    time.sleep(5)
+
+    # delete connection
+    del connection
+
+    # done
+    print('done')
+
+if __name__ == '__main__':
+    dev_test()
