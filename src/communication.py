@@ -22,7 +22,7 @@ class Communication:
 
     # setup MQTT client
     client = None
-    facade = None  # use the facade to send messages more eloquently
+    facade: CommunicationFacade = None  # use the facade to send messages more eloquently
 
     # short term memory
     planet_name = None
@@ -84,11 +84,13 @@ class Communication:
         :return: void
         """
         payload = json.loads(message.payload.decode('utf-8'))
-        self.logger.debug(json.dumps(payload, indent=2))
 
         # if "from" is the client itself, ignore the message
         if 'from' in payload and payload['from'] == "client":
             return
+
+        # log message
+        self.logger.debug(json.dumps(payload, indent=2))
 
         # check if message type is set
         if 'type' not in payload:
@@ -180,16 +182,21 @@ class Communication:
             self.callbacks[message_type](**payload)
         else:
             self.logger.error('Callback function signature does not match payload definition')
+            self.logger.error('Callback function signature: ' + str(len(self.callbacks[message_type].__code__.co_varnames)))
+            self.logger.error('Payload definition: ' + str(len(payload)))
 
     def validate_payload(self, payload, payload_definition):
+
         # check if all keys are set
         for key in payload_definition:
             if key not in payload:
+                print('Key ' + key + ' is not present')
                 return False
 
         # check if all keys are valid
         for key in payload:
             if key not in payload_definition:
+                print('Key ' + key + ' was not expected')
                 return False
 
         # payload is valid
@@ -200,6 +207,11 @@ def react_to_ready(planetName, startX, startY, startOrientation):
     print('got reaction to ready')
     print('planetName: ' + planetName)
     print('startX: ' + str(startX))
+
+
+def react_to_error(error):
+    print('got reaction to error')
+    print('error: ' + error)
 
 
 def dev_test():
@@ -219,7 +231,8 @@ def dev_test():
     time.sleep(1)
 
     # send path
-    connection.facade.path(1,4,90,34,3,90,"free")
+    connection.facade.path(1, 4, 90, 34, 3, 90, "free")
+    connection.facade.set_callback('error', react_to_error)
 
     # wait for message
     time.sleep(1)
