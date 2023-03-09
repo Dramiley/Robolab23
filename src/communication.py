@@ -107,8 +107,8 @@ class Communication:
         :param message: Object
         :return: void
         """
-        self.logger.debug('Send to: ' + topic)
-        self.logger.debug(json.dumps(message, indent=2))
+        # self.logger.debug('Send to: ' + topic)
+        # self.logger.debug(json.dumps(message, indent=2))
 
         # send message
         self.client.publish('explorer/{}'.format(self.group_id), payload=message, qos=2)
@@ -125,9 +125,6 @@ class Communication:
         :param message: Object
         :return: void
         """
-
-        # debug info
-        print('Got message with topic "{}":'.format(message.topic))
 
         try:
             self.on_message(client, data, message)
@@ -146,23 +143,14 @@ class CommunicationLogger:
     Dummy logger class to replace the logger from the server
     """
     def debug(self, message):
-        print(message)
-
-    def info(self, message):
-        print(message)
-
-    def warning(self, message):
-        print(message)
+        print("==> CommunicationLog: " + message)
 
     def error(self, message):
-        print(message)
-
-    def critical(self, message):
-        print(message)
+        print("==> CommunicationError: " + message)
 
 
 def react_to_ready(payload):
-    print('got ready response')
+    print('got reaction to ready')
     print('payload: {}'.format(payload))
 
 
