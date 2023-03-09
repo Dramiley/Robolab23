@@ -40,8 +40,8 @@ def run():
                         )
     logger = logging.getLogger('RoboLab')
     
-   
     m.followline()
+    print("Station erreicht")
    
    
 
