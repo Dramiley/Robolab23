@@ -4,6 +4,7 @@
 import json
 import ssl
 import paho.mqtt.client as mqtt
+from communication.communication_facade import CommunicationFacade
 
 """
 We're using MQTT auf QoS Level 2 (exactly once) to communicate with the server.
@@ -17,6 +18,7 @@ class Communication:
 
     # setup MQTT client
     client = None
+    facade = None
 
     """
     Class to hold the MQTT client communication
@@ -48,6 +50,9 @@ class Communication:
 
         # save logger
         self.logger = logger
+
+        # create facade
+        self.facade = CommunicationFacade(self)
 
     # destructor
     def __del__(self):
