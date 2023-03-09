@@ -26,6 +26,12 @@ class Communication:
     client = None
     facade = None # use the facade to send messages more eloquently
 
+    # callbacks
+    """
+    Dictionary to hold the callbacks for the different message types
+    """
+    callbacks = {}
+
     """
     Class to hold the MQTT client communication
     Feel free to add functions and update the constructor to satisfy your requirements and
@@ -62,6 +68,9 @@ class Communication:
 
     # destructor
     def __del__(self):
+        """
+        Disconnects from the server
+        """
         self.client.loop_stop()
         self.client.disconnect()
 
@@ -77,11 +86,18 @@ class Communication:
         payload = json.loads(message.payload.decode('utf-8'))
         self.logger.debug(json.dumps(payload, indent=2))
 
-        # YOUR CODE FOLLOWS (remove pass, please!)
-        pass
+        # check if message type is set
+        if 'type' not in payload:
+            self.logger.error('Message type is not set')
+            return
 
-    # DO NOT EDIT THE METHOD SIGNATURE
-    #
+        # check if message type is known
+        if payload['type'] in self.callbacks:
+            self.callbacks[payload['type']](payload['payload'])
+        else:
+            self.logger.error('Unknown message type: ' + payload['type'])
+
+
     # In order to keep the logging working you must provide a topic string and
     # an already encoded JSON-Object as message.
     def send_message(self, topic, message):
@@ -120,8 +136,15 @@ class Communication:
             traceback.print_exc()
             raise
 
+    def set_callback(self, message_type, callback):
+        self.callbacks[message_type] = callback
+
 
 class CommunicationLogger:
+
+    """
+    Dummy logger class to replace the logger from the server
+    """
     def debug(self, message):
         print(message)
 
@@ -138,6 +161,11 @@ class CommunicationLogger:
         print(message)
 
 
+def react_to_ready(payload):
+    print('got ready response')
+    print('payload: {}'.format(payload))
+
+
 def dev_test():
     import time
 
@@ -149,6 +177,7 @@ def dev_test():
 
     # send message
     connection.facade.ready()
+    connection.facade.set_callback('planet',react_to_ready)
 
     # wait for message
     time.sleep(5)
