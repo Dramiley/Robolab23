@@ -7,6 +7,7 @@ import paho.mqtt.client as mqtt
 import uuid
 import signal
 import time
+import motor as m
 
 from communication import Communication
 from odometry import Odometry
@@ -39,7 +40,8 @@ def run():
                         )
     logger = logging.getLogger('RoboLab')
     
-    ## Test color sensor
+   
+    m.followline()
    
    
 
