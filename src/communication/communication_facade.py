@@ -49,10 +49,10 @@ class CommunicationFacade:
           "payload": {
             "startX": %s,
             "startY": %s,
-            "startDirection": "%s",
+            "startDirection": %s,
             "endX": %s,
             "endY": %s,
-            "endDirection": "%s",
+            "endDirection": %s,
             "pathStatus": "%s"
           }
         }''' % (startX, startY, startDirection, endX, endY, endDirection, pathStatus))
@@ -71,7 +71,7 @@ class CommunicationFacade:
           "payload": {
             "startX": %s,
             "startY": %s,
-            "startDirection": "%s"
+            "startDirection": %s
           }
         }''' % (startX, startY, startDirection))
 
@@ -94,10 +94,10 @@ class CommunicationFacade:
           "payload": {
             "startX": %s,
             "startY": %s,
-            "startDirection": "%s",
+            "startDirection": %s,
             "endX": %s,
             "endY": %s,
-            "endDirection": "%s",
+            "endDirection": %s,
             "pathStatus": "%s",
             "pathWeight": %s
           }
