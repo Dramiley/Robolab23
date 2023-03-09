@@ -6,15 +6,15 @@ def color_check():
     # cs.bin_data("hhh")
 
     if cs.red > 120 and cs.blue < 80 and cs.green < 80:
-        print('red')
+        return 'red'
     elif cs.red < 80 and cs.blue < 80 and cs.green <80:
-        print('black')
+        return 'black'
     elif cs.red > 160 and cs.blue > 150 and cs.green > 200:
-        print('white')
+        return 'white'
     elif cs.red < 50 and cs.blue < 100 and cs.green > 110:
-        print('blue')
+        return 'blue'
     else:
-        print('I dont know')
+        return 'I dont know'
 
 def is_obstacle_ahead():
     '''
@@ -26,4 +26,8 @@ def is_obstacle_ahead():
 
     # report true if dist<20
     # make sure to take mean value in dt bc values fluctuate
-    dist = us.distance_centimeters # gets value
+    dist = us.distance_centimeters# gets value
+    if dist < 20:
+        return True
+    else:
+        return False
