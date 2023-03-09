@@ -4,6 +4,10 @@
 import json
 import ssl
 
+"""
+We're using MQTT auf QoS Level 2 (exactly once) to communicate with the server.
+"""
+
 
 class Communication:
     """
@@ -24,6 +28,13 @@ class Communication:
         self.client.tls_set(tls_version=ssl.PROTOCOL_TLS)
         self.client.on_message = self.safe_on_message_handler
         # Add your client setup here
+        self.client.connect('robolab.inf.h-brs.de', port=8883)
+
+        # config
+        group_id = '046'
+        password = 'PwQ3lFHkEl'
+
+
 
         self.logger = logger
 
