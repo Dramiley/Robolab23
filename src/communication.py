@@ -197,7 +197,8 @@ class Communication:
         for key in payload:
             if key not in payload_definition:
                 print('Key ' + key + ' was not expected')
-                return False
+                del payload[key]
+                # return False
 
         # payload is valid
         return True
