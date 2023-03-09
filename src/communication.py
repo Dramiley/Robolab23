@@ -24,7 +24,7 @@ class Communication:
 
     # setup MQTT client
     client = None
-    facade = None # use the facade to send messages more eloquently
+    facade = None  # use the facade to send messages more eloquently
 
     # callbacks
     """
@@ -91,12 +91,13 @@ class Communication:
             self.logger.error('Message type is not set')
             return
 
-        # check if message type is known
+        # check if message type has a callback
         if payload['type'] in self.callbacks:
-            self.callbacks[payload['type']](payload['payload'])
-        else:
-            self.logger.error('Unknown message type: ' + payload['type'])
 
+            # call callback
+            self.callback(payload['type'], payload['payload'])
+        else:
+            self.logger.error('No callback for message type: ' + payload['type'] + ' registered')
 
     # In order to keep the logging working you must provide a topic string and
     # an already encoded JSON-Object as message.
@@ -136,12 +137,53 @@ class Communication:
     def set_callback(self, message_type, callback):
         self.callbacks[message_type] = callback
 
+    def callback(self, message_type, payload):
+        # load payload definitions from json file
+        with open('communication/payload_definitions.json') as json_file:
+            payload_definitions = json.load(json_file)
+
+        # check if payload is valid
+        if message_type in payload_definitions:
+            # check if payload is valid
+            if not self.validate_payload(payload, payload_definitions[message_type]):
+                self.logger.error('Payload is not valid')
+                return
+
+        """
+        call callback function and pass each payload definition as argument 
+        so e.g. 
+        payload_definition = ['x', 'y']
+        call
+        callback(x, y)
+        """
+
+        # call callback
+        # check if callback function signature matches the payload definition
+        if len(self.callbacks[message_type].__code__.co_varnames) == len(payload):
+            self.callbacks[message_type](**payload)
+        else:
+            self.logger.error('Callback function signature does not match payload definition')
+
+    def validate_payload(self, payload, payload_definition):
+        # check if all keys are set
+        for key in payload_definition:
+            if key not in payload:
+                return False
+
+        # check if all keys are valid
+        for key in payload:
+            if key not in payload_definition:
+                return False
+
+        # payload is valid
+        return True
+
 
 class CommunicationLogger:
-
     """
     Dummy logger class to replace the logger from the server
     """
+
     def debug(self, message):
         print("==> CommunicationLog: " + message)
 
@@ -149,9 +191,10 @@ class CommunicationLogger:
         print("==> CommunicationError: " + message)
 
 
-def react_to_ready(payload):
+def react_to_ready(planetName, startX, startY, startOrientation):
     print('got reaction to ready')
-    print('payload: {}'.format(payload))
+    print('planetName: ' + planetName)
+    print('startX: ' + str(startX))
 
 
 def dev_test():
@@ -165,7 +208,7 @@ def dev_test():
 
     # send message
     connection.facade.ready()
-    connection.facade.set_callback('planet',react_to_ready)
+    connection.facade.set_callback('planet', react_to_ready)
 
     # wait for message
     time.sleep(5)

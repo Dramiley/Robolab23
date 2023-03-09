@@ -1,0 +1,11 @@
+{
+  "planet": [
+    "planetName",
+    "startX",
+    "startY",
+    "startOrientation"
+  ],
+  "notice": [
+    "message"
+  ]
+}
