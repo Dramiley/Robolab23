@@ -4,7 +4,13 @@
 import json
 import ssl
 import paho.mqtt.client as mqtt
-from communication.communication_facade import CommunicationFacade
+
+import sys
+
+sys.path.insert(0, 'communication')
+
+# import communication_facade from communication/communication_facade.py
+from communication_facade import CommunicationFacade
 
 """
 We're using MQTT auf QoS Level 2 (exactly once) to communicate with the server.
@@ -18,7 +24,7 @@ class Communication:
 
     # setup MQTT client
     client = None
-    facade = None
+    facade = None # use the facade to send messages more eloquently
 
     """
     Class to hold the MQTT client communication
@@ -131,6 +137,7 @@ class CommunicationLogger:
     def critical(self, message):
         print(message)
 
+
 def dev_test():
     import time
 
@@ -141,13 +148,7 @@ def dev_test():
     connection = Communication(mqtt_client=mqtt.Client(), logger=logger)
 
     # send message
-    connection.send_message(topic='explorer/046', message='''{
-      "from": "client",
-      "type": "testPlanet",
-      "payload": {
-        "planetName": "Merkur"
-      }
-    }''')
+    connection.facade.testPlanet('earth')
 
     # wait for message
     time.sleep(5)
@@ -157,6 +158,7 @@ def dev_test():
 
     # done
     print('done')
+
 
 if __name__ == '__main__':
     dev_test()

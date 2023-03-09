@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-class CommuncationFacade:
+class CommunicationFacade:
 
     # bidirectional association
     communication = None
