@@ -7,14 +7,16 @@ def color_check():
 
     if cs.red > 120 and cs.blue < 80 and cs.green < 80:
         return 'red'
-    elif cs.red < 80 and cs.blue < 80 and cs.green <80:
+    elif cs.red < 60 and cs.blue < 60 and cs.green <80:
         return 'black'
-    elif cs.red > 160 and cs.blue > 150 and cs.green > 200:
+    elif cs.red > 180 and cs.blue > 180 and cs.green > 180:
         return 'white'
     elif cs.red < 50 and cs.blue < 100 and cs.green > 110:
         return 'blue'
+    elif cs.red <  230 and cs.blue < 230 and cs.green < 230 and cs.red > 80 and cs.blue > 80 and cs.green > 80:
+        return 'grey'
     else:
-        return 'I dont know'
+        return 'other'
 
 def is_obstacle_ahead():
     '''
