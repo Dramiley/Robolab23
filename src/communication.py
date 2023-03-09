@@ -4,13 +4,11 @@
 import json
 import ssl
 import paho.mqtt.client as mqtt
-
 import sys
 
 sys.path.insert(0, 'communication')
-
-# import communication_facade from communication/communication_facade.py
 from communication_facade import CommunicationFacade
+from communication_logger import CommunicationLogger
 
 """
 We're using MQTT auf QoS Level 2 (exactly once) to communicate with the server.
@@ -24,7 +22,10 @@ class Communication:
 
     # setup MQTT client
     client = None
-    facade = None  # use the facade to send messages more eloquently
+    facade: CommunicationFacade = None  # use the facade to send messages more eloquently
+
+    # short term memory
+    planet_name = None
 
     # callbacks
     """
@@ -74,7 +75,6 @@ class Communication:
         self.client.loop_stop()
         self.client.disconnect()
 
-    # DO NOT EDIT THE METHOD SIGNATURE
     def on_message(self, client, data, message):
         """
         Handles the callback if any message arrived
@@ -84,6 +84,12 @@ class Communication:
         :return: void
         """
         payload = json.loads(message.payload.decode('utf-8'))
+
+        # if "from" is the client itself, ignore the message
+        if 'from' in payload and payload['from'] == "client":
+            return
+
+        # log message
         self.logger.debug(json.dumps(payload, indent=2))
 
         # check if message type is set
@@ -91,31 +97,52 @@ class Communication:
             self.logger.error('Message type is not set')
             return
 
-        # check if message type has a callback
-        if payload['type'] in self.callbacks:
+        # if the type is planet, we need to subscribe to the planet channel
+        if payload['type'] == 'planet':
+            # save planet name
+            self.planet_name = payload['payload']['planetName']
+            # subscribe to planet channel
+            self.client.subscribe('planet/{}/{}'.format(self.planet_name, self.group_id), qos=2)
+            self.logger.debug('Subscribed to planet/{}/{}'.format(self.planet_name, self.group_id))
 
-            # call callback
+        # check if message type has a callback registered and call it
+        if payload['type'] in self.callbacks:
             self.callback(payload['type'], payload['payload'])
         else:
-            self.logger.error('No callback for message type: ' + payload['type'] + ' registered')
+            self.logger.error('No callback for message type ' + payload['type'] + ' registered')
 
     # In order to keep the logging working you must provide a topic string and
     # an already encoded JSON-Object as message.
-    def send_message(self, topic, message):
+
+    def send_planet_message(self, topic, message):
         """
-        Sends given message to specified channel
+        Sends given message to the current planet
         :param topic: String
         :param message: Object
         :return: void
         """
-        # self.logger.debug('Send to: ' + topic)
-        # self.logger.debug(json.dumps(message, indent=2))
+        # we must have a planet name
+        if self.planet_name is None:
+            self.logger.error('No planet name set')
+            return
+
+        # send message
+        self.client.publish('planet/{}/{}'.format(self.planet_name, self.group_id), payload=message, qos=2)
+
+    def send_explorer_message(self, topic, message):
+        """
+        Sends given message for the current explorer without planet context
+        :param topic: String
+        :param message: Object
+        :return: void
+        """
 
         # send message
         self.client.publish('explorer/{}'.format(self.group_id), payload=message, qos=2)
 
-    # DO NOT EDIT THE METHOD SIGNATURE OR BODY
-    #
+    def send_message(self, topic, message):
+        self.send_explorer_message(topic, message)
+
     # This helper method encapsulated the original "on_message" method and handles
     # exceptions thrown by threads spawned by "paho-mqtt"
     def safe_on_message_handler(self, client, data, message):
@@ -139,7 +166,7 @@ class Communication:
 
     def callback(self, message_type, payload):
         # load payload definitions from json file
-        with open('communication/payload_definitions.json') as json_file:
+        with open('communication/server_payload_definitions.json') as json_file:
             payload_definitions = json.load(json_file)
 
         # check if payload is valid
@@ -149,52 +176,42 @@ class Communication:
                 self.logger.error('Payload is not valid')
                 return
 
-        """
-        call callback function and pass each payload definition as argument 
-        so e.g. 
-        payload_definition = ['x', 'y']
-        call
-        callback(x, y)
-        """
-
         # call callback
         # check if callback function signature matches the payload definition
         if len(self.callbacks[message_type].__code__.co_varnames) == len(payload):
             self.callbacks[message_type](**payload)
         else:
             self.logger.error('Callback function signature does not match payload definition')
+            self.logger.error('Callback function signature: ' + str(len(self.callbacks[message_type].__code__.co_varnames)))
+            self.logger.error('Payload definition: ' + str(len(payload)))
 
     def validate_payload(self, payload, payload_definition):
+
         # check if all keys are set
         for key in payload_definition:
             if key not in payload:
+                print('Key ' + key + ' is not present')
                 return False
 
         # check if all keys are valid
         for key in payload:
             if key not in payload_definition:
+                print('Key ' + key + ' was not expected')
                 return False
 
         # payload is valid
         return True
 
 
-class CommunicationLogger:
-    """
-    Dummy logger class to replace the logger from the server
-    """
-
-    def debug(self, message):
-        print("==> CommunicationLog: " + message)
-
-    def error(self, message):
-        print("==> CommunicationError: " + message)
-
-
 def react_to_ready(planetName, startX, startY, startOrientation):
     print('got reaction to ready')
     print('planetName: ' + planetName)
     print('startX: ' + str(startX))
+
+
+def react_to_error(error):
+    print('got reaction to error')
+    print('error: ' + error)
 
 
 def dev_test():
@@ -211,7 +228,20 @@ def dev_test():
     connection.facade.set_callback('planet', react_to_ready)
 
     # wait for message
-    time.sleep(5)
+    time.sleep(1)
+
+    # send path
+    connection.facade.path(1, 4, 90, 34, 3, 90, "free")
+    connection.facade.set_callback('error', react_to_error)
+
+    # wait for message
+    time.sleep(1)
+
+    # pretend we're at the target
+    connection.facade.targetReached("we're at the target")
+
+    # wait for messages
+    time.sleep(1)
 
     # delete connection
     del connection

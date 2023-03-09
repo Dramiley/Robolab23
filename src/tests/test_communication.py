@@ -8,10 +8,11 @@ import uuid
 IMPORTANT: THOSE TESTS ARE NOT REQUIRED FOR THE EXAM AND USED ONLY FOR DEVELOPMENT
 ASK YOUR TUTOR FOR SPECIFIC DETAILS ABOUT THIS!
 """
-from communication import Communication
 
 
 class TestRoboLabCommunication(unittest.TestCase):
+    facade = None
+
     @unittest.mock.patch('logging.Logger')
     def setUp(self, mock_logger):
         """
@@ -25,11 +26,13 @@ class TestRoboLabCommunication(unittest.TestCase):
 
         # Initialize your data structure here
         self.communication = Communication(client, mock_logger)
+        self.facade = self.communication.facade
 
     def test_message_ready(self):
         """
         This test should check the syntax of the message type "ready"
         """
+        self.facade.ready()
         self.fail('implement me!')
 
     def test_message_path(self):
