@@ -6,12 +6,14 @@ import os
 import paho.mqtt.client as mqtt
 import uuid
 import signal
+import time
 
 from communication import Communication
 from odometry import Odometry
 from planet import Direction, Planet
 
 client = None  # DO NOT EDIT
+
 
 
 def run():
@@ -21,7 +23,7 @@ def run():
     # Your script isn't able to close the client after crashing.
     global client
 
-    client_id = 'YOURGROUPID-' + str(uuid.uuid4())  # Replace YOURGROUPID with your group ID
+    client_id = '046-' + str(uuid.uuid4())  # Replace YOURGROUPID with your group ID
     client = mqtt.Client(client_id=client_id,  # Unique Client-ID to recognize our program
                          clean_session=True,  # We want a clean session after disconnect or abort/crash
                          protocol=mqtt.MQTTv311  # Define MQTT protocol version
@@ -36,11 +38,17 @@ def run():
                         format='%(asctime)s: %(message)s'  # Define default logging format
                         )
     logger = logging.getLogger('RoboLab')
+    
+    ## Test color sensor
+   
+   
 
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    print("Hello World!")
+
+
+
 
 
 # DO NOT EDIT
@@ -58,4 +66,6 @@ if __name__ == '__main__':
         signal_handler(raise_interrupt=False)
     except Exception as e:
         signal_handler(raise_interrupt=False)
-        raise e
+        raise 
+
+
