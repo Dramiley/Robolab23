@@ -47,11 +47,24 @@ def run():
     # print("Station erreicht")
     # Initialize communication_scripts, use a different logger if you want to display the communication_scripts rightaway
     communication = Communication(client, CommunicationLogger()).facade
+
+    # setup error handling
+    communication.set_callback('error', lambda message: print("FEHLER: " + message))
+
+    # setup planet handling
     communication.ready()
     communication.set_callback('planet',
                                lambda planetName, startX, startY, startOrientation: print(
                                    'got planet %s at %s/%s/%s' % (
                                        planetName, startX, startY, startOrientation)))
+    time.sleep(1)
+
+    # setup path handling
+    communication.path(0, 0, 90, 2, 4, 270, "free")
+    communication.set_callback('path', lambda startX, startY, startOrientation, endX, endY, endOrientation, pathStatus,
+                                              pathWeight: print(
+        'got path from %s/%s/%s to %s/%s/%s with status %s and weight %s' % (
+            startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight)))
     time.sleep(1)
 
 
