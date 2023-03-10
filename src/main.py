@@ -2,14 +2,20 @@
 
 import logging
 import os
+import time
+
 import paho.mqtt.client as mqtt
 import uuid
 import signal
-import motor as m
-from communication.communication import Communication
-from communication.communication_logger import CommunicationLogger
+from communication import Communication
+from communication_logger import CommunicationLogger
 
 client = None  # DO NOT EDIT
+
+
+def react_to_error(message):
+    print('got reaction to error')
+    print('error: ' + message)
 
 
 def run():
@@ -35,16 +41,18 @@ def run():
                         )
     logger = logging.getLogger('RoboLab')
 
-
-    
+    m.followline()
+    print("Station erreicht")
 
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
     m.followline()
     print("Station erreicht")
-    # Initialize communication, use a different logger if you want to display the communication rightaway
+    # Initialize communication_scripts, use a different logger if you want to display the communication_scripts rightaway
     communication = Communication(client, CommunicationLogger()).facade
     communication.ready()
+    communication.set_callback('planet', lambda message: print("lambda got some msg: " + message))
+    time.sleep(1)
 
 
 # DO NOT EDIT
