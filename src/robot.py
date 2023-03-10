@@ -106,3 +106,7 @@ class Robot:
             print(int(power2))
             lerror = error
         self.stop()
+
+def run_robot():
+    robo = Robot()
+    robo.followline()
