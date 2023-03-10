@@ -98,7 +98,7 @@ class Communication:
             self.planet_name = payload['payload']['planetName']
             # subscribe to planet channel
             self.client.subscribe('planet/{}/{}'.format(self.planet_name, self.group_id), qos=2)
-            self.logger.debug('Subscribed to planet/{}/{}'.format(self.planet_name, self.group_id))
+            self.logger.success('Subscribed to planet/{}/{}'.format(self.planet_name, self.group_id))
 
         # check if message type has a callback registered and call it
         if payload['type'] in self.callbacks:
@@ -174,7 +174,7 @@ class Communication:
         # call callback
         # check if callback function signature matches the payload definition
         if len(self.callbacks[message_type].__code__.co_varnames) == len(payload):
-            self.logger.debug('Calling callback for message type ' + message_type)
+            self.logger.success('Calling callback for message type ' + message_type)
             self.logger.debug('Payload: ' + str(payload))
             self.callbacks[message_type](**payload)
         else:

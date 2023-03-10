@@ -16,6 +16,13 @@ class CommunicationLogger:
         BOLD = '\033[1m'
         UNDERLINE = '\033[4m'
 
+    def success(self, message):
+        print()
+        print(self.bcolors.OKGREEN + "==>\r\nCommunicationSuccess: ")
+        print(message)
+        print("<==")
+        print(self.bcolors.ENDC)
+
     def debug(self, message):
         print()
         print(self.bcolors.OKCYAN + "==>\r\nCommunicationLog: ")
