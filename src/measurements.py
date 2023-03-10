@@ -18,9 +18,7 @@ class ColorDetector:
             self.name = 'blue'
         elif cs.red-cs.blue < 50 and cs.red-cs.green < 50 and cs.blue-cs.green < 50:
             self.name = 'grey'
-            self.greytone = cs.red + cs.blue + cs.green / 3
-            self.greytone = self.greytone - 150
-            self.greytone = int(self.greytone/10)
+            self.greytone = cs.red + cs.blue + cs.green // 3
         else:
             self.name = 'other'
 
