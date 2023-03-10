@@ -35,12 +35,13 @@ def run():
                         )
     logger = logging.getLogger('RoboLab')
 
-    m.followline()
-    print("Station erreicht")
+
+    
 
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
-
+    m.followline()
+    print("Station erreicht")
     # Initialize communication, use a different logger if you want to display the communication rightaway
     communication = Communication(client, CommunicationLogger()).facade
     communication.ready()
