@@ -7,9 +7,8 @@ import time
 import paho.mqtt.client as mqtt
 import uuid
 import signal
-import motor as m
-from communication_scripts.communication import Communication
-from communication_scripts.communication_logger import CommunicationLogger
+from communication import Communication
+from communication_logger import CommunicationLogger
 
 client = None  # DO NOT EDIT
 

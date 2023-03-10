@@ -6,7 +6,7 @@ import os
 import ssl
 
 # import communication_facade
-from communication_scripts.communication_facade import CommunicationFacade
+from communication_facade import CommunicationFacade
 
 
 class Communication:
@@ -167,12 +167,7 @@ class Communication:
         # load payload definitions from json file
         # in the current directory
 
-
-        # print current directory
-        path = os.getcwd()
-        print("Current working directory: " + path)
-
-        with open(path+'/src/communication_scripts/server_payload_definitions.json') as json_file:
+        with open('communication_definitions.json') as json_file:
             payload_definitions = json.load(json_file)
 
         # check if payload is valid
