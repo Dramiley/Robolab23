@@ -17,31 +17,31 @@ class CommunicationLogger:
         UNDERLINE = '\033[4m'
 
     def success(self, message):
-        print()
-        print(self.bcolors.OKGREEN + "==>\r\nCommunicationSuccess: ")
+        print(self.bcolors.OKGREEN + "==>")
         print(message)
         print("<==")
         print(self.bcolors.ENDC)
 
     def debug(self, message):
-        print()
-        print(self.bcolors.OKBLUE + "==>\r\nCommunicationLog: ")
+        print(self.bcolors.OKBLUE + "==>")
         print(message)
         print("<==")
         print(self.bcolors.ENDC)
 
     def error(self, message):
-        print()
-        print(self.bcolors.BOLD + self.bcolors.FAIL + "==>\r\nCommunicationError: ")
+        print(self.bcolors.BOLD + self.bcolors.FAIL + "==>")
         print(message)
         print("<==")
-        print()
         print(self.bcolors.ENDC)
 
     def warning(self, message):
-        print()
-        print(self.bcolors.BOLD + self.bcolors.WARNING + "==>\r\nCommunicationWarning: ")
+        print(self.bcolors.BOLD + self.bcolors.WARNING + "==>")
         print(message)
         print("<==")
-        print()
+        print(self.bcolors.ENDC)
+
+    def info(self, message):
+        print(self.bcolors.OKCYAN + "==>")
+        print(message)
+        print("<==")
         print(self.bcolors.ENDC)

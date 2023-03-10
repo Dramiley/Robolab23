@@ -52,6 +52,7 @@ class Communication:
 
         # inital subscribe
         self.client.subscribe('explorer/{}'.format(self.group_id), qos=2)  # Subscribe to topic explorer/xxx
+        self.client.subscribe('comtest/{}'.format(self.group_id), qos=2)  # Subscribe to topic explorer/xxx
         self.client.loop_start()
 
         # save logger
@@ -88,6 +89,12 @@ class Communication:
         if 'from' in payload and payload['from'] == "client":
             return
 
+        # if "from" is debug and the message type is syntax, check if the syntax is correct
+        if 'from' in payload and payload['from'] == "debug" and payload['type'] == "syntax":
+            if payload['payload']['message'] == 'Incorrect':
+                self.logger.info("Syntax check errors: " + payload['payload']['errors'])
+            return
+
         # log message
         self.logger.debug(json.dumps(payload, indent=2))
 
@@ -113,11 +120,11 @@ class Communication:
     # In order to keep the logging working you must provide a topic string and
     # an already encoded JSON-Object as message.
 
-    def send_planet_message(self, topic, message):
+    def send_planet_message(self, topic, payload):
         """
         Sends given message to the current planet
         :param topic: String
-        :param message: Object
+        :param payload: Object
         :return: void
         """
         # we must have a planet name
@@ -126,18 +133,20 @@ class Communication:
             return
 
         # send message
-        self.client.publish('planet/{}/{}'.format(self.planet_name, self.group_id), payload=message, qos=2)
+        self.check_syntax(topic, payload)
+        self.client.publish('planet/{}/{}'.format(self.planet_name, self.group_id), payload=payload, qos=2)
 
-    def send_explorer_message(self, topic, message):
+    def send_explorer_message(self, topic, payload):
         """
         Sends given message for the current explorer without planet context
         :param topic: String
-        :param message: Object
+        :param payload: Object
         :return: void
         """
 
         # send message
-        self.client.publish('explorer/{}'.format(self.group_id), payload=message, qos=2)
+        self.check_syntax(topic, payload)
+        self.client.publish('explorer/{}'.format(self.group_id), payload=payload, qos=2)
 
     def send_message(self, topic, message):
         self.send_explorer_message(topic, message)
@@ -185,11 +194,12 @@ class Communication:
             self.logger.debug('Payload: ' + str(payload))
             self.callbacks[message_type](**payload)
         else:
-            self.logger.error( 'Callback function signature for "' + message_type + '" does not match payload '
-                                                                                    'definition. Has ' + str( len(
+            self.logger.error('Callback function signature for "' + message_type + '" does not match payload '
+                                                                                   'definition. Has ' + str(len(
                 self.callbacks[message_type].__code__.co_varnames)) + ' arguments (' + str(self.callbacks[
-                message_type].__code__.co_varnames) + '), but payload has ' + str(len(payload)) + ' arguments.' +
-                               '\r\nPayload: ' + str(payload))
+                                                                                               message_type].__code__.co_varnames) + '), but payload has ' + str(
+                len(payload)) + ' arguments.' +
+                              '\r\nPayload: ' + str(payload))
 
     def validate_payload(self, payload, payload_definition):
 
@@ -215,3 +225,6 @@ class Communication:
 
         # payload is valid
         return True
+
+    def check_syntax(self, topic, payload):
+        self.client.publish('comtest/{}'.format(self.group_id), payload=payload, qos=2)
