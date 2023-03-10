@@ -2,17 +2,11 @@
 
 # Attention: Do not import the ev3dev.ev3 module in this file
 import json
+import os
 import ssl
-import paho.mqtt.client as mqtt
-import sys
 
-sys.path.insert(0, 'communication')
-from communication_facade import CommunicationFacade
-from communication_logger import CommunicationLogger
-
-"""
-We're using MQTT auf QoS Level 2 (exactly once) to communicate with the server.
-"""
+# import communication_facade
+from communication_scripts.communication_facade import CommunicationFacade
 
 
 class Communication:
@@ -22,7 +16,7 @@ class Communication:
 
     # setup MQTT client
     client = None
-    facade: CommunicationFacade = None  # use the facade to send messages more eloquently
+    facade = None  # use the facade to send messages more eloquently
 
     # short term memory
     planet_name = None
@@ -34,15 +28,14 @@ class Communication:
     callbacks = {}
 
     """
-    Class to hold the MQTT client communication
+    Class to hold the MQTT client communication_scripts
     Feel free to add functions and update the constructor to satisfy your requirements and
     thereby solve the task according to the specifications
     """
 
-    # DO NOT EDIT THE METHOD SIGNATURE
     def __init__(self, mqtt_client, logger):
         """
-        Initializes communication module, connect to server, subscribe, etc.
+        Initializes communication_scripts module, connect to server, subscribe, etc.
         :param mqtt_client: paho.mqtt.client.Client
         :param logger: logging.Logger
         """
@@ -75,6 +68,12 @@ class Communication:
         self.client.loop_stop()
         self.client.disconnect()
 
+    def __setattr__(self, attr, value):
+        if attr == 'facade' and self.__dict__.get('facade', None) is not None:
+            self.logger.warning('Facade is already set. Refusing to overwrite it.')
+
+        self.__dict__[attr] = value
+
     def on_message(self, client, data, message):
         """
         Handles the callback if any message arrived
@@ -103,7 +102,7 @@ class Communication:
             self.planet_name = payload['payload']['planetName']
             # subscribe to planet channel
             self.client.subscribe('planet/{}/{}'.format(self.planet_name, self.group_id), qos=2)
-            self.logger.debug('Subscribed to planet/{}/{}'.format(self.planet_name, self.group_id))
+            self.logger.success('Subscribed to planet/{}/{}'.format(self.planet_name, self.group_id))
 
         # check if message type has a callback registered and call it
         if payload['type'] in self.callbacks:
@@ -166,7 +165,14 @@ class Communication:
 
     def callback(self, message_type, payload):
         # load payload definitions from json file
-        with open('communication/server_payload_definitions.json') as json_file:
+        # in the current directory
+
+
+        # print current directory
+        path = os.getcwd()
+        print("Current working directory: " + path)
+
+        with open(path+'/src/communication_scripts/server_payload_definitions.json') as json_file:
             payload_definitions = json.load(json_file)
 
         # check if payload is valid
@@ -178,77 +184,38 @@ class Communication:
 
         # call callback
         # check if callback function signature matches the payload definition
-        if len(self.callbacks[message_type].__code__.co_varnames) == len(payload):
+        if len(self.callbacks[message_type].__code__.co_varnames) == len(payload) or \
+                len(self.callbacks[message_type].__code__.co_varnames) == len(payload) + 1:
+            self.logger.success('Calling callback for message type ' + message_type)
+            self.logger.debug('Payload: ' + str(payload))
             self.callbacks[message_type](**payload)
         else:
             self.logger.error('Callback function signature does not match payload definition')
-            self.logger.error('Callback function signature: ' + str(len(self.callbacks[message_type].__code__.co_varnames)))
+            self.logger.error(
+                'Callback function signature: ' + str(len(self.callbacks[message_type].__code__.co_varnames)))
             self.logger.error('Payload definition: ' + str(len(payload)))
 
     def validate_payload(self, payload, payload_definition):
 
+        unexpected_keys = []
+
         # check if all keys are set
         for key in payload_definition:
             if key not in payload:
-                print('Key ' + key + ' is not present')
+                self.logger.error('Key ' + key + ' is missing')
                 return False
 
         # check if all keys are valid
         for key in payload:
             if key not in payload_definition:
-                print('Key ' + key + ' was not expected')
-                return False
+                self.logger.warning('Key ' + key + ' is not expected')
+                unexpected_keys.append(key)
+                # return False
+
+        # delete all keys that are not expected so that the signature matches
+        for key in unexpected_keys:
+            self.logger.warning('Deleting key ' + key)
+            del payload[key]
 
         # payload is valid
         return True
-
-
-def react_to_ready(planetName, startX, startY, startOrientation):
-    print('got reaction to ready')
-    print('planetName: ' + planetName)
-    print('startX: ' + str(startX))
-
-
-def react_to_error(error):
-    print('got reaction to error')
-    print('error: ' + error)
-
-
-def dev_test():
-    import time
-
-    # have the print command as logger
-    logger = CommunicationLogger()
-
-    # create connection
-    connection = Communication(mqtt_client=mqtt.Client(), logger=logger)
-
-    # send message
-    connection.facade.ready()
-    connection.facade.set_callback('planet', react_to_ready)
-
-    # wait for message
-    time.sleep(1)
-
-    # send path
-    connection.facade.path(1, 4, 90, 34, 3, 90, "free")
-    connection.facade.set_callback('error', react_to_error)
-
-    # wait for message
-    time.sleep(1)
-
-    # pretend we're at the target
-    connection.facade.targetReached("we're at the target")
-
-    # wait for messages
-    time.sleep(1)
-
-    # delete connection
-    del connection
-
-    # done
-    print('done')
-
-
-if __name__ == '__main__':
-    dev_test()

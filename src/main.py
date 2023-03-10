@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 
-import ev3dev.ev3 as ev3
 import logging
 import os
+import time
+
 import paho.mqtt.client as mqtt
 import uuid
 import signal
-import time
 import motor as m
-
-from communication import Communication
-from odometry import Odometry
-from planet import Direction, Planet
+from communication_scripts.communication import Communication
+from communication_scripts.communication_logger import CommunicationLogger
 
 client = None  # DO NOT EDIT
 
+
+def react_to_error(message):
+    print('got reaction to error')
+    print('error: ' + message)
 
 
 def run():
@@ -39,18 +41,18 @@ def run():
                         format='%(asctime)s: %(message)s'  # Define default logging format
                         )
     logger = logging.getLogger('RoboLab')
-    
-    m.followline()
-    print("Station erreicht")
-   
-   
+
+    # m.followline()
+    # print("Station erreicht")
 
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-
-
-
+    # Initialize communication_scripts, use a different logger if you want to display the communication_scripts rightaway
+    communication = Communication(client, CommunicationLogger()).facade
+    communication.ready()
+    communication.set_callback('planet', lambda message: print("lambda got some msg: " + message))
+    time.sleep(1)
 
 
 # DO NOT EDIT
@@ -68,6 +70,4 @@ if __name__ == '__main__':
         signal_handler(raise_interrupt=False)
     except Exception as e:
         signal_handler(raise_interrupt=False)
-        raise 
-
-
+        raise
