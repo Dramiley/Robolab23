@@ -70,6 +70,12 @@ class Communication:
         self.client.loop_stop()
         self.client.disconnect()
 
+    def __setattr__(self, attr, value):
+        if attr == 'facade' and self.__dict__.get('facade', None) is not None:
+            self.logger.warning('Facade is already set. Refusing to overwrite it.')
+
+        self.__dict__[attr] = value
+
     def on_message(self, client, data, message):
         """
         Handles the callback if any message arrived
