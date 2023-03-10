@@ -190,19 +190,19 @@ class Communication:
         # check if all keys are set
         for key in payload_definition:
             if key not in payload:
-                print('Key ' + key + ' is not present')
+                self.logger.error('Key ' + key + ' is missing')
                 return False
 
         # check if all keys are valid
         for key in payload:
             if key not in payload_definition:
-                print('Key ' + key + ' was not expected')
+                self.logger.warning('Key ' + key + ' is not expected')
                 unexpected_keys.append(key)
                 # return False
 
         # delete all keys that are not expected so that the signature matches
         for key in unexpected_keys:
-            print('Deleting key ' + key)
+            self.logger.warning('Deleting key ' + key)
             del payload[key]
 
         # payload is valid

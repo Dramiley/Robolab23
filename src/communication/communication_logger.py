@@ -17,7 +17,24 @@ class CommunicationLogger:
         UNDERLINE = '\033[4m'
 
     def debug(self, message):
-        print(self.bcolors.OKCYAN + "==> CommunicationLog: " + message)
+        print()
+        print(self.bcolors.OKCYAN + "==>\r\nCommunicationLog: ")
+        print(message)
+        print("<==")
+        print(self.bcolors.ENDC)
 
     def error(self, message):
-        print(self.bcolors.WARNING + "==> CommunicationError: " + message)
+        print()
+        print(self.bcolors.BOLD + self.bcolors.FAIL + "==>\r\nCommunicationError: ")
+        print(message)
+        print("<==")
+        print()
+        print(self.bcolors.ENDC)
+
+    def warning(self, message):
+        print()
+        print(self.bcolors.BOLD + self.bcolors.WARNING + "==>\r\nCommunicationWarning: ")
+        print(message)
+        print("<==")
+        print()
+        print(self.bcolors.ENDC)
