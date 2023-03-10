@@ -48,7 +48,10 @@ def run():
     # Initialize communication_scripts, use a different logger if you want to display the communication_scripts rightaway
     communication = Communication(client, CommunicationLogger()).facade
     communication.ready()
-    communication.set_callback('planet', lambda message: print("lambda got some msg: " + message))
+    communication.set_callback('planet',
+                               lambda planetName, startX, startY, startOrientation: print(
+                                   'got planet %s at %s/%s/%s' % (
+                                       planetName, startX, startY, startOrientation)))
     time.sleep(1)
 
 
