@@ -16,7 +16,7 @@ class TestRoboLabCommunication(unittest.TestCase):
     @unittest.mock.patch('logging.Logger')
     def setUp(self, mock_logger):
         """
-        Instantiates the communication class
+        Instantiates the communication_scripts class
         """
         client_id = '046-' + str(uuid.uuid4())  # Replace YOURGROUPID with your group ID
         client = mqtt.Client(client_id=client_id,  # Unique Client-ID to recognize our program

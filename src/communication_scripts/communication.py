@@ -2,7 +2,11 @@
 
 # Attention: Do not import the ev3dev.ev3 module in this file
 import json
+import os
 import ssl
+
+# import communication_facade
+from communication_scripts.communication_facade import CommunicationFacade
 
 
 class Communication:
@@ -24,14 +28,14 @@ class Communication:
     callbacks = {}
 
     """
-    Class to hold the MQTT client communication
+    Class to hold the MQTT client communication_scripts
     Feel free to add functions and update the constructor to satisfy your requirements and
     thereby solve the task according to the specifications
     """
 
     def __init__(self, mqtt_client, logger):
         """
-        Initializes communication module, connect to server, subscribe, etc.
+        Initializes communication_scripts module, connect to server, subscribe, etc.
         :param mqtt_client: paho.mqtt.client.Client
         :param logger: logging.Logger
         """
@@ -162,7 +166,13 @@ class Communication:
     def callback(self, message_type, payload):
         # load payload definitions from json file
         # in the current directory
-        with open('communication/server_payload_definitions.json') as json_file:
+
+
+        # print current directory
+        path = os.getcwd()
+        print("Current working directory: " + path)
+
+        with open(path+'/src/communication_scripts/server_payload_definitions.json') as json_file:
             payload_definitions = json.load(json_file)
 
         # check if payload is valid
