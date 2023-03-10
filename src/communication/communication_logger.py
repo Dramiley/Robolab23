@@ -25,7 +25,7 @@ class CommunicationLogger:
 
     def debug(self, message):
         print()
-        print(self.bcolors.OKCYAN + "==>\r\nCommunicationLog: ")
+        print(self.bcolors.OKBLUE + "==>\r\nCommunicationLog: ")
         print(message)
         print("<==")
         print(self.bcolors.ENDC)
