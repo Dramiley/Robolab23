@@ -58,7 +58,7 @@ def turnLeft(dur):  # Links drehen
         steer(motor_left, -90)
         dur = dur - 1
     run()
-        
+    
         
 def turn180(): # 180 Grad drehen
     motor_left.run_timed(time_sp=10000, speed_sp=72)
@@ -72,19 +72,35 @@ def obstacleInWay():
     
 
 def followline(): # folgt der Linie
-    run()
     color = ms.ColorDetector()
     color.color_check() # checkt die Farbe
+    integral = 0
+    lerror = 0
+    tp = 40
+    motor_left.command = "run-forever"
+    motor_right.command = "run-forever"
     while color.name == 'grey':
         color = ms.ColorDetector()
         color.color_check()
         greytone = color.greytone
-        if ms.is_obstacle_ahead():
-            obstacleInWay()
-        elif greytone < -2:
-            turnLeft(3)
-        elif greytone > 2:
-            turnRight(3)
+        #if ms.is_obstacle_ahead():
+        #    obstacleInWay()
+        error = greytone - 130
+        integal = integral + error
+        if error == 0:
+            integral = 0
+        deveriate = error - lerror   
+        t = 10*error + integral + deveriate
+        t = t/150
+        power1 = tp + t
+        power2 = tp - t
+        motor_left.speed_sp = int(power1)
+        motor_left.command = "run-forever"
+        print(int(power1))
+        motor_right.speed_sp = int(power2)
+        motor_right.command = "run-forever"
+        print(int(power2))
+        lerror = error
     stop()
     
         
