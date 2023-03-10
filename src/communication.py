@@ -185,10 +185,11 @@ class Communication:
             self.logger.debug('Payload: ' + str(payload))
             self.callbacks[message_type](**payload)
         else:
-            self.logger.error('Callback function signature does not match payload definition')
-            self.logger.error(
-                'Callback function signature: ' + str(len(self.callbacks[message_type].__code__.co_varnames)))
-            self.logger.error('Payload definition: ' + str(len(payload)))
+            self.logger.error( 'Callback function signature for "' + message_type + '" does not match payload '
+                                                                                    'definition. Has ' + str( len(
+                self.callbacks[message_type].__code__.co_varnames)) + ' arguments (' + str(self.callbacks[
+                message_type].__code__.co_varnames) + '), but payload has ' + str(len(payload)) + ' arguments.' +
+                               '\r\nPayload: ' + str(payload))
 
     def validate_payload(self, payload, payload_definition):
 
