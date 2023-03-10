@@ -7,6 +7,8 @@ import time
 import paho.mqtt.client as mqtt
 import uuid
 import signal
+import motor as m
+import measurements as ms
 from communication import Communication
 from communication_logger import CommunicationLogger
 
@@ -43,8 +45,9 @@ def run():
 
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
-    # m.followline()
-    # print("Station erreicht")
+    
+    m.followline()
+    print("Station erreicht")
     # Initialize communication_scripts, use a different logger if you want to display the communication_scripts rightaway
     communication = Communication(client, CommunicationLogger()).facade
 

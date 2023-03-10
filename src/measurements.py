@@ -9,22 +9,18 @@ class ColorDetector:
     def color_check(self):
         cs = ev3.ColorSensor()
         cs.mode = 'RGB-RAW'
-        # cs.bin_data("hhh")
         greytone = 0
 
         if cs.red > 120 and cs.blue < 80 and cs.green < 80:
             self.name = 'red'
-        #elif cs.red < 60 and cs.blue < 60 and cs.green <80:
-        #    self.name = 'black'
-        #elif cs.red > 230 and cs.blue > 230 and cs.green > 230:
-        #    self.name = 'white'
+            print(self.name)
         elif cs.red < 60 and cs.blue < 100 and cs.green > 100:
             self.name = 'blue'
         elif cs.red-cs.blue < 50 and cs.red-cs.green < 50 and cs.blue-cs.green < 50:
             self.name = 'grey'
-            greytone = cs.red + cs.blue + cs.green / 3
-            greytone = greytone - 150
-            self.greytone = int(greytone/10)
+            self.greytone = cs.red + cs.blue + cs.green / 3
+            self.greytone = self.greytone - 150
+            self.greytone = int(self.greytone/10)
         else:
             self.name = 'other'
 
