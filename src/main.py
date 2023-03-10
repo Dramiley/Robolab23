@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
 
-import ev3dev.ev3 as ev3
 import logging
 import os
 import paho.mqtt.client as mqtt
 import uuid
 import signal
-import time
 import motor as m
-
-from communication import Communication
-from odometry import Odometry
-from planet import Direction, Planet
 
 client = None  # DO NOT EDIT
 

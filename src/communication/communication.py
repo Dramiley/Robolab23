@@ -3,10 +3,7 @@
 # Attention: Do not import the ev3dev.ev3 module in this file
 import json
 import ssl
-import paho.mqtt.client as mqtt
-import sys
 
-sys.path.insert(0, 'communication')
 from communication_facade import CommunicationFacade
 from communication_logger import CommunicationLogger
 
@@ -167,6 +164,7 @@ class Communication:
 
     def callback(self, message_type, payload):
         # load payload definitions from json file
+        # in the current directory
         with open('communication/server_payload_definitions.json') as json_file:
             payload_definitions = json.load(json_file)
 
@@ -179,7 +177,8 @@ class Communication:
 
         # call callback
         # check if callback function signature matches the payload definition
-        if len(self.callbacks[message_type].__code__.co_varnames) == len(payload):
+        if len(self.callbacks[message_type].__code__.co_varnames) == len(payload) or \
+                len(self.callbacks[message_type].__code__.co_varnames) == len(payload) + 1:
             self.logger.success('Calling callback for message type ' + message_type)
             self.logger.debug('Payload: ' + str(payload))
             self.callbacks[message_type](**payload)
@@ -214,53 +213,3 @@ class Communication:
         # payload is valid
         return True
 
-
-def react_to_ready(planetName, startX, startY, startOrientation):
-    print('got reaction to ready')
-    print('planetName: ' + planetName)
-    print('startX: ' + str(startX))
-
-
-def react_to_error(message):
-    print('got reaction to error')
-    print('error: ' + message)
-
-
-def dev_test():
-    import time
-
-    # have the print command as logger
-    logger = CommunicationLogger()
-
-    # create connection
-    connection = Communication(mqtt_client=mqtt.Client(), logger=logger)
-
-    # send message
-    connection.facade.ready()
-    connection.facade.set_callback('planet', react_to_ready)
-
-    # wait for message
-    time.sleep(1)
-
-    # send path
-    connection.facade.path(1, 4, 90, 34, 3, 90, "free")
-    connection.facade.set_callback('error', react_to_error)
-
-    # wait for message
-    time.sleep(1)
-
-    # pretend we're at the target
-    connection.facade.targetReached("we're at the target")
-
-    # wait for messages
-    time.sleep(1)
-
-    # delete connection
-    del connection
-
-    # done
-    print('done')
-
-
-if __name__ == '__main__':
-    dev_test()
