@@ -10,10 +10,6 @@ sys.path.insert(0, 'communication')
 from communication_facade import CommunicationFacade
 from communication_logger import CommunicationLogger
 
-"""
-We're using MQTT auf QoS Level 2 (exactly once) to communicate with the server.
-"""
-
 
 class Communication:
     # setup secrets
@@ -39,7 +35,6 @@ class Communication:
     thereby solve the task according to the specifications
     """
 
-    # DO NOT EDIT THE METHOD SIGNATURE
     def __init__(self, mqtt_client, logger):
         """
         Initializes communication module, connect to server, subscribe, etc.
@@ -179,13 +174,18 @@ class Communication:
         # call callback
         # check if callback function signature matches the payload definition
         if len(self.callbacks[message_type].__code__.co_varnames) == len(payload):
+            self.logger.debug('Calling callback for message type ' + message_type)
+            self.logger.debug('Payload: ' + str(payload))
             self.callbacks[message_type](**payload)
         else:
             self.logger.error('Callback function signature does not match payload definition')
-            self.logger.error('Callback function signature: ' + str(len(self.callbacks[message_type].__code__.co_varnames)))
+            self.logger.error(
+                'Callback function signature: ' + str(len(self.callbacks[message_type].__code__.co_varnames)))
             self.logger.error('Payload definition: ' + str(len(payload)))
 
     def validate_payload(self, payload, payload_definition):
+
+        unexpected_keys = []
 
         # check if all keys are set
         for key in payload_definition:
@@ -197,8 +197,13 @@ class Communication:
         for key in payload:
             if key not in payload_definition:
                 print('Key ' + key + ' was not expected')
-                del payload[key]
+                unexpected_keys.append(key)
                 # return False
+
+        # delete all keys that are not expected so that the signature matches
+        for key in unexpected_keys:
+            print('Deleting key ' + key)
+            del payload[key]
 
         # payload is valid
         return True
@@ -210,9 +215,9 @@ def react_to_ready(planetName, startX, startY, startOrientation):
     print('startX: ' + str(startX))
 
 
-def react_to_error(error):
+def react_to_error(message):
     print('got reaction to error')
-    print('error: ' + error)
+    print('error: ' + message)
 
 
 def dev_test():
