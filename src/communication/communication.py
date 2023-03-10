@@ -4,9 +4,6 @@
 import json
 import ssl
 
-from communication_facade import CommunicationFacade
-from communication_logger import CommunicationLogger
-
 
 class Communication:
     # setup secrets
@@ -15,7 +12,7 @@ class Communication:
 
     # setup MQTT client
     client = None
-    facade: CommunicationFacade = None  # use the facade to send messages more eloquently
+    facade = None  # use the facade to send messages more eloquently
 
     # short term memory
     planet_name = None
@@ -212,4 +209,3 @@ class Communication:
 
         # payload is valid
         return True
-
