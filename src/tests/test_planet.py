@@ -70,7 +70,9 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.planet.add_path(((19, 2), Direction.EAST), ((19, 3), Direction.SOUTH), 1)
         self.planet.add_path(((19, 2), Direction.WEST), ((19, 3), Direction.WEST), 2)
 
-        # logging.basicConfig(level=logging.DEBUG)
+        self.empty_planet = Planet()
+        # logger = logging.getLogger()
+        logging.basicConfig(filename='planet.log', filemode='w', encoding='utf-8', level=logging.DEBUG)
 
     def test_integrity(self):
         """
@@ -140,7 +142,9 @@ class TestRoboLabPlanet(unittest.TestCase):
         """
         This test should check that an empty planet really is empty
         """
-        self.fail('implement me!')
+        self.assertEqual(self.empty_planet.get_paths(), {})
+        self.assertEqual(self.empty_planet.nodes, [])
+        # self.fail('implement me!')
 
     def test_target(self):
         """
@@ -148,7 +152,15 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Requirement: Minimum distance is three nodes (two paths in list returned)
         """
-        self.fail('implement me!')
+        start = (19, -2)
+        target = (19, 2)
+        shortest_path = self.planet.shortest_path(start, target)
+
+        shortest_path_should = [
+            ((19, -2), Direction.EAST), ((20, -2), Direction.NORTH), ((20, 0), Direction.NORTH),
+            ((19, 1), Direction.NORTH), ((19, 2), None)
+        ]
+        self.assertEqual(shortest_path, shortest_path_should)
 
     def test_target_not_reachable(self):
         """

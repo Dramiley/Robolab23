@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
 """
+TODO:
+    - write list and weights of traversed nodes into logfile and compare it to manual traversion
 TODO: Refactoring
     - replace Tuple[int, int] with alias type, see https://stackoverflow.com/a/33045252/20675205
+TODO:
+    - djikstra_reconstruct_path not working
+TODO:
+    - store computed shortest_paths in a variable
+TODO:
+    - maybe don't stop djikstra() even if target node is found->maybe will need following nodes later on (store!)
 """
 
 # Attention: Do not import the ev3dev.ev3 module in this file
@@ -9,6 +17,9 @@ from enum import IntEnum, unique
 from typing import Optional, List, Tuple, Dict, Set
 
 import logging
+import sys
+import pdb
+sys.path.insert(0, 'planet')
 
 @unique
 class Direction(IntEnum):
@@ -69,8 +80,15 @@ class Planet:
         target_coords = target[0]
         target_entry_dir = target[1]
 
-        self.path[start_coords][start_entry_dir] = (target_coords, target_entry_dir, weight)
-        self.path[target_coords][target_entry_dir] = (start_coords, start_entry_dir, weight)
+        if not (start_coords in self.paths.keys()):
+            # if no path is yet known for start_coords
+            self.paths[start_coords] = {}
+        if not (target_coords in self.paths.keys()):
+            # if no path is yet known for target_coords
+            self.paths[target_coords] = {}
+
+        self.paths[start_coords][start_entry_dir] = (target_coords, target_entry_dir, weight)
+        self.paths[target_coords][target_entry_dir] = (start_coords, start_entry_dir, weight)
 
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
         """
@@ -93,7 +111,7 @@ class Planet:
         """
 
         # YOUR CODE FOLLOWS (remove pass, please!)
-        pass
+        return self.paths
 
     def expand_node(
             self, node: Tuple[int, int],
@@ -109,15 +127,17 @@ class Planet:
             weight0: weight which was necessary to get to that node
             unvisited: list of unvisited nodes
         """
-        outgoing_paths = self.paths[node] # outgoing_paths is of form {Direction: (coords, weight)}
+        outgoing_paths = self.paths[node] # outgoing_paths is of form {Direction: (coords, dir, weight)}
         marked = {} # dict with keys=nodes, values=(weight, parent_node)
         logging.debug(f'Expanding node {node}')
-        for (coords, weight) in outgoing_paths.values():
+        # pdb.set_trace()
+        for (coords, _, weight) in outgoing_paths.values():
             new_weight = weight+weight0
             if coords in unvisited:
                 marked[coords] = (new_weight, node)
             else:
                 # check whether this path is shorter
+
                 prev_weight = shortest_paths[coords][0]
 
                 if prev_weight > new_weight:
@@ -131,6 +151,8 @@ class Planet:
         """
         Returns path as list of nodes based on given shortest_paths and its weight
 
+        Args:
+            shortest_paths: Dict of structure {node: (weight, parent_node)}
         Returns:
             (List[(node direction)], weight)
         """
@@ -143,9 +165,10 @@ class Planet:
             dir = None
             outgoing_paths = self.paths[current_node]
             for d in outgoing_paths.keys():
-                if outgoing_paths[d] == end_node:
+                connected_node = outgoing_paths[d][0]
+                if connected_node == end_node:
                     dir = d
-            list.append((current_node, d))
+            list.append((current_node, dir))
         list.reverse() # bc appeding started from target towards start
         return (list, weight)
 
@@ -169,25 +192,31 @@ class Planet:
         """
         # init data structures
         unvisited = set(self.paths.keys()) # set of unvivisted nodes
-        unvisited.remove(start_coords)
         marked = {start_coords: (0, None)} # dict with keys=nodes, values=(weight, parent_node)
-        shortest_paths = {} # dict with key=nodes, values=(weight, parent_node)
+        shortest_paths = {start_coords: (0, None)} # dict with key=nodes, values=(weight, parent_node)
 
         # actual algorithm
         next_node = start_coords
         weight0 = 0
         while unvisited:
-            new_marked_nodes = self.expand_node(next_node, weight0, unvisited, shortest_paths)
+            shortest_paths[next_node] = marked[next_node]
+            marked.pop(next_node)
 
+            new_marked_nodes = self.expand_node(next_node, weight0, unvisited, shortest_paths)
+            unvisited.remove(next_node)
+
+            # TODO: Problem; start_coords ist in markeds
             marked.update(new_marked_nodes)
             sorted_marked = sorted(marked.items(), key=lambda x: x[1][0]) # x=[(start_coords,(weight, target_coords))]
-
-            next_node = sorted_marked[0][0] # sorted_marked = list of (start_coords, (weight, target_coords))
+            # logging.debug(f"Sorted marked: {sorted_marked}")
+            next_path = sorted_marked[0]
+            (next_node, (weight0, _)) = next_path
+            # next_node = sorted_marked[0][0] # sorted_marked = list of (start_coords, (weight, target_coords))
             if next_node == target_coords:
                 # return shortest path based on shortest_paths
-                return self.djikstra_reconstruct_shortest_path(shortest_paths, target_coords)
-            weight0 = sorted_marked[1]
-            unvisited.remove(next_node)
+                shortest_paths[next_node] = marked[next_node]
+                return self.djikstra_reconstruct_shortest_path(shortest_paths, start_coords, target_coords)
+            # next_node has been explored->shortest path
 
         return None
 
@@ -205,12 +234,13 @@ class Planet:
         """
 
         # YOUR CODE FOLLOWS (remove pass, please!)
-        if self.is_node_known():
+        if self.is_node_known(target):
             # perform djikstra and return shortest path
-            shortest_path = self.djikstra()[0]
+            shortest_path = self.djikstra(start, target)[0]
+            return shortest_path
         else:
             # continue exploration until target is found
-            pass
+            return None
 
     def get_node_coord(self, id: int) -> Tuple[int, int]:
         """"
@@ -227,4 +257,5 @@ class Planet:
         except:
             self.nodes.append(coord)
             return self.nodes.index(coord)
+
 
