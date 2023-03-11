@@ -54,7 +54,7 @@ class Robot:
         self.color.color_check() # checkt die Farbe
         integral = 0
         lerror = 0
-        tempo = 50
+        tempo = 80
         starttime = time.time()
         self.motor_left.command = "run-forever"
         self.motor_right.command = "run-forever"
@@ -62,18 +62,18 @@ class Robot:
             self.color = ms.ColorDetector()
             self.color.color_check()
             greytone = self.color.greytone
-            if time.time() -  starttime >= 2:
-                starttime = time.time()
-                if ms.is_obstacle_ahead():
-                    self.obstacleInWay()
+            #if time.time() -  starttime >= 2:
+            #    starttime = time.time()
+            #    if ms.is_obstacle_ahead():
+            #        self.obstacleInWay()
             REFERENCE_GREYTONE = 200
             error = greytone - REFERENCE_GREYTONE
-
+            error = error / 2
             integral = integral + error
-            if error == 0:
+            if error < 20 and error > -20:
                 integral = 0
             derivative = error - lerror
-            lenkfaktor = 10*error + integral + 2*derivative
+            lenkfaktor = 60*error + 0*integral + 40*derivative
             lenkfaktor = lenkfaktor / 100
             power1 = tempo + lenkfaktor
             power2 = tempo - lenkfaktor
@@ -84,6 +84,8 @@ class Robot:
             lerror = error
             self.color.color_check()
         self.stop()
+        if input("Enter to continue") == "w":
+            self.followline()
 
     def on_new_node(self) -> List[Direction]:
         """
