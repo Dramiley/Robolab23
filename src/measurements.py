@@ -19,7 +19,7 @@ class ColorDetector:
             self.name = 'blue'
         else:
             self.name = 'grey'
-            self.greytone = self.cs.red + self.cs.blue + self.cs.green // 3
+            self.greytone = (self.cs.red + self.cs.blue + self.cs.green) // 3
 
 def is_obstacle_ahead(self):
     '''
