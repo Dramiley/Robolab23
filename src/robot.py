@@ -2,6 +2,8 @@ import ev3dev.ev3 as ev3
 import time
 import sys
 import measurements as ms
+from planet import Direction
+from typing import List
 
 class Robot:
     """
@@ -14,9 +16,13 @@ class Robot:
 
     """
 
-    def __init__(self, left_port: str="outB", right_port: str="outD"):
+    def __init__(self, left_port: str="outB", right_port: str="outD", start_dir: Direction=Direction.NORTH):
         self.motor_left = ev3.LargeMotor(left_port)
         self.motor_right = ev3.LargeMotor(right_port)
+
+        self.current_dir = start_dir # keeps track of robot's direction
+
+        self.color = ms.ColorDetector()
 
     def move_motor(self, m): # Vorwärts bewegen
         # m.run_timed(time_sp=100, speed_sp=50)
@@ -26,16 +32,6 @@ class Robot:
     def moveBack(self, m): # Rückwärts bewegen
         m.run_timed(time_sp=100, speed_sp=-50)
 
-    def steer(self, m, speed): # Lenken
-        m.run_timed(time_sp=100, speed_sp=speed)
-
-    def moveForward(self, dur): # Vorwärts fahren
-
-        while dur > 0:
-            self.move_motor(self.motor_left)
-            self.move_motor(self.motor_right)
-            dur = dur - 1
-
     def run(self):
         self.move_motor(self.motor_left)
         self.move_motor(self.motor_right)
@@ -43,28 +39,6 @@ class Robot:
     def stop(self): # Stoppen
         self.motor_left.stop()
         self.motor_right.stop()
-
-    def moveBackward(self, dur): # Rückwärts fahren
-        self.stop()
-        while dur > 0:
-            self.moveBack(self.motor_left)
-            self.moveBack(self.motor_right)
-            dur = dur - 1
-
-    def turnRight(self, dur): # Rechts drehen
-        while dur > 0:
-            self.steer(self.motor_left, 100)
-            self.steer(self.motor_right, -90)
-            dur = dur - 1
-        self.run()
-
-    def turnLeft(self, dur):  # Links drehen
-        while dur > 0:
-            self.steer(self.motor_right, 100)
-            self.steer(self.motor_left, -90)
-            dur = dur - 1
-        self.run()
-
 
     def turn180(self): # 180 Grad drehen
         self.motor_left.run_timed(time_sp=10000, speed_sp=72)
@@ -76,38 +50,58 @@ class Robot:
         self.followline()
 
     def followline(self): # folgt der Linie
-        color = ms.ColorDetector()
-        color.color_check() # checkt die Farbe
+
+        self.color.color_check() # checkt die Farbe
         integral = 0
         lerror = 0
         tempo = 50
         starttime = time.time()
         self.motor_left.command = "run-forever"
         self.motor_right.command = "run-forever"
-        while color.name == 'grey':
-            color = ms.ColorDetector()
-            color.color_check()
-            greytone = color.greytone
+        while self.color.name == 'grey':
+            self.color = ms.ColorDetector()
+            self.color.color_check()
+            greytone = self.color.greytone
             if time.time() -  starttime >= 2:
                 starttime = time.time()
                 if ms.is_obstacle_ahead():
                     self.obstacleInWay()
-            error = greytone - 200
-            integal = integral + error
+            REFERENCE_GREYTONE = 200
+            error = greytone - REFERENCE_GREYTONE
+
+            integral = integral + error
             if error == 0:
                 integral = 0
-            deveriate = error - lerror
-            Lenkfaktor = 10*error + integral + 2*deveriate
-            Lenkfaktor = Lenkfaktor / 100
-            power1 = tempo + Lenkfaktor
-            power2 = tempo - Lenkfaktor
+            derivative = error - lerror
+            lenkfaktor = 10*error + integral + 2*derivative
+            lenkfaktor = lenkfaktor / 100
+            power1 = tempo + lenkfaktor
+            power2 = tempo - lenkfaktor
             self.motor_left.speed_sp = int(power1)
             self.motor_left.command = "run-forever"
             self.motor_right.speed_sp = int(power2)
             self.motor_right.command = "run-forever"
             lerror = error
-            color.color_check()
+            self.color.color_check()
         self.stop()
+
+    def on_new_node(self) -> List[Direction]:
+        """
+        Actions to perform when an unknown node is entered:
+            - check all 4 directions for paths and return for which directions there exist paths
+            - (whether node is known or not is determined by odometry.py)
+
+        For the Colorsensor to hit another path of the node, the robot has to be aligned accordingly
+            - drive a little bit forward, turn, scan, drive backwards->scan next node
+        """
+
+        pass
+
+    def move_distance_straight(self, d_cm: int):
+        """
+        Moves the robot d_cm [cm] on a straight line
+        """
+        pass
 
 def run_robot():
     robo = Robot()
