@@ -4,33 +4,33 @@ class ColorDetector:
     def __init__(self):
         self.name = ''
         self.greytone = 0
-        
-        
-    def color_check(self):
-        cs = ev3.ColorSensor()
-        cs.mode = 'RGB-RAW'
-        greytone = 0
 
-        if cs.red > 120 and cs.blue < 80 and cs.green < 80:
+        self.cs = ev3.ColorSensor()
+        self.us = ev3.UltrasonicSensor()
+
+
+    def color_check(self):
+        self.cs.mode = 'RGB-RAW'
+
+        if self.cs.red > 120 and self.cs.blue < 80 and self.cs.green < 80:
             self.name = 'red'
             print(self.name)
-        elif cs.red < 60 and cs.blue > 100 and cs.green > 100:
+        elif self.cs.red < 60 and self.cs.blue > 100 and self.cs.green > 100:
             self.name = 'blue'
         else:
             self.name = 'grey'
-            self.greytone = cs.red + cs.blue + cs.green // 3
+            self.greytone = self.cs.red + self.cs.blue + self.cs.green // 3
 
-def is_obstacle_ahead():
+def is_obstacle_ahead(self):
     '''
     returns true if ultrasonic sensor dects an obstacle within next x (20??) c,
     - should be checked periodically by calling function (if robot has moved since last measurement)
     '''
-    us = ev3.UltrasonicSensor()
-    us.mode = 'US-SI-CM' # compare to continous measurement 'US-DIST-CM'
+    self.us.mode = 'US-SI-CM' # compare to continous measurement 'US-DIST-CM'
 
     # report true if dist<20
     # make sure to take mean value in dt bc values fluctuate
-    dist = us.distance_centimeters# gets value
+    dist = self.us.distance_centimeters# gets value
     if dist < 20:
         return True
     else:
