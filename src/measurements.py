@@ -14,13 +14,11 @@ class ColorDetector:
         if cs.red > 120 and cs.blue < 80 and cs.green < 80:
             self.name = 'red'
             print(self.name)
-        elif cs.red < 60 and cs.blue < 100 and cs.green > 100:
+        elif cs.red < 60 and cs.blue > 100 and cs.green > 100:
             self.name = 'blue'
-        elif cs.red-cs.blue < 50 and cs.red-cs.green < 50 and cs.blue-cs.green < 50:
+        else:
             self.name = 'grey'
             self.greytone = cs.red + cs.blue + cs.green // 3
-        else:
-            self.name = 'other'
 
 def is_obstacle_ahead():
     '''

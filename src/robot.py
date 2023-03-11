@@ -80,31 +80,33 @@ class Robot:
         color.color_check() # checkt die Farbe
         integral = 0
         lerror = 0
-        tp = 40
+        tempo = 50
+        starttime = time.time()
         self.motor_left.command = "run-forever"
         self.motor_right.command = "run-forever"
         while color.name == 'grey':
             color = ms.ColorDetector()
             color.color_check()
             greytone = color.greytone
-            #if ms.is_obstacle_ahead():
-            #    obstacleInWay()
-            error = greytone - 130
+            if time.time() -  starttime >= 2:
+                starttime = time.time()
+                if ms.is_obstacle_ahead():
+                    self.obstacleInWay()
+            error = greytone - 200
             integal = integral + error
             if error == 0:
                 integral = 0
             deveriate = error - lerror
-            t = 10*error + integral + deveriate
-            t = t/150
-            power1 = tp + t
-            power2 = tp - t
+            Lenkfaktor = 10*error + integral + 2*deveriate
+            Lenkfaktor = Lenkfaktor / 100
+            power1 = tempo + Lenkfaktor
+            power2 = tempo - Lenkfaktor
             self.motor_left.speed_sp = int(power1)
             self.motor_left.command = "run-forever"
-            print(int(power1))
             self.motor_right.speed_sp = int(power2)
             self.motor_right.command = "run-forever"
-            print(int(power2))
             lerror = error
+            color.color_check()
         self.stop()
 
 def run_robot():
