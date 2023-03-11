@@ -70,10 +70,11 @@ class Robot:
             error = greytone - REFERENCE_GREYTONE
             error = error / 2
             integral = integral + error
-            if error < 20 and error > -20:
+            if error < 10 and error > -10:
+                # wenn genau zwischen den beiden Farben, setzt integral auf 0
                 integral = 0
             derivative = error - lerror
-            lenkfaktor = 60*error + 0*integral + 40*derivative
+            lenkfaktor = 60*error + 10*integral + 40*derivative
             lenkfaktor = lenkfaktor / 100
             power1 = tempo + lenkfaktor
             power2 = tempo - lenkfaktor
