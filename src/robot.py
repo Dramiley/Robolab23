@@ -1,7 +1,7 @@
 import ev3dev.ev3 as ev3
 import time
 import sys
-import measurements as ms
+from measurements import ColorDetector, ObstacleDetector
 from planet import Direction
 from typing import List
 
@@ -22,11 +22,12 @@ class Robot:
 
         self.current_dir = start_dir # keeps track of robot's direction
 
-        self.color = ms.ColorDetector()
+        self.color_detec = ColorDetector()
+        self.obst_detec = ObstacleDetector()
 
-    def move_motor(self, m): # Vorwärts bewegen
+    def move_motor(self, m: ev3.LargeMotor, speed_sp: int): # Vorwärts bewegen
         # m.run_timed(time_sp=100, speed_sp=50)
-        m.speed_sp = 50
+        m.speed_sp = int(speed_sp)
         m.commands = "run-forever"
 
     def moveBack(self, m): # Rückwärts bewegen
@@ -58,14 +59,14 @@ class Robot:
         starttime = time.time()
         self.motor_left.command = "run-forever"
         self.motor_right.command = "run-forever"
-        while self.color.name == 'grey':
-            self.color = ms.ColorDetector()
-            self.color.color_check()
-            greytone = self.color.greytone
-            #if time.time() -  starttime >= 2:
-            #    starttime = time.time()
-            #    if ms.is_obstacle_ahead():
-            #        self.obstacleInWay()
+        while self.color_detec.color == 'grey':
+            self.color_detec.color_check()
+            greytone = self.color_detec.greytone
+            if time.time() -  starttime >= 2:
+                starttime = time.time()
+                if self.obst_detec.is_obstacle_ahead():
+                    self.obstacleInWay()
+
             REFERENCE_GREYTONE = 200
             error = greytone - REFERENCE_GREYTONE
             error = error / 2
@@ -78,12 +79,12 @@ class Robot:
             lenkfaktor = lenkfaktor / 100
             power1 = tempo + lenkfaktor
             power2 = tempo - lenkfaktor
-            self.motor_left.speed_sp = int(power1)
-            self.motor_left.command = "run-forever"
-            self.motor_right.speed_sp = int(power2)
-            self.motor_right.command = "run-forever"
+
+            self.move_motor(self.motor_left, int(power1))
+            self.move_motor(self.motor_right, int(power2))
+
             lerror = error
-            self.color.color_check()
+            self.color_detec.color_check()
         self.stop()
         if input("Enter to continue") == "w":
             self.followline()

@@ -5,8 +5,6 @@ TODO:
 TODO: Refactoring
     - replace Tuple[int, int] with alias type, see https://stackoverflow.com/a/33045252/20675205
 TODO:
-    - djikstra_reconstruct_path not working
-TODO:
     - store computed shortest_paths in a variable
 TODO:
     - maybe don't stop djikstra() even if target node is found->maybe will need following nodes later on (store!)

@@ -10,7 +10,8 @@ import signal
 import measurements as ms
 from communication import Communication
 from communication_logger import CommunicationLogger
-import robot as r
+# import robot as r
+from robot_controller import RobotController
 
 client = None  # DO NOT EDIT
 
@@ -46,8 +47,10 @@ def run():
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    # replace with robot.run_robot()
-    r.run_robot()
+    robo_controller = RobotController()
+    robo_controller.run()
+    # ATTENTION: code below is only run on input="q"
+
     print("Station erreicht")
     # Initialize communication_scripts, use a different logger if you want to display the communication_scripts rightaway
     communication = Communication(client, CommunicationLogger()).facade
