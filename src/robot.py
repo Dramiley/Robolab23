@@ -50,15 +50,35 @@ class Robot:
         self.motor_right.stop()
 
     def turn180(self):  # 180 Grad drehen
-        self.motor_left.run_timed(time_sp=2500, speed_sp=130)
-        self.motor_right.run_timed(time_sp=2500, speed_sp=-130)
+        self.motor_left.run_timed(time_sp=2500, speed_sp=120)
+        self.motor_right.run_timed(time_sp=2500, speed_sp=-120)
 
-    def obstacleInWay(self):
-        self.move_time(2000, -100)
+    def calibrate(self):
+        ev3.Sound.speak('Calibration starting').wait()
+        ev3.Sound.speak('White').wait()
+        time.sleep(5)
+        self.color.color_check()
+        white = self.color.greytone
+        print("white = " + str(white))
+        ev3.Sound.speak('Black').wait()
+        time.sleep(5)
+        self.color.color_check()
+        black = self.color.greytone
+        print("black = " + str(black))
+        MIDDLEGREYTONE = ((white + black) / 2) + 40
+        print("grey = " + str(MIDDLEGREYTONE))
+        return MIDDLEGREYTONE
+    
+    def obstacleInWay(self, MIDDLEGREYTONE):
+        self.stop()
+        self.move_time(300, -100)
+        time.sleep(3)
+        ev3.Sound.speak('Meteroit spotted').wait()
         self.turn180()
-        self.followline()
+        time.sleep(3)
+        self.followline(MIDDLEGREYTONE)
 
-    def followline(self):  # folgt der Linie
+    def followline(self, MIDDLEGREYTONE):  # folgt der Linie
         self.communication.test_planet("Gromit")
         self.color.color_check()  # checkt die Farbe
         integral = 0
@@ -73,9 +93,11 @@ class Robot:
             if time.time() -  starttime >= 3:
                 starttime = time.time()
                 if self.obj_detec.is_obstacle_ahead():
-                    self.obstacleInWay()
-            REFERENCE_GREYTONE = 200
-            error = greytone - REFERENCE_GREYTONE
+                    self.obstacleInWay(MIDDLEGREYTONE)
+                    self.motor_left.command = "run-forever"
+                    self.motor_right.command = "run-forever"
+            # MIDDLEGREYTONE = 200
+            error = greytone - MIDDLEGREYTONE
             error = error / 2
             integral = integral + error
             if error < 10 and error > -10:
@@ -129,6 +151,7 @@ class Robot:
         self.communication = communication
 
     def run(self):
+        MIDDLEGREYTONE = self.calibrate()
         while True:
             print("1 for followline")
             print("2 for station_scan")
@@ -136,7 +159,7 @@ class Robot:
             print("4 for quit")
             i = input() 
             if i == "1":
-                self.followline()
+                self.followline(MIDDLEGREYTONE)
             elif i == "2":
                 self.station_scan()
             elif i == "3":
