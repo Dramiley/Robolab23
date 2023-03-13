@@ -26,12 +26,12 @@ class Controller:
 
         # replace with robot.run_robot()
         self.robot = Robot()
-        self.robot.set_communication(self.communication)
+        self.robot.set_controller(self)
 
         # setup callbacks
         self.init_callbacks()
 
-        time.sleep(10)
+        time.sleep(1)
 
     def init_callbacks(self):
         # bei einer Antwort des Mutterschiffs mit dem Typ "planet" wird der Name des Planeten ausgegeben
