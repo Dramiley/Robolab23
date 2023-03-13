@@ -389,7 +389,7 @@ class Planet:
         """
         pass
 
-    def is_exploration_complete(self) -> bool
+    def is_exploration_complete(self) -> bool:
         """
         Returns: True if all nodes have been explored, False otherwise
         @rtype: bool

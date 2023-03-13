@@ -1,5 +1,6 @@
 import ev3dev.ev3 as ev3
 
+
 class ColorDetector:
     def __init__(self):
         self.name = ''
@@ -12,15 +13,13 @@ class ColorDetector:
         except Exception as e:
             print("Could not initialize color sensors")
             print(e)
-            
-            
+
         try:
             self.us = ev3.UltrasonicSensor()
             print("Object Semcsor Okay")
         except Exception as e:
             print("Could not initialize object detector sensors")
             print(e)
-
 
     def color_check(self):
         self.cs.mode = 'RGB-RAW'
@@ -38,11 +37,12 @@ class ColorDetector:
             elif self.greytone > 100:
                 self.subname = 'white'
 
+
 class ObjectDetector:
     def __init__(self):
         self.us = ev3.UltrasonicSensor()
-        self.us.mode = 'US-SI-CM' # compare to continous measurement 'US-DIST-CM'
-        
+        self.us.mode = 'US-SI-CM'  # compare to continous measurement 'US-DIST-CM'
+
     def is_obstacle_ahead(self):
         '''
         returns true if ultrasonic sensor dects an obstacle within next x (20??) c,
@@ -50,7 +50,7 @@ class ObjectDetector:
         '''
         # report true if dist<20
         # make sure to take mean value in dt bc values fluctuate
-        dist = self.us.distance_centimeters# gets value
+        dist = self.us.distance_centimeters  # gets value
         if dist < 20:
             return True
         else:

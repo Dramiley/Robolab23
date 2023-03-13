@@ -169,7 +169,7 @@ class Robot:
     def set_controller(self, controller):
         self.controller = controller
 
-    def run(self):
+    def __run(self):
         self.__calibrate()
         while True:
             print("1 for followline")
@@ -197,7 +197,7 @@ class Robot:
         """
         Drives the robot until it reaches the start node
         """
-        self.run()
+        self.__run()
 
     def drive_until_communication_point(self):
         """
