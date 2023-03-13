@@ -43,13 +43,15 @@ class Webview:
 
             # run forever
             webserver.serve_forever()
-        except KeyboardInterrupt:
+            print("Serving forever...")
+
+            # stop server
+            webserver.server_close()
             print("Server stopped.")
+        except KeyboardInterrupt:
+            print("Server stopped by key interrupt.")
         except Exception as e:
-            print("Server not started.")
+            print("Server could not be started.")
             print(e)
 
 
-
-        webserver.server_close()
-        print("Server stopped.")
