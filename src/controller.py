@@ -15,7 +15,6 @@ class Controller:
     planet = None
     last_position = Position(0, 0, 0)
     history = []
-    mode: "exploration" or "target" = "exploration"
 
     def __init__(self, client):
         # start webview for debugging
@@ -83,7 +82,6 @@ class Controller:
         self.explore()
 
     def explore(self):
-
         # wenn es nichts mehr zu erkunden gibt, dann ist die erkundung beendet
         if self.planet.is_exploration_complete():
             self.exploration_complete("alles erkundet.")
