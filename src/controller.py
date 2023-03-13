@@ -8,7 +8,7 @@ class Controller:
     robot = None
     communication = None
     odometry = None
-
+    planet = None
     last_position = Position(0, 0, 0)
 
     def __init__(self, client):
@@ -62,6 +62,9 @@ class Controller:
         # remember last position
         self.last_position = Position(startX, startY, startOrientation)
 
+        # setup planet
+        self.planet = Planet(planetName, startX, startY, startOrientation)
+
     def communication_point_reached(self):
         """
         An jedem weiteren Kommunikationspunkt übermittelt der Roboter zu Beginn der Übertragung den gefahrenen Pfad.
@@ -74,30 +77,33 @@ class Controller:
         start_position = self.last_position
         end_position = self.odometry.get_position()
 
-        if(start_position.x == end_position.x and start_position.y == end_position.y):
+        if (start_position.x == end_position.x and start_position.y == end_position.y):
             path_status = "blocked"
         else:
             path_status = "free"
-
 
         # send path to mothership for verification
         self.communication.path(start_position.x, start_position.y, start_position.direction, end_position.x,
                                 end_position.y, end_position.direction, path_status)
 
     @staticmethod
-    def tuple_to_position(tuple):
-        return Position(tuple[0], tuple[1], tuple[2])
+    def tuple_to_position(self, tuple):
+        x, y = tuple[0]
+        direction = tuple[1]
+        return Position(x, y, direction)
 
     @staticmethod
     def position_to_tuple(position):
-        return (position.x, position.y, int(position.direction))
+        return ((position.x, position.y), int(position.direction))
 
     def receive_path(self, startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight):
         """
         Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
         """
-        self.odometry.receive_path(startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight)
+
+        # update odometry inside planet
+        self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
 
         # update last position and path status
         self.last_position = Position(endX, endY, endOrientation)
