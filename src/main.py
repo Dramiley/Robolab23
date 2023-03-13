@@ -17,11 +17,6 @@ from controller import Controller
 client = None  # DO NOT EDIT
 
 
-def react_to_error(message):
-    print('got reaction to error')
-    print('error: ' + message)
-
-
 def run():
     # DO NOT CHANGE THESE VARIABLES
     #
@@ -50,7 +45,6 @@ def run():
 
     controller = Controller(client)
     controller.begin()
-
 
 
 # DO NOT EDIT
