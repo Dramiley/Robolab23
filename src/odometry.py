@@ -32,8 +32,6 @@ class Odometry:
 
         self.__calc_parameters()
 
-        self.set_communication()
-
     async def start(self, start_pos: Tuple[int, int]=(0, 0), start_dir: int=Direction.NORTH):
         """
         Starts the odometry tracking.
@@ -150,11 +148,3 @@ class Odometry:
         x_new = vec[0]*math.cos(deg) - vec[1]*math.sin(deg)
         y_new = vec[0]*math.sin(deg) + vec[1]*math.cos(deg)
         return (x_new, y_new)
-
-class Position:
-    x, y, direction = 0, 0, 0
-
-    def __init__(self, x, y, direction):
-        self.x = x
-        self.y = y
-        self.direction = direction
