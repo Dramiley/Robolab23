@@ -2,10 +2,9 @@ import ev3dev.ev3 as ev3
 import time
 import sys
 import measurements as ms
-from planet import Direction
 from typing import List
 
-from controller import Controller
+from planet import Direction
 
 
 class Robot:
@@ -19,11 +18,13 @@ class Robot:
 
     """
 
-    controller: Controller = None
+    controller = None
     color: ms.ColorDetector = None
     obj_detec: ms.ObjectDetector = None
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
+
+        from controller import Controller
         self.motor_left = ev3.LargeMotor(left_port)
         self.motor_right = ev3.LargeMotor(right_port)
 
@@ -142,7 +143,7 @@ class Robot:
         self.moveTime(d_cm / 2, int(d_cm * 20, 5))
         pass
 
-    def set_controller(self, controller: Controller):
+    def set_controller(self, controller):
         self.controller = controller
 
     def run(self):

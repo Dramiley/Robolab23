@@ -36,13 +36,20 @@ class Webview:
         global controller
         controller = pController
 
-        webserver = HTTPServer((hostName, serverPort), Webserver)
-        print("Server started http://%s:%s" % (hostName, serverPort))
-
         try:
+            # start server
+            webserver = HTTPServer((hostName, serverPort), Webserver)
+            print("Server started http://%s:%s" % (hostName, serverPort))
+
+            # run forever
             webserver.serve_forever()
         except KeyboardInterrupt:
-            pass
+            print("Server stopped.")
+        except Exception as e:
+            print("Server not started.")
+            print(e)
+
+
 
         webserver.server_close()
         print("Server stopped.")

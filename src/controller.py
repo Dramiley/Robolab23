@@ -1,9 +1,9 @@
 import time
 
 from communication import Communication
-from robot import Robot
 from communication_logger import CommunicationLogger
 from odometry import Odometry, Position
+from robot import Robot
 from webview import Webview
 
 
