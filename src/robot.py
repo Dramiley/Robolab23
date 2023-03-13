@@ -2,10 +2,9 @@ import ev3dev.ev3 as ev3
 import time
 import sys
 import measurements as ms
-from planet import Direction
 from typing import List
 
-from communication_facade import CommunicationFacade
+from planet import Direction
 
 
 class Robot:
@@ -19,15 +18,15 @@ class Robot:
 
     """
 
-    communication: CommunicationFacade = None
+    controller = None
     color: ms.ColorDetector = None
     obj_detec: ms.ObjectDetector = None
     middlegreytone = 200
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
+
         self.motor_left = ev3.LargeMotor(left_port)
         self.motor_right = ev3.LargeMotor(right_port)
-
         self.current_dir = start_dir  # keeps track of robot's direction
 
         try:
@@ -144,6 +143,8 @@ class Robot:
             self.color.color_check()
         self.stop()
         # self.communication.ready()
+        # self.station_scan()
+        self.controller.communication_point_reached()
 
     def station_scan(self, turns):
         self.move_distance_straight(7)
@@ -180,8 +181,8 @@ class Robot:
         self.move_time(1000, d_cm * 20)
         time.sleep(1)
 
-    def set_communication(self, communication: CommunicationFacade):
-        self.communication = communication
+    def set_controller(self, controller):
+        self.controller = controller
 
     def run(self):
         self.calibrate()
