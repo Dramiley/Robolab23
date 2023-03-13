@@ -1,4 +1,9 @@
 # !/usr/bin/env python3
+import math
+from robot import Robot
+from planet import Direction, Planet
+from typing import Tuple, List
+
 from communication_facade import CommunicationFacade
 
 
@@ -13,8 +18,8 @@ class Odometry:
 
         # YOUR CODE FOLLOWS (remove pass, please!)
 
-        # TODO: wheel_d shoudl be an attribute of Robot Class
-        self.wheel_d = -1
+        # TODO: wheel_d should be an attribute of Robot Class
+        self.wheel_d = 12.3 # wheel distance in cm
 
         self.robot = robot
 
@@ -27,6 +32,8 @@ class Odometry:
 
         self.current_pos = start_pos
         self.current_dir = start_dir
+
+        self.set_communication()
 
     def calc_parameters(self):
         wheel_radius = 2.7 # in cm

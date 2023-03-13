@@ -28,6 +28,7 @@ class Direction(IntEnum):
     SOUTH = 180
     WEST = 270
 
+
 Weight = int
 """
 Weight of a given path (received from the server)
@@ -97,14 +98,14 @@ class Planet:
             self.paths[start_coords] = {}
 
             # init shortest path to node itself
-            path_to_self = frozenset(start_coords, start_coords) # since set->only 1 element
+            path_to_self = frozenset([start_coords, start_coords]) # since set->only 1 element
             self.computed_shortests_paths[path_to_self] = ([], 0)
         if not (target_coords in self.paths.keys()):
             # if no path is yet known for target_coords
             self.paths[target_coords] = {}
 
             # init shortest path to node itself
-            path_to_self = frozenset(target_coords, target_coords) # since set->only 1 element
+            path_to_self = frozenset([target_coords, target_coords]) # since set->only 1 element
             self.computed_shortests_paths[path_to_self] = ([], 0)
 
         self.paths[start_coords][start_entry_dir] = (target_coords, target_entry_dir, weight)
@@ -254,7 +255,7 @@ class Planet:
         """
 
         # YOUR CODE FOLLOWS (remove pass, please!)
-        node_id = frozenset(start, target)
+        node_id = frozenset([start, target])
         if node_id in self.computed_shortests_paths.keys():
             # path has already been computed previously
             return self.computed_shortests_paths[node_id]
@@ -275,18 +276,18 @@ class Planet:
         Stores the given shortest path (=list) so they don't have to be recomputed
         - Note: subpaths are also shortest paths!!!
         """
-        nodes_set = frozenset(start, target) # index needs to be hashable
+        nodes_set = frozenset([start, target]) # index needs to be hashable
         self.computed_shortests_paths[nodes_set] = list
 
     def get_precomputed_shortest_paths(
             self, start: Tuple[int, int], target: Tuple[int, int]
-    ) -> Optional[List[Tuple[int, int], Direction]]:
+    ) -> Optional[List[Tuple[Tuple[int, int], Direction]]]:
         """
         Returns:
             - List (=shortest path) if there is already a precomputed one between start and target
             - None if there is no precomputed path btw start and target
         """
-        node_id = frozenset(start, target) # see structure of self.self.computed_shortests_paths for why
+        node_id = frozenset([start, target]) # see structure of self.self.computed_shortests_paths for why
         if node_id in self.computed_shortests_paths.keys():
             return self.computed_shortests_paths[node_id]
 
@@ -322,7 +323,7 @@ class Planet:
         """
         self.unexplored[node] = dir
 
-    def explore(self, current_node: Tuple[int, int]=(0, 0)) -> Tuple[Tuple[int, int], Direction]:
+    def get_next_path(self, current_node: Tuple[int, int]=(0, 0)) -> Optional[Direction]:
         """
         WARNING: Make sure to mark the node as explored once it has been reached!!!
 
@@ -332,7 +333,7 @@ class Planet:
         2. drive to that node and continue exploring it in that direction
 
         Returns:
-            - node which should be explored next and the direction in which it should be explored
+            - direction in which exploration should be started (from currentnode)
             - None if whole map has been explored
 
         """
