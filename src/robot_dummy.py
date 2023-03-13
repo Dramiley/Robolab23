@@ -28,9 +28,7 @@ class RobotoDummy:
         new_path = path['paths'][index_of_current_orientation]
 
         # check if our path is valid
-        # print("Current path: " + json.dumps(path, indent=1))
-        print("Taking new path: " + str(index_of_current_orientation))
-        # print("New Path is: " + json.dumps(new_path, indent=1))
+        # print("Taking new path: " + str(index_of_current_orientation))
         if new_path is None:
             raise Exception("Invalid path")
         elif new_path == -1 or new_path == -2:
@@ -73,11 +71,8 @@ class RobotoDummy:
         # a path contains x and y coordinates
         # a path also contains an array paths
 
-        if path == -2:
-            return self.__path_by_coordinates(coordinates, self.map)
-
         if path is None or path == -1:
-            return None
+            return
 
         if path['x'] == coordinates[0] and path['y'] == coordinates[1]:
             return path
@@ -85,6 +80,8 @@ class RobotoDummy:
         for p in path['paths']:
             result = self.__path_by_coordinates(coordinates, p)
             if result is not None:
+                if path == -2:
+                    return -2
                 return result
 
 
@@ -92,6 +89,8 @@ if __name__ == "__main__":
     r = RobotoDummy()
     r.drive_until_start()
     r.drive_until_communication_point()
+    r.drive_until_communication_point()
+    r.turn_deg(90)
     r.drive_until_communication_point()
     r.turn_deg(90)
     r.drive_until_communication_point()
