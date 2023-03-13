@@ -175,7 +175,16 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Requirement: Minimum of two paths with same cost exists, only one is returned by the logic implemented
         """
-        self.fail('implement me!')
+        # candle has two paths of same length 5 from (19, -2) to (19, 2)
+        start = (19, -2)
+        target = (19, 2)
+        shortest_path = self.planet.shortest_path(start, target)
+
+        shortest_path_should = [
+            ((19, -2), Direction.EAST), ((20, -2), Direction.NORTH), ((20, 0), Direction.NORTH),
+            ((19, 1), Direction.NORTH), ((19, 2), None)
+        ]
+        self.assertEqual(shortest_path, shortest_path_should)
 
     def test_target_with_loop(self):
         """
