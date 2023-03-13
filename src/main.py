@@ -56,7 +56,8 @@ def run():
     # replace with robot.run_robot()
     robot = Robot()
     robot.set_communication(communication)
-    robot.followline()
+    # robot.followline()
+    robot.robot_testing()
     print("Station erreicht")
 
     # setup planet handling
