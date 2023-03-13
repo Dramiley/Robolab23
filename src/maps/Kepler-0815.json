@@ -30,14 +30,22 @@
                   "paths": [
                     null,
                     null,
-                    -1,
+                    {
+                      "x": 314,
+                      "y": 2,
+                      "orientation": 180
+                    },
                     {
                       "color": "blue",
                       "x": 312,
                       "y": 1,
                       "orientation": 180,
                       "paths": [
-                        -1,
+                        {
+                          "x": 312,
+                          "y": 1,
+                          "orientation": 0
+                        },
                         null,
                         null,
                         {
@@ -46,7 +54,11 @@
                           "y": 0,
                           "orientation": 180,
                           "paths": [
-                            -1,
+                            {
+                              "x": 311,
+                              "y": 0,
+                              "orientation": 0
+                            },
                             -2,
                             -2,
                             {
@@ -65,10 +77,18 @@
                                     null,
                                     null,
                                     null,
-                                    -1
+                                    {
+                                      "x": 311,
+                                      "y": 2,
+                                      "orientation": 270
+                                    }
                                   ]
                                 },
-                                -1,
+                                {
+                                  "x": 310,
+                                  "y": 2,
+                                  "orientation": 180
+                                },
                                 null
                               ]
                             }
@@ -79,7 +99,11 @@
                   ]
                 },
                 null,
-                -1,
+                {
+                  "x": 314,
+                  "y": 2,
+                  "orientation": 180
+                },
                 null
               ]
             },
@@ -96,7 +120,11 @@
                   "y": 0,
                   "orientation": 180,
                   "paths": [
-                    -1,
+                    {
+                      "x": 317,
+                      "y": 0,
+                      "orientation": 0
+                    },
                     null,
                     {
                       "color": "red",
@@ -105,7 +133,11 @@
                       "orientation": 270,
                       "paths": [
                         null,
-                        -1,
+                        {
+                          "x": 313,
+                          "y": -1,
+                          "orientation": 90
+                        },
                         null,
                         -2
                       ]
@@ -129,20 +161,40 @@
                     null
                   ]
                 },
-                {"x": 314, "y": 1, "orientation": 270}
+                {
+                  "x": 314,
+                  "y": 1,
+                  "orientation": 270
+                }
               ]
             },
-            -1,
+            {
+              "x": 314,
+              "y": 1,
+              "orientation": 180
+            },
             null
           ]
         },
         null,
-        -1,
-        {}
+        {
+          "x": 312,
+          "y": 0,
+          "orientation": 180
+        },
+        {
+          "x": 311,
+          "y": 0,
+          "orientation": 270
+        }
       ]
     },
     null,
-    -1,
+    {
+      "x": 312,
+      "y": -1,
+      "orientation": 180
+    },
     {
       "color:": "red",
       "x": 310,
@@ -159,7 +211,11 @@
             null,
             null,
             null,
-            -1
+            {
+              "x": 311,
+              "y": 2,
+              "orientation": 270
+            }
           ]
         },
         {
@@ -168,7 +224,11 @@
           "y": 0,
           "orientation": 180,
           "paths": [
-            -1,
+            {
+              "x": 311,
+              "y": 0,
+              "orientation": 0
+            },
             -2,
             -2,
             -2

@@ -123,7 +123,6 @@ if __name__ == "__main__":
     stream = os.system("cd dummy; node server.js &")
     # wait for user to press any input
     time.sleep(.7)
-    time.sleep(.7)
 
     # start robot
     r = RobotDummy()
