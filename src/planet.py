@@ -14,6 +14,7 @@ TODO:
 from enum import IntEnum, unique
 from typing import Optional, List, Tuple, Dict, Set
 
+import math
 import logging
 import sys
 import pdb
@@ -46,13 +47,24 @@ class Planet:
     def __init__(self):
         """ Initializes the data structure
 
-        Parameters:
+        Attributes:
             self.paths = Dict[Path]
             self.nodes = List[Tuple[int, int]]
                 - maps node ids to coordinates of nodes for easier representation
+            self.computed_shortest_paths = Dict
+                - indizes=(normally) 2-element frozenset (set doesn't work bc not hasable) consisting of 2 nodes
+                    - note: only one element for path of a node to itself!!! (since it's a set)
+                    - ->allows for getting shortest path without having to introduce rules for ordering e.g. [n1, n2] or [n2, n1]
+                - values=tuple (path, weight)
+            self.computations_uptodate (bool): True if no new path has been added since last computation (which could make the computations obsolete)
+                - ionitiates recomputation if False
         """
         self.paths = {}
         self.nodes = []
+
+        self.unexplored = {} # dict keeping track of unexplored paths of the form node: Direction
+        self.computed_shortests_paths = {} # stores shortests paths, indezes=2-element sets, values=List[node, dir]
+        self.computations_uptodate = False
 
     def is_node_known(self, node: Tuple[int, int]) -> bool:
         """
@@ -72,6 +84,9 @@ class Planet:
         :param target:  2-Tuple
         :param weight: Integer
         :return: void
+
+        TODO: initiate recomputation of self.computed_shortest_paths
+            - instead of having to compute them every time on the run
         """
         start_coords = start[0]
         start_entry_dir = start[1]
@@ -81,9 +96,17 @@ class Planet:
         if not (start_coords in self.paths.keys()):
             # if no path is yet known for start_coords
             self.paths[start_coords] = {}
+
+            # init shortest path to node itself
+            path_to_self = frozenset(start_coords, start_coords) # since set->only 1 element
+            self.computed_shortests_paths[path_to_self] = ([], 0)
         if not (target_coords in self.paths.keys()):
             # if no path is yet known for target_coords
             self.paths[target_coords] = {}
+
+            # init shortest path to node itself
+            path_to_self = frozenset(target_coords, target_coords) # since set->only 1 element
+            self.computed_shortests_paths[path_to_self] = ([], 0)
 
         self.paths[start_coords][start_entry_dir] = (target_coords, target_entry_dir, weight)
         self.paths[target_coords][target_entry_dir] = (start_coords, start_entry_dir, weight)
@@ -232,13 +255,95 @@ class Planet:
         """
 
         # YOUR CODE FOLLOWS (remove pass, please!)
-        if self.is_node_known(target):
+        node_id = frozenset(start, target)
+        if node_id in self.computed_shortests_paths.keys():
+            # path has already been computed previously
+            return self.computed_shortests_paths[node_id]
+        # TODO: remove elif when implemented precomputation of djikstra, since all known nodes must have a shortest path then
+        elif self.is_node_known(target):
             # perform djikstra and return shortest path
             shortest_path = self.djikstra(start, target)[0]
             return shortest_path
         else:
             # continue exploration until target is found
             return None
+
+    def store_shortest_paths(self,
+                            start: Tuple[int, int], target: Tuple[int, int],
+                            list: List[Tuple[Tuple[int, int], Direction]]
+    ):
+        """
+        Stores the given shortest path (=list) so they don't have to be recomputed
+        - Note: subpaths are also shortest paths!!!
+        """
+        nodes_set = frozenset(start, target) # index needs to be hashable
+        self.computed_shortests_paths[nodes_set] = list
+
+    def get_precomputed_shortest_paths(
+            self, start: Tuple[int, int], target: Tuple[int, int]
+    ) -> Optional[List[Tuple[int, int], Direction]]:
+        """
+        Returns:
+            - List (=shortest path) if there is already a precomputed one between start and target
+            - None if there is no precomputed path btw start and target
+        """
+        node_id = frozenset(start, target) # see structure of self.self.computed_shortests_paths for why
+        if node_id in self.computed_shortests_paths.keys():
+            return self.computed_shortests_paths[node_id]
+
+        return None
+
+    def update_shortest_paths(
+            self, start: Tuple[int, int], start_dir: Direction,
+            target: Tuple[int, int], target_dir: Direction
+        ):
+        """
+        Updates self.computed_shortest_path with new path if node is one that wasn't explored before
+
+        Note: By design the start node should already be known!
+        """
+        if not self.is_node_known(start):
+            raise ValueError("Start node is not known, but should be :(")
+
+        if self.is_node_known(target):
+            # node is known and hence there must already exist a shortest path to it
+            current_weight = self.computed_shortests_paths
+
+    def is_path_explored(self, node: Tuple[int, int], dir: Direction):
+        if self.is_node_known(node):
+            return True
+        elif dir in self.paths[node]:
+            return True
+
+        return False
+
+    def add_unexplored_path(self, node: Tuple[int, int], dir: Direction):
+        """
+        Tracks unexplored path
+        """
+        self.unexplored[node] = dir
+
+    def explore(self, current_node: Tuple[int, int]=(0, 0)) -> Tuple[Tuple[int, int], Direction]:
+        """
+        WARNING: Make sure to mark the node as explored once it has been reached!!!
+
+        Continue exploring planet using dfs, chooses next node based on distances from current pos
+
+        1. get next node to be explored (if there is one!!!)
+        2. drive to that node and continue exploring it in that direction
+
+        Returns:
+            - node which should be explored next and the direction in which it should be explored
+            - None if whole map has been explored
+
+        """
+        if not self.unexplored:
+            # planet is fully explored!!!
+            return None
+
+        # compute node which is next to current pos->based on weights (check shprtest path)
+
+
 
     def get_node_coord(self, id: int) -> Tuple[int, int]:
         """"
