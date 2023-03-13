@@ -22,16 +22,12 @@ class Controller:
         self.robot = Robot()
         self.robot.set_communication(self.communication)
 
-        # setup odometry
-        self.odometry = Odometry()
-        self.odometry.set_communication(self.communication)
-
         # setup callbacks
         self.init_callbacks()
 
     def init_callbacks(self):
         # bei einer Antwort des Mutterschiffs mit dem Typ "planet" wird der Name des Planeten ausgegeben
-        self.communication.set_callback('planet', self.robot.explore)
+        self.communication.set_callback('planet', self.receive_planet)
 
         # bei einer Antwort des Mutterschiffs mit dem Typ "path" wird der Pfad ausgegeben
         self.communication.set_callback('path', self.receive_path)
@@ -58,6 +54,14 @@ class Controller:
         # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
         self.communication.ready()
 
+    def receive_planet(self, planetName, startX, startY, startOrientation):
+        # setup odometry
+        self.odometry = Odometry(self.robot, (startX, startY), int(startOrientation))
+        self.odometry.set_communication(self.communication)
+
+        # remember last position
+        self.last_position = Position(startX, startY, startOrientation)
+
     def communication_point_reached(self):
         """
         An jedem weiteren Kommunikationspunkt übermittelt der Roboter zu Beginn der Übertragung den gefahrenen Pfad.
@@ -66,10 +70,27 @@ class Controller:
         :return: void
         """
 
+        # calculate start and end position
         start_position = self.last_position
         end_position = self.odometry.get_position()
+
+        if(start_position.x == end_position.x and start_position.y == end_position.y):
+            path_status = "blocked"
+        else:
+            path_status = "free"
+
+
+        # send path to mothership for verification
         self.communication.path(start_position.x, start_position.y, start_position.direction, end_position.x,
-                                end_position.y, end_position.direction, self.odometry.get_path_status())
+                                end_position.y, end_position.direction, path_status)
+
+    @staticmethod
+    def tuple_to_position(tuple):
+        return Position(tuple[0], tuple[1], tuple[2])
+
+    @staticmethod
+    def position_to_tuple(position):
+        return (position.x, position.y, int(position.direction))
 
     def receive_path(self, startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight):
         """
@@ -84,7 +105,7 @@ class Controller:
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
         self.robot.find_paths()
-        next_path = self.odometry.get_next_path()
+        next_path = self.tuple_to_position(self.planet.get_next_path())
         self.communication.path_select(next_path.x, next_path.y, next_path.direction)
 
     def receive_path_unveiled(self, startX, startY, startOrientation, endX, endY, endOrientation, pathStatus,
@@ -139,7 +160,6 @@ class Controller:
         Wird von der Odometrie aufgerufen, wenn das Ziel erreicht wurde
         """
         self.communication.target_reached("Target reached.")
-
 
     def exploration_complete(self):
         """

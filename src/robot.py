@@ -5,7 +5,7 @@ import measurements as ms
 from planet import Direction
 from typing import List
 
-from communication_facade import CommunicationFacade
+from controller import Controller
 
 
 class Robot:
@@ -19,7 +19,7 @@ class Robot:
 
     """
 
-    communication: CommunicationFacade = None
+    controller: Controller = None
     color: ms.ColorDetector = None
     obj_detec: ms.ObjectDetector = None
 
@@ -29,7 +29,6 @@ class Robot:
 
         self.current_dir = start_dir  # keeps track of robot's direction
 
-
         try:
             self.color = ms.ColorDetector()
             self.obj_detec = ms.ObjectDetector()
@@ -37,7 +36,7 @@ class Robot:
             print("Could not initialize sensors")
             print(e)
 
-    def move_time(self, t,s):  # Rückwärts bewegen
+    def move_time(self, t, s):  # Rückwärts bewegen
         self.motor_left.run_timed(time_sp=t, speed_sp=s)
         self.motor_right.run_timed(time_sp=t, speed_sp=s)
 
@@ -68,7 +67,7 @@ class Robot:
         MIDDLEGREYTONE = ((white + black) / 2) + 40
         print("grey = " + str(MIDDLEGREYTONE))
         return MIDDLEGREYTONE
-    
+
     def obstacleInWay(self, MIDDLEGREYTONE):
         self.stop()
         self.move_time(300, -100)
@@ -76,10 +75,9 @@ class Robot:
         ev3.Sound.speak('Meteroit spotted').wait()
         self.turn180()
         time.sleep(3)
-        self.followline(MIDDLEGREYTONE)
+        self._followline(MIDDLEGREYTONE)
 
-    def followline(self, MIDDLEGREYTONE):  # folgt der Linie
-        self.communication.test_planet("Gromit")
+    def _followline(self, MIDDLEGREYTONE):  # folgt der Linie
         self.color.color_check()  # checkt die Farbe
         integral = 0
         lerror = 0
@@ -90,7 +88,7 @@ class Robot:
         while self.color.name == 'grey':
             self.color.color_check()
             greytone = self.color.greytone
-            if time.time() -  starttime >= 3:
+            if time.time() - starttime >= 3:
                 starttime = time.time()
                 if self.obj_detec.is_obstacle_ahead():
                     self.obstacleInWay(MIDDLEGREYTONE)
@@ -115,8 +113,8 @@ class Robot:
             lerror = error
             self.color.color_check()
         self.stop()
-        self.communication.ready()
         self.station_scan()
+        self.controller.communication_point_reached()
 
     def station_scan(self):
         self.color.color_check()
@@ -124,10 +122,7 @@ class Robot:
             self.run()
         while self.color.name == 'grey':
             pass
-            
-        
-    
-    
+
     def on_new_node(self) -> List[Direction]:
         """
         Actions to perform when an unknown node is entered:
@@ -144,11 +139,11 @@ class Robot:
         """
         Moves the robot d_cm [cm] on a straight line#
         """
-        self.moveTime(d_cm/2, int(d_cm*20,5))
+        self.moveTime(d_cm / 2, int(d_cm * 20, 5))
         pass
 
-    def set_communication(self, communication: CommunicationFacade):
-        self.communication = communication
+    def set_controller(self, controller: Controller):
+        self.controller = controller
 
     def run(self):
         MIDDLEGREYTONE = self.calibrate()
@@ -157,9 +152,9 @@ class Robot:
             print("2 for station_scan")
             print("3 for turn180")
             print("4 for quit")
-            i = input() 
+            i = input()
             if i == "1":
-                self.followline(MIDDLEGREYTONE)
+                self._followline(MIDDLEGREYTONE)
             elif i == "2":
                 self.station_scan()
             elif i == "3":
@@ -187,7 +182,7 @@ class Robot:
         """
         Drives the robot to the next communication point
         """
-        pass
+        self._followline()
 
     def drive_to(self, x, y):
         """
