@@ -7,7 +7,7 @@ class CommunicationFacade:
     def __init__(self, communication):
         self.communication = communication
 
-    def testPlanet(self, planetName):
+    def test_planet(self, planetName):
         """
         Sets a testPlanet on the server
         :param planetName: The planet name
@@ -57,7 +57,7 @@ class CommunicationFacade:
           }
         }''' % (startX, startY, startDirection, endX, endY, endDirection, pathStatus))
 
-    def pathSelect(self, startX, startY, startDirection):
+    def path_select(self, startX, startY, startDirection):
         """
         Sends a pathSelect message to the server
         :param startX: The start x coordinate
@@ -75,7 +75,7 @@ class CommunicationFacade:
           }
         }''' % (startX, startY, startDirection))
 
-    def pathUnveiled(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
+    def path_unveiled(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         """
         Sends a pathUnveiled message to the server
         :param startX: The start x coordinate
@@ -103,7 +103,7 @@ class CommunicationFacade:
           }
         }''' % (startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight))
 
-    def targetReached(self, message):
+    def target_reached(self, message):
         """
         Sends a targetReached message to the server
         :param message: The message
@@ -117,7 +117,7 @@ class CommunicationFacade:
           }
         }''' % message)
 
-    def explorationCompleted(self, message):
+    def exploration_completed(self, message):
         """
         Sends a explorationCompleted message to the server
         :param message: The message

@@ -49,7 +49,7 @@ def run():
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
     controller = Controller(client)
-    controller.run()
+    controller.begin()
 
 
 
