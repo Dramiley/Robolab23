@@ -21,6 +21,10 @@ class ColorDetector:
             self.name = 'grey'
             self.greytone = (self.cs.red + self.cs.blue + self.cs.green) // 3
 
+    def get_color_name(self):
+        self.color_check()
+        return self.name
+
 def is_obstacle_ahead(self):
     '''
     returns true if ultrasonic sensor dects an obstacle within next x (20??) c,
