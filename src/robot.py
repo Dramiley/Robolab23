@@ -96,7 +96,7 @@ class Robot:
         print("grey = " + str(middlegreytone))
         self.middlegreytone = middlegreytone
 
-    def obstacleInWay(self, middlegreytone):
+    def obstacle_in_way(self, middlegreytone):
         self.stop()
         self.move_time(500, -100)
         time.sleep(1)
@@ -120,7 +120,7 @@ class Robot:
             if time.time() - starttime >= 3:
                 starttime = time.time()
                 if self.obj_detec.is_obstacle_ahead():
-                    self.obstacleInWay(MIDDLEGREYTONE)
+                    self.obstacle_in_way(MIDDLEGREYTONE)
                     self.motor_left.command = "run-forever"
                     self.motor_right.command = "run-forever"
             # MIDDLEGREYTONE = 200
@@ -144,7 +144,6 @@ class Robot:
         self.stop()
         # self.communication.ready()
         # self.station_scan()
-        self.controller.communication_point_reached()
 
     def station_scan(self, turns):
         self.move_distance_straight(7)
@@ -224,11 +223,19 @@ class Robot:
         """
         pass
 
-    def drive_to_next_communication_point(self):
+    def drive_until_communication_point(self):
         """
         Drives the robot to the next communication point
         """
         self.__followline()
+        pass
+
+    def notify_at_communication_point(self):
+        """
+        Drives the robot to the next communication point
+        """
+        self.__followline()
+        self.controller.communication_point_reached()
         pass
 
     def drive_to(self, x, y):
@@ -236,3 +243,12 @@ class Robot:
         Drives the robot to the node at (x,y)
         """
         pass
+
+    def turnDeg(self, deg):
+        """
+        Turns the robot by param degrees
+        """
+        self.motor_left.run_timed(time_sp=1250, speed_sp=133)
+        self.motor_right.run_timed(time_sp=1250, speed_sp=-133)
+        time.sleep(1.25 / 90 * (deg % 360))
+        self.stop()

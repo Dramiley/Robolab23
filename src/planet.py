@@ -329,7 +329,7 @@ class Planet:
             # node is known and hence there must already exist a shortest path to it
             current_weight = self.computed_shortests_paths
 
-    def __is_path_explored(self, node: Tuple[int, int], dir: Direction):
+    def is_path_explored(self, node: Tuple[int, int], dir: Direction):
         if self.__is_node_known(node):
             return True
         elif dir in self.paths[node]:
@@ -382,4 +382,18 @@ class Planet:
             # no more unexplored dirs for node_coords
             # remove as unexplored if all directions of node have been explored
             del self.unexplored[node_coords]
+
+    def add_blocked_path(self, param, param1):
+        """
+        Adds a blocked path to the map
+        """
+        pass
+
+    def is_exploration_complete(self) -> bool
+        """
+        Returns: True if all nodes have been explored, False otherwise
+        @rtype: bool
+        """
+        # TODO: implement
+        return False
 
