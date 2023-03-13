@@ -1,11 +1,17 @@
+import json
+
+
 class RobotoDummy:
     controller = None
     orientation = 0
-    current_map_path = []
-    current_map = None
+    position = (0, 0)
+
+    # read map from file
+    with open('maps/Kepler-0815.json') as json_file:
+        map = json.load(json_file)
 
     def drive_until_start(self):
-        pass
+        self.position = self.map['x'], self.map['y']
 
     def drive_until_communication_point(self):
         pass
@@ -25,3 +31,7 @@ class RobotoDummy:
 
     def set_controller(self, controller):
         self.controller = controller
+
+
+if __name__ == "__main__":
+    RobotoDummy().drive_until_start()
