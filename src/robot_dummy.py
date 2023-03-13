@@ -1,195 +1,14 @@
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import time
 
 """
 This is a dummy class for the robot.
 The path is read from a json file.
-The json file looks like this:
-{
-  "color:": "blue",
-  "x": 312,
-  "y": -1,
-  "orientation": 0,
-  "paths": [
-    {
-      "color": "red",
-      "x": 312,
-      "y": 0,
-      "orientation": 0,
-      "paths": [
-        {
-          "color": "blue",
-          "x": 314,
-          "y": 1,
-          "orientation": 0,
-          "paths": [
-            {
-              "color": "red",
-              "x": 314,
-              "y": 2,
-              "orientation": 0,
-              "paths": [
-                {
-                  "color": "red",
-                  "x": 314,
-                  "y": 2,
-                  "orientation": 0,
-                  "paths": [
-                    null,
-                    null,
-                    -1,
-                    {
-                      "color": "blue",
-                      "x": 312,
-                      "y": 1,
-                      "orientation": 180,
-                      "paths": [
-                        -1,
-                        null,
-                        null,
-                        {
-                          "color": "blue",
-                          "x": 311,
-                          "y": 0,
-                          "orientation": 180,
-                          "paths": [
-                            -1,
-                            -2,
-                            -2,
-                            {
-                              "color": "red",
-                              "x": 310,
-                              "y": 2,
-                              "orientation": 0,
-                              "paths": [
-                                null,
-                                {
-                                  "color": "blue",
-                                  "x": 311,
-                                  "y": 2,
-                                  "orientation": 90,
-                                  "paths": [
-                                    null,
-                                    null,
-                                    null,
-                                    -1
-                                  ]
-                                },
-                                -1,
-                                null
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                null,
-                -1,
-                null
-              ]
-            },
-            {
-              "color": "red",
-              "x": 315,
-              "y": 1,
-              "orientation": 90,
-              "paths": [
-                null,
-                {
-                  "color": "blue",
-                  "x": 317,
-                  "y": 0,
-                  "orientation": 180,
-                  "paths": [
-                    -1,
-                    null,
-                    {
-                      "color": "red",
-                      "x": 313,
-                      "y": -1,
-                      "orientation": 270,
-                      "paths": [
-                        null,
-                        -1,
-                        null,
-                        -2
-                      ]
-                    },
-                    null
-                  ]
-                },
-                {
-                  "color": "blue",
-                  "x": 315,
-                  "y": 0,
-                  "orientation": 180,
-                  "paths": [
-                    -1,
-                    null,
-                    null,
-                    null
-                  ]
-                },
-                -1
-              ]
-            },
-            -1,
-            null
-          ]
-        },
-        null,
-        -1,
-        {}
-      ]
-    },
-    null,
-    -1,
-    {
-      "color:": "red",
-      "x": 310,
-      "y": 2,
-      "orientation": 0,
-      "paths": [
-        null,
-        {
-          "color:": "blue",
-          "x": 311,
-          "y": 2,
-          "orientation": 90,
-          "paths": [
-            null,
-            null,
-            null,
-            -1
-          ]
-        },
-        {
-          "color:": "blue",
-          "x": 311,
-          "y": 0,
-          "orientation": 180,
-          "paths": [
-            -1,
-            -2,
-            -2,
-            -2
-          ]
-        },
-        null
-      ]
-    }
-  ]
-}
-
-every path has a color, a position and an orientation. It also has a list of four paths, one for each direction.
-if a path is null, it means that there is no path in that direction.
-if a path is -1, it means that we have to go back to the parent path, because we're coming from there.
 """
 
 
-class RobotoDummy:
+class RobotDummy:
     controller = None
     orientation = 0
     position = (0, 0)
@@ -199,8 +18,8 @@ class RobotoDummy:
         map = json.load(json_file)
 
     # def __init__(self):
-        ## we need to fill the map with the correct paths
-        # self.map = self.__fill_map(self.map)
+    ## we need to fill the map with the correct paths
+    # self.map = self.__fill_map(self.map)
 
     """
     def __fill_map(self, path):
@@ -268,7 +87,18 @@ class RobotoDummy:
         self.controller = controller
 
     def log(self, message=""):
+        # print to console
         print(message)
+
+        # update visualisation
+        self.__update_visualisation()
+
+    def __update_visualisation(self):
+        # write to file
+        with open('dummy/position.json', 'w') as outfile:
+            json.dump({'x': self.position[0], 'y': self.position[1], 'orientation': self.orientation}, outfile)
+
+        time.sleep(1)
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates
@@ -285,11 +115,9 @@ class RobotoDummy:
             if result is not None:
                 return result
 
-    # def __find_parent_path(self, map, path, current_parent=None):
-
 
 if __name__ == "__main__":
-    r = RobotoDummy()
+    r = RobotDummy()
     r.drive_until_start()
     r.drive_until_communication_point()
     r.drive_until_communication_point()
@@ -302,7 +130,6 @@ if __name__ == "__main__":
     r.turn_deg(-90)
     r.drive_until_communication_point()
     r.turn_deg(180)
-    r.drive_until_communication_point()
     r.drive_until_communication_point()
     r.drive_until_communication_point()
     r.drive_until_communication_point()

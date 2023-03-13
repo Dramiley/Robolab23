@@ -1,0 +1,18 @@
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<div id="app">
+    <img src="https://robolab.inf.tu-dresden.de/images/planet.png?classes=fixedWidth50,inline&lightbox=false">
+    <img src="robot.png">
+</div>
+
+<script>
+    const {createApp} = Vue
+
+    createApp({
+        data() {
+            return {
+                message: 'Hello Vue!'
+            }
+        }
+    }).mount('#app')
+</script>
