@@ -11,8 +11,8 @@ import measurements as ms
 from communication import Communication
 from communication_logger import CommunicationLogger
 
-from robot import Robot
 from controller import Controller
+from robot import Robot
 
 client = None  # DO NOT EDIT
 

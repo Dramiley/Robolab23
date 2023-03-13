@@ -1,11 +1,10 @@
 # !/usr/bin/env python3
 import math
-from robot import Robot
-from planet import Direction, Planet
 from typing import Tuple, List
-
 from communication_facade import CommunicationFacade
 
+from planet import Direction, Planet
+from robot import Robot
 
 class Odometry:
 

@@ -1,7 +1,10 @@
+import time
+
 from communication import Communication
-from robot import Robot
 from communication_logger import CommunicationLogger
 from odometry import Odometry, Position
+from robot import Robot
+from webview import Webview
 
 
 class Controller:
@@ -12,6 +15,9 @@ class Controller:
     last_position = Position(0, 0, 0)
 
     def __init__(self, client):
+        # start webview for debugging
+        self.webview = Webview(self)
+
         # setup communication
         self.communication = Communication(client, CommunicationLogger()).facade
 
@@ -24,6 +30,8 @@ class Controller:
 
         # setup callbacks
         self.init_callbacks()
+
+        time.sleep(10)
 
     def init_callbacks(self):
         # bei einer Antwort des Mutterschiffs mit dem Typ "planet" wird der Name des Planeten ausgegeben
