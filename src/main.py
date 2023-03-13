@@ -59,6 +59,7 @@ def run():
     robot.followline()
     print("Station erreicht")
 
+    """ DEMO IMPLEMENTATION
     # setup planet handling
     communication.ready()
     communication.set_callback('planet',
@@ -74,6 +75,7 @@ def run():
         'got path from %s/%s/%s to %s/%s/%s with status %s and weight %s' % (
             startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight)))
     time.sleep(1)
+    """
 
 
 # DO NOT EDIT
