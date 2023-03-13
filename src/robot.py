@@ -73,7 +73,7 @@ class Robot:
         self.followline(MIDDLEGREYTONE)
 
     def followline(self, MIDDLEGREYTONE):  # folgt der Linie
-        self.communication.testPlanet("Gromit")
+        self.communication.test_planet("Gromit")
         self.color.color_check()  # checkt die Farbe
         integral = 0
         lerror = 0
@@ -160,3 +160,31 @@ class Robot:
                 self.turn180()
             elif i == "4":
                 sys.exit()
+
+    def drive_until_start(self):
+        """
+        Drives the robot until it reaches the start node
+        """
+        pass
+
+    def explore(self, planetName, startX, startY, startOrientation):
+        """
+        Explores the planet
+        @param planetName: name of the planet
+        @param startX: x-coordinate of the start node
+        @param startY: y-coordinate of the start node
+        @param startOrientation: orientation of the start node
+        """
+        pass
+
+    def drive_to_next_communication_point(self):
+        """
+        Drives the robot to the next communication point
+        """
+        pass
+
+    def drive_to(self, x, y):
+        """
+        Drives the robot to the node at (x,y)
+        """
+        pass
