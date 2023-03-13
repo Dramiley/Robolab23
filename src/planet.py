@@ -28,6 +28,7 @@ class Direction(IntEnum):
     SOUTH = 180
     WEST = 270
 
+
 Weight = int
 """
 Weight of a given path (received from the server)
@@ -322,7 +323,7 @@ class Planet:
         """
         self.unexplored[node] = dir
 
-    def explore(self, current_node: Tuple[int, int]=(0, 0)) -> Tuple[Tuple[int, int], Direction]:
+    def get_next_path(self, current_node: Tuple[int, int]=(0, 0)) -> Optional[Direction]:
         """
         WARNING: Make sure to mark the node as explored once it has been reached!!!
 
@@ -332,7 +333,7 @@ class Planet:
         2. drive to that node and continue exploring it in that direction
 
         Returns:
-            - node which should be explored next and the direction in which it should be explored
+            - direction in which exploration should be started (from currentnode)
             - None if whole map has been explored
 
         """
