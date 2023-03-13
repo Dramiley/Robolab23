@@ -1,0 +1,143 @@
+{
+  "x": 312,
+  "y": -1,
+  "color:": "blue",
+  "paths": [
+    {
+      "color": "red",
+      "x": 312,
+      "y": 0,
+      "paths": [
+        {
+          "color": "blue",
+          "x": 314,
+          "y": 1,
+          "paths": [
+            {
+              "color": "red",
+              "x": 314,
+              "y": 2,
+              "paths": [
+                {
+                  "color": "red",
+                  "x": 314,
+                  "y": 2,
+                  "paths": [
+                    null,
+                    null,
+                    -1,
+                    {
+                      "color": "blue",
+                      "x": 312,
+                      "y": 1,
+                      "paths": [
+                        -1,
+                        null,
+                        null,
+                        {
+                          "color": "blue",
+                          "x": 311,
+                          "y": 0,
+                          "paths": [
+                            -1,
+                            -2,
+                            -2,
+                            {
+                              "color": "red",
+                              "x": 310,
+                              "y": 2,
+                              "paths": [
+                                null,
+                                {
+                                  "color": "blue",
+                                  "x": 311,
+                                  "y": 2,
+                                  "paths": [
+                                    null,
+                                    null,
+                                    null,
+                                    -1
+                                  ]
+                                },
+                                -1,
+                                null
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "color": "red",
+                  "x": 315,
+                  "y": 1,
+                  "paths": [
+                    null,
+                    {
+                      "color": "blue",
+                      "x": 317,
+                      "y": 0,
+                      "paths": [
+                        -1,
+                        null,
+                        {
+                          "color": "red",
+                          "x": 313,
+                          "y": -1,
+                          "paths": [
+                            null,
+                            -1,
+                            null,
+                            -2
+                          ]
+                        },
+                        null
+                      ]
+                    },
+                    {
+                      "color": "blue",
+                      "x": 315,
+                      "y": 0
+                    },
+                    -1
+                  ]
+                },
+                -1,
+                null
+              ]
+            },
+            null,
+            -1,
+            null
+          ]
+        },
+        null,
+        -1,
+        {}
+      ]
+    },
+    null,
+    -1,
+    {
+      "color:": "red",
+      "x": 310,
+      "y": 2,
+      "paths": [
+        null,
+        {
+          "color:": "blue",
+          "x": 311,
+          "y": 2
+        },
+        {
+          "color:": "blue",
+          "x": 311,
+          "y": 0
+        },
+        null
+      ]
+    }
+  ]
+}

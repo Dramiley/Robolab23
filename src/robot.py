@@ -54,7 +54,7 @@ class Robot:
         self.motor_right.speed_sp = 80
         self.motor_right.command = "run-forever"
 
-    def __stop(self):  # Stoppen
+    def stop(self):  # Stoppen
         self.motor_left.stop()
         self.motor_right.stop()
 
@@ -97,7 +97,7 @@ class Robot:
         self.middlegreytone = middlegreytone
 
     def __obstacle_in_way(self, middlegreytone):
-        self.__stop()
+        self.stop()
         self.__move_time(500, -100)
         time.sleep(1)
         self.__speak('Meteroit spotted')
@@ -141,7 +141,7 @@ class Robot:
             self.motor_right.command = "run-forever"
             lerror = error
             self.color.color_check()
-        self.__stop()
+        self.stop()
 
     def __station_scan(self, turns):
         self.__move_distance_straight(7)
@@ -214,11 +214,17 @@ class Robot:
         self.controller.communication_point_reached()
         pass
 
-    def turnDeg(self, deg):
+    def turn_deg(self, deg):
         """
         Turns the robot by param degrees
         """
         self.motor_left.run_timed(time_sp=1250, speed_sp=133)
         self.motor_right.run_timed(time_sp=1250, speed_sp=-133)
         time.sleep(1.25 / 90 * (deg % 360))
-        self.__stop()
+        self.stop()
+
+    def has_path_ahead(self):
+        """
+        Returns true if the robot has a path ahead
+        """
+        pass

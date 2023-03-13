@@ -89,7 +89,7 @@ class Controller:
 
         # erstmal nach norden stellen
         alte_richtung = self.odometry.current_dir
-        self.robot.turnDeg(-1 * alte_richtung)
+        self.robot.turn_deg(-1 * alte_richtung)
 
         # in welche richtungen beginnen schwarze linien?
         possible_explore_paths = self.get_possible_explore_paths()
@@ -138,7 +138,7 @@ class Controller:
             possible_explore_paths[i] = self.robot.has_path_ahead()
 
             # turn to next path
-            self.robot.turnDeg(90)
+            self.robot.turn_deg(90)
 
         return possible_explore_paths
 
@@ -235,7 +235,7 @@ class Controller:
             # es gibt einen shortest path, liste von positionen mit richtung.
             # fahre zuerst zum ersten punkt, dann zum zweiten, dann zum dritten, ...
             for position in path:
-                self.robot.turnDeg(position[1] - last_position.direction)
+                self.robot.turn_deg(position[1] - last_position.direction)
                 self.robot.drive_until_communication_point()
             self.target_reached("Target reached.")
 
@@ -245,7 +245,7 @@ class Controller:
         """
         print("Done.")
         print("Message: " + message)
-        self.robot.__stop()
+        self.robot.stop()
         self.communication.done()
 
     def tuple_to_position(self, tuple):
