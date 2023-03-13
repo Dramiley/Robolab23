@@ -41,7 +41,7 @@ class CommunicationTest:
         time.sleep(1)
 
         # pretend we're at the target
-        connection.facade.targetReached("we're at the target")
+        connection.facade.target_reached("we're at the target")
 
         # wait for messages
         time.sleep(1)
