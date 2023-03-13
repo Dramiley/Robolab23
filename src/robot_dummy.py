@@ -98,7 +98,7 @@ class RobotDummy:
         with open('dummy/position.json', 'w') as outfile:
             json.dump({'x': self.position[0], 'y': self.position[1], 'orientation': self.orientation}, outfile)
 
-        time.sleep(1)
+        time.sleep(.5)
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates
@@ -117,6 +117,15 @@ class RobotDummy:
 
 
 if __name__ == "__main__":
+    # start webserver via node
+    import os
+
+    stream = os.system("cd dummy; node server.js &")
+    # wait for user to press any input
+    time.sleep(.7)
+    time.sleep(.7)
+
+    # start robot
     r = RobotDummy()
     r.drive_until_start()
     r.drive_until_communication_point()
@@ -133,3 +142,4 @@ if __name__ == "__main__":
     r.drive_until_communication_point()
     r.drive_until_communication_point()
     r.drive_until_communication_point()
+    stream = os.system("pkill node")
