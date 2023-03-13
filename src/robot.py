@@ -20,6 +20,8 @@ class Robot:
     """
 
     communication: CommunicationFacade = None
+    color: ms.ColorDetector = None
+    obj_detec: ms.ObjectDetector = None
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
         self.motor_left = ev3.LargeMotor(left_port)
@@ -27,9 +29,13 @@ class Robot:
 
         self.current_dir = start_dir  # keeps track of robot's direction
 
-        self.color = ms.ColorDetector()
-        self.obj_detec = ms.ObjectDetector()
 
+        try:
+            self.color = ms.ColorDetector()
+            self.obj_detec = ms.ObjectDetector()
+        except Exception as e:
+            print("Could not initialize sensors")
+            print(e)
 
     def move_time(self, t,s):  # Rückwärts bewegen
         self.motor_left.run_timed(time_sp=t, speed_sp=s)
