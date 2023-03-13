@@ -28,7 +28,6 @@ class Direction(IntEnum):
     SOUTH = 180
     WEST = 270
 
-
 Weight = int
 """
 Weight of a given path (received from the server)
