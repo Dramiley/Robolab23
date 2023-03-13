@@ -12,6 +12,7 @@ from communication import Communication
 from communication_logger import CommunicationLogger
 
 from robot import Robot
+from controller import Controller
 
 client = None  # DO NOT EDIT
 
@@ -47,34 +48,9 @@ def run():
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    # Initialize communication_scripts, use a different logger if you want to display the communication_scripts rightaway
-    communication = Communication(client, CommunicationLogger()).facade
+    controller = Controller(client)
+    controller.run()
 
-    # setup error handling
-    communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
-
-    # replace with robot.run_robot()
-    robot = Robot()
-    robot.set_communication(communication)
-    # robot.followline()
-    robot.robot_testing()
-    print("Station erreicht")
-
-    # setup planet handling
-    communication.ready()
-    communication.set_callback('planet',
-                               lambda planetName, startX, startY, startOrientation: print(
-                                   'got planet %s at %s/%s/%s' % (
-                                       planetName, startX, startY, startOrientation)))
-    time.sleep(1)
-
-    # setup path handling
-    communication.path(0, 0, 90, 2, 4, 270, "free")
-    communication.set_callback('path', lambda startX, startY, startOrientation, endX, endY, endOrientation, pathStatus,
-                                              pathWeight: print(
-        'got path from %s/%s/%s to %s/%s/%s with status %s and weight %s' % (
-            startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight)))
-    time.sleep(1)
 
 
 # DO NOT EDIT
