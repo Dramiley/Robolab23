@@ -28,7 +28,7 @@ class Controller:
         print("Controller started")
 
         # go!
-        self.robot.followline()
+        self.robot.run()
 
 
 """ DEMO IMPLEMENTATION
