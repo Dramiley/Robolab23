@@ -245,7 +245,7 @@ class Controller:
         """
         print("Done.")
         print("Message: " + message)
-        self.robot.stop()
+        self.robot.__stop()
         self.communication.done()
 
     def tuple_to_position(self, tuple):
