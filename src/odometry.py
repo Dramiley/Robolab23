@@ -4,7 +4,13 @@ from robot import Robot
 from planet import Direction
 from typing import Tuple, List
 
+from communication_facade import CommunicationFacade
+
+
 class Odometry:
+
+    communication: CommunicationFacade = None
+
     def __init__(self, robot:Robot, start_pos: Tuple[int, int]=(0, 0), start_dir: int=Direction.NORTH):
         """
         Initializes odometry module
@@ -92,3 +98,5 @@ class Odometry:
         """
         self.motor_pos_list = []
 
+    def set_communication(self, communication: CommunicationFacade):
+        self.communication = communication
