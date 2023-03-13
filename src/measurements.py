@@ -6,8 +6,20 @@ class ColorDetector:
         self.greytone = 0
         self.subname = ''
 
-        self.cs = ev3.ColorSensor()
-        self.us = ev3.UltrasonicSensor()
+        try:
+            self.cs = ev3.ColorSensor()
+            print("Color Semsor Okay")
+        except Exception as e:
+            print("Could not initialize color sensors")
+            print(e)
+            
+            
+        try:
+            self.us = ev3.UltrasonicSensor()
+            print("Object Semcsor Okay")
+        except Exception as e:
+            print("Could not initialize object detector sensors")
+            print(e)
 
 
     def color_check(self):

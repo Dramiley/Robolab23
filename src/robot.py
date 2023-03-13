@@ -22,6 +22,7 @@ class Robot:
     communication: CommunicationFacade = None
     color: ms.ColorDetector = None
     obj_detec: ms.ObjectDetector = None
+    MIDDLEGREYTONE = 200
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
         self.motor_left = ev3.LargeMotor(left_port)
@@ -32,9 +33,17 @@ class Robot:
 
         try:
             self.color = ms.ColorDetector()
-            self.obj_detec = ms.ObjectDetector()
+            print("Color Okay")
         except Exception as e:
-            print("Could not initialize sensors")
+            print("Could not initialize color sensors wrapper ")
+            print(e)
+
+
+        try:
+            self.obj_detec = ms.ObjectDetector()
+            print("Object Detector Okay")
+        except Exception as e:
+            print("Could not initialize object detector sensors wrapper")
             print(e)
 
     def move_time(self, t,s):  # Rückwärts bewegen
@@ -42,17 +51,32 @@ class Robot:
         self.motor_right.run_timed(time_sp=t, speed_sp=s)
 
     def drive(self):
-        self.move_motor(self.motor_left)
-        self.move_motor(self.motor_right)
+        
+        self.motor_left.speed_sp = 80
+        self.motor_left.command = "run-forever"
+        self.motor_right.speed_sp = 80
+        self.motor_right.command = "run-forever"
+        
 
     def stop(self):  # Stoppen
         self.motor_left.stop()
         self.motor_right.stop()
 
-    def turn180(self):  # 180 Grad drehen
+    def turn170(self):  # 180 Grad drehen
         self.motor_left.run_timed(time_sp=2500, speed_sp=120)
         self.motor_right.run_timed(time_sp=2500, speed_sp=-120)
+        time.sleep(2.5)
 
+    def turn180(self):  # 180 Grad drehen
+        self.motor_left.run_timed(time_sp=2500, speed_sp=133)
+        self.motor_right.run_timed(time_sp=2500, speed_sp=-133)#
+        time.sleep(2.5)
+    
+    def turn90(self):
+        self.motor_left.run_timed(time_sp=1250, speed_sp=133)
+        self.motor_right.run_timed(time_sp=1250, speed_sp=-133)
+        time.sleep(1.25)
+        
     def calibrate(self):
         ev3.Sound.speak('Calibration starting').wait()
         ev3.Sound.speak('White').wait()
@@ -65,22 +89,22 @@ class Robot:
         self.color.color_check()
         black = self.color.greytone
         print("black = " + str(black))
-        MIDDLEGREYTONE = ((white + black) / 2) + 40
+        MIDDLEGREYTONE = ((white + black) / 2) + 55
         print("grey = " + str(MIDDLEGREYTONE))
-        return MIDDLEGREYTONE
+        self.MIDDLEGREYTONE = MIDDLEGREYTONE
     
     def obstacleInWay(self, MIDDLEGREYTONE):
         self.stop()
-        self.move_time(300, -100)
-        time.sleep(3)
+        self.move_time(500, -100)
+        time.sleep(1)
         ev3.Sound.speak('Meteroit spotted').wait()
-        self.turn180()
-        time.sleep(3)
+        self.turn170()
         self.followline(MIDDLEGREYTONE)
 
-    def followline(self, MIDDLEGREYTONE):  # folgt der Linie
-        self.communication.test_planet("Gromit")
+    def followline(self):  # folgt der Linie
+        #self.communication.test_planet("Gromit")
         self.color.color_check()  # checkt die Farbe
+        MIDDLEGREYTONE = self.MIDDLEGREYTONE
         integral = 0
         lerror = 0
         tempo = 80
@@ -115,15 +139,31 @@ class Robot:
             lerror = error
             self.color.color_check()
         self.stop()
-        self.communication.ready()
-        self.station_scan()
+        #self.communication.ready()
 
-    def station_scan(self):
+    def station_scan(self, turns):
+        self.move_distance_straight(7)
+        backturns = 4 - turns
+        while turns > 0:
+            self.turn90() 
+            turns = turns - 1 
         self.color.color_check()
-        while self.color.name != 'grey':
-            self.run()
-        while self.color.name == 'grey':
-            pass
+        while (backturns) > 0:
+            self.turn90()
+            backturns = backturns - 1
+        self.move_distance_straight(-7)
+        if self.color.subname == 'black':
+            return True
+        else: return False
+        
+        
+    
+        
+        
+        
+        
+            
+        
             
         
     
@@ -144,33 +184,43 @@ class Robot:
         """
         Moves the robot d_cm [cm] on a straight line#
         """
-        self.moveTime(d_cm/2, int(d_cm*20,5))
-        pass
+        self.move_time(1000, d_cm*20)
+        time.sleep(1)
 
     def set_communication(self, communication: CommunicationFacade):
         self.communication = communication
 
     def run(self):
-        MIDDLEGREYTONE = self.calibrate()
+        self.calibrate()
         while True:
             print("1 for followline")
             print("2 for station_scan")
             print("3 for turn180")
             print("4 for quit")
+            print("5 for station_scan")
+            print("6 for turn90")
             i = input() 
             if i == "1":
-                self.followline(MIDDLEGREYTONE)
+                self.followline()
             elif i == "2":
                 self.station_scan()
             elif i == "3":
                 self.turn180()
             elif i == "4":
                 sys.exit()
+            elif i == "5":
+                t = int(input("Wie oft drehen?\n"))
+                print(self.station_scan(t))
+            elif i == "6":
+                self.turn90()
 
     def drive_until_start(self):
         """
         Drives the robot until it reaches the start node
         """
+        self.run()
+        #self.followline()
+            
         pass
 
     def explore(self, planetName, startX, startY, startOrientation):
@@ -187,6 +237,7 @@ class Robot:
         """
         Drives the robot to the next communication point
         """
+        self.followline()
         pass
 
     def drive_to(self, x, y):
