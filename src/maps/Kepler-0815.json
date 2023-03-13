@@ -78,56 +78,56 @@
                     }
                   ]
                 },
-                {
-                  "color": "red",
-                  "x": 315,
-                  "y": 1,
-                  "orientation": 90,
-                  "paths": [
-                    null,
-                    {
-                      "color": "blue",
-                      "x": 317,
-                      "y": 0,
-                      "orientation": 180,
-                      "paths": [
-                        -1,
-                        null,
-                        {
-                          "color": "red",
-                          "x": 313,
-                          "y": -1,
-                          "orientation": 270,
-                          "paths": [
-                            null,
-                            -1,
-                            null,
-                            -2
-                          ]
-                        },
-                        null
-                      ]
-                    },
-                    {
-                      "color": "blue",
-                      "x": 315,
-                      "y": 0,
-                      "orientation": 180,
-                      "paths": [
-                        -1,
-                        null,
-                        null,
-                        null
-                      ]
-                    },
-                    -1
-                  ]
-                },
+                null,
                 -1,
                 null
               ]
             },
-            null,
+            {
+              "color": "red",
+              "x": 315,
+              "y": 1,
+              "orientation": 90,
+              "paths": [
+                null,
+                {
+                  "color": "blue",
+                  "x": 317,
+                  "y": 0,
+                  "orientation": 180,
+                  "paths": [
+                    -1,
+                    null,
+                    {
+                      "color": "red",
+                      "x": 313,
+                      "y": -1,
+                      "orientation": 270,
+                      "paths": [
+                        null,
+                        -1,
+                        null,
+                        -2
+                      ]
+                    },
+                    null
+                  ]
+                },
+                {
+                  "color": "blue",
+                  "x": 315,
+                  "y": 0,
+                  "orientation": 180,
+                  "paths": [
+                    -1,
+                    null,
+                    null,
+                    null
+                  ]
+                },
+                -1
+              ]
+            },
             -1,
             null
           ]
