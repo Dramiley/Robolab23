@@ -18,6 +18,7 @@ import math
 import logging
 import sys
 import pdb
+import operator
 sys.path.insert(0, 'planet')
 
 @unique
@@ -62,11 +63,11 @@ class Planet:
         self.paths = {}
         self.nodes = []
 
-        self.unexplored = {} # dict keeping track of unexplored paths of the form node: Direction
+        self.unexplored = {} # dict keeping track of unexplored paths of the form node: Set[Direction]
         self.computed_shortests_paths = {} # stores shortests paths, indezes=2-element sets, values=List[node, dir]
         self.computations_uptodate = False
 
-    def is_node_known(self, node: Tuple[int, int]) -> bool:
+    def __is_node_known(self, node: Tuple[int, int]) -> bool:
         """
         Returns true if node has already been explored, else false
         """
@@ -76,17 +77,17 @@ class Planet:
     def add_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction],
                  weight: int):
         """
-         Adds a bidirectional path defined between the start and end coordinates to the map and assigns the weight to it
+        Adds a bidirectional path defined between the start and end coordinates to the map and assigns the weight to it
 
-        Example:
-            add_path(((0, 3), Direction.NORTH), ((0, 3), Direction.WEST), 1)
-        :param start: 2-Tuple
-        :param target:  2-Tuple
-        :param weight: Integer
-        :return: void
+            Example:
+                add_path(((0, 3), Direction.NORTH), ((0, 3), Direction.WEST), 1)
+            :param start: 2-Tuple
+            :param target:  2-Tuple
+            :param weight: Integer
+            :return: void
 
-        TODO: initiate recomputation of self.computed_shortest_paths
-            - instead of having to compute them every time on the run
+            TODO: initiate recomputation of self.computed_shortest_paths
+                - instead of having to compute them every time on the run
         """
         start_coords = start[0]
         start_entry_dir = start[1]
@@ -108,8 +109,27 @@ class Planet:
             path_to_self = frozenset([target_coords, target_coords]) # since set->only 1 element
             self.computed_shortests_paths[path_to_self] = ([], 0)
 
+        if start_entry_dir in self.paths[start_coords]:
+            # path is already registered -> same for target_coords
+            return
+
+        self.add_new_path(start, target, weight)
+
+    def add_new_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction],
+                 weight: int):
+        """
+        Adds new path to self.paths AND updates self.unexplored
+        """
+        start_coords = start[0]
+        start_entry_dir = start[1]
+        target_coords = target[0]
+        target_entry_dir = target[1]
+
         self.paths[start_coords][start_entry_dir] = (target_coords, target_entry_dir, weight)
         self.paths[target_coords][target_entry_dir] = (start_coords, start_entry_dir, weight)
+
+        if target_coords in self.unexplored:
+            self.__mark_dir_explored(target_coords, target_entry_dir)
 
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
         """
@@ -134,7 +154,7 @@ class Planet:
         # YOUR CODE FOLLOWS (remove pass, please!)
         return self.paths
 
-    def expand_node(
+    def __expand_node(
             self, node: Tuple[int, int],
             weight0: int,
             unvisited: List[Tuple[int, int]],
@@ -165,7 +185,7 @@ class Planet:
                     marked[coords] = (new_weight, node)
         return marked
 
-    def djikstra_reconstruct_shortest_path(self,
+    def __djikstra_reconstruct_shortest_path(self,
             shortest_paths: Dict[Tuple[int, int], Tuple[int, Tuple[int, int]]],
             start: Tuple[int, int], target: Tuple[int, int]
         ) -> Tuple[List[Tuple[Tuple[int, int], Direction]], int]:
@@ -193,7 +213,7 @@ class Planet:
         list.reverse() # bc appeding started from target towards start
         return (list, weight)
 
-    def djikstra(self, start_coords: Tuple[int, int], target_coords: Tuple[int, int]) -> Optional[Tuple[List[Tuple[int, int]], int]]:
+    def __djikstra(self, start_coords: Tuple[int, int], target_coords: Tuple[int, int]) -> Optional[Tuple[List[Tuple[int, int]], int]]:
         """
         1. choose node1 with minimal weight out of marked nodes
         2. if this node is target->finished else continue
@@ -223,7 +243,7 @@ class Planet:
             shortest_paths[next_node] = marked[next_node]
             marked.pop(next_node)
 
-            new_marked_nodes = self.expand_node(next_node, weight0, unvisited, shortest_paths)
+            new_marked_nodes = self.__expand_node(next_node, weight0, unvisited, shortest_paths)
             unvisited.remove(next_node)
 
             # TODO: Problem; start_coords ist in markeds
@@ -236,13 +256,13 @@ class Planet:
             if next_node == target_coords:
                 # return shortest path based on shortest_paths
                 shortest_paths[next_node] = marked[next_node]
-                return self.djikstra_reconstruct_shortest_path(shortest_paths, start_coords, target_coords)
+                return self.__djikstra_reconstruct_shortest_path(shortest_paths, start_coords, target_coords)
             # next_node has been explored->shortest path
 
         return None
 
 
-    def shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[List[Tuple[Tuple[int, int], Direction]]]:
+    def get_shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[List[Tuple[Tuple[int, int], Direction]]]:
         """
         Returns a shortest path between two nodes
 
@@ -260,15 +280,15 @@ class Planet:
             # path has already been computed previously
             return self.computed_shortests_paths[node_id]
         # TODO: remove elif when implemented precomputation of djikstra, since all known nodes must have a shortest path then
-        elif self.is_node_known(target):
+        elif self.__is_node_known(target):
             # perform djikstra and return shortest path
-            shortest_path = self.djikstra(start, target)[0]
+            shortest_path = self.__djikstra(start, target)[0]
             return shortest_path
         else:
             # continue exploration until target is found
             return None
 
-    def store_shortest_paths(self,
+    def __store_shortest_paths(self,
                             start: Tuple[int, int], target: Tuple[int, int],
                             list: List[Tuple[Tuple[int, int], Direction]]
     ):
@@ -279,7 +299,7 @@ class Planet:
         nodes_set = frozenset([start, target]) # index needs to be hashable
         self.computed_shortests_paths[nodes_set] = list
 
-    def get_precomputed_shortest_paths(
+    def __get_precomputed_shortest_paths(
             self, start: Tuple[int, int], target: Tuple[int, int]
     ) -> Optional[List[Tuple[Tuple[int, int], Direction]]]:
         """
@@ -293,7 +313,7 @@ class Planet:
 
         return None
 
-    def update_shortest_paths(
+    def __update_shortest_paths(
             self, start: Tuple[int, int], start_dir: Direction,
             target: Tuple[int, int], target_dir: Direction
         ):
@@ -302,15 +322,15 @@ class Planet:
 
         Note: By design the start node should already be known!
         """
-        if not self.is_node_known(start):
+        if not self.__is_node_known(start):
             raise ValueError("Start node is not known, but should be :(")
 
-        if self.is_node_known(target):
+        if self.__is_node_known(target):
             # node is known and hence there must already exist a shortest path to it
             current_weight = self.computed_shortests_paths
 
-    def is_path_explored(self, node: Tuple[int, int], dir: Direction):
-        if self.is_node_known(node):
+    def __is_path_explored(self, node: Tuple[int, int], dir: Direction):
+        if self.__is_node_known(node):
             return True
         elif dir in self.paths[node]:
             return True
@@ -319,13 +339,17 @@ class Planet:
 
     def add_unexplored_path(self, node: Tuple[int, int], dir: Direction):
         """
-        Tracks unexplored path
+        Tracks unexplored path (node, direction)
         """
-        self.unexplored[node] = dir
+        if node not in self.unexplored:
+            self.unexplored[node] = ()
 
-    def get_next_path(self, current_node: Tuple[int, int]=(0, 0)) -> Optional[Direction]:
+        self.unexplored[node].add(dir)
+
+    def get_next_exploration_path(self, current_node: Tuple[int, int]=(0, 0)) -> List[Tuple[Tuple[int, int], Direction]]:
         """
         WARNING: Make sure to mark the node as explored once it has been reached!!!
+            - do automatically on add_path!!!
 
         Continue exploring planet using dfs, chooses next node based on distances from current pos
 
@@ -341,24 +365,21 @@ class Planet:
             # planet is fully explored!!!
             return None
 
-        # compute node which is next to current pos->based on weights (check shprtest path)
+        # distances are a list of the form [(Path, weight)]
+        distances = [self.__djikstra(current_node, target) for target in self.unexplored]
+        next_path = distances.index(min(distances.values(), key=operator.itemgetter(1))) # itemgetter gets 2nd elem (weight)
+        next_path_without_weight = next_path[0]
+        return next_path_without_weight
 
-
-
-    def get_node_coord(self, id: int) -> Tuple[int, int]:
-        """"
-        Returns coords belonging to node specified by given id
+    def __mark_dir_explored(self, node_coords: Tuple[int, int], dir: Direction):
         """
-        return self.nodes[id]
-
-    def get_node_id(self, coord: Tuple[int, int]):
+        Unmarks dir of node_coords as not being unexplored anymore
+        ->WARNING: make sure node_coords is unexplored before passing it to this function!
         """
-        Returns node it based on given coordinates, if node is unknown a new one is registered with given coords
-        """
-        try:
-            return self.nodes.index(coord)
-        except:
-            self.nodes.append(coord)
-            return self.nodes.index(coord)
 
+        self.unexplored[node_coords].remove(dir)
+        if not self.unexplored[node_coords]:
+            # no more unexplored dirs for node_coords
+            # remove as unexplored if all directions of node have been explored
+            del self.unexplored[node_coords]
 
