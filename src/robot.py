@@ -35,7 +35,7 @@ class Robot:
         self.motor_left.run_timed(time_sp=t, speed_sp=s)
         self.motor_right.run_timed(time_sp=t, speed_sp=s)
 
-    def run(self):
+    def drive(self):
         self.move_motor(self.motor_left)
         self.move_motor(self.motor_right)
 
@@ -122,7 +122,7 @@ class Robot:
     def set_communication(self, communication: CommunicationFacade):
         self.communication = communication
 
-    def robot_testing(self):
+    def run(self):
         while True:
             print("1 for followline")
             print("2 for station_scan")
