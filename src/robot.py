@@ -5,6 +5,9 @@ import measurements as ms
 from planet import Direction
 from typing import List
 
+from communication_facade import CommunicationFacade
+
+
 class Robot:
     """
     Controls the robot's actions
@@ -16,31 +19,33 @@ class Robot:
 
     """
 
-    def __init__(self, left_port: str="outB", right_port: str="outD", start_dir: Direction=Direction.NORTH):
+    communication: CommunicationFacade = None
+
+    def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
         self.motor_left = ev3.LargeMotor(left_port)
         self.motor_right = ev3.LargeMotor(right_port)
 
-        self.current_dir = start_dir # keeps track of robot's direction
+        self.current_dir = start_dir  # keeps track of robot's direction
 
         self.color = ms.ColorDetector()
 
-    def move_motor(self, m): # Vorwärts bewegen
+    def move_motor(self, m):  # Vorwärts bewegen
         # m.run_timed(time_sp=100, speed_sp=50)
         m.speed_sp = 50
         m.commands = "run-forever"
 
-    def moveBack(self, m): # Rückwärts bewegen
+    def moveBack(self, m):  # Rückwärts bewegen
         m.run_timed(time_sp=100, speed_sp=-50)
 
     def run(self):
         self.move_motor(self.motor_left)
         self.move_motor(self.motor_right)
 
-    def stop(self): # Stoppen
+    def stop(self):  # Stoppen
         self.motor_left.stop()
         self.motor_right.stop()
 
-    def turn180(self): # 180 Grad drehen
+    def turn180(self):  # 180 Grad drehen
         self.motor_left.run_timed(time_sp=10000, speed_sp=72)
 
     def obstacleInWay(self):
@@ -49,9 +54,9 @@ class Robot:
         self.turn180()
         self.followline()
 
-    def followline(self): # folgt der Linie
+    def followline(self):  # folgt der Linie
 
-        self.color.color_check() # checkt die Farbe
+        self.color.color_check()  # checkt die Farbe
         integral = 0
         lerror = 0
         tempo = 80
@@ -62,7 +67,7 @@ class Robot:
             self.color = ms.ColorDetector()
             self.color.color_check()
             greytone = self.color.greytone
-            #if time.time() -  starttime >= 2:
+            # if time.time() -  starttime >= 2:
             #    starttime = time.time()
             #    if ms.is_obstacle_ahead():
             #        self.obstacleInWay()
@@ -74,7 +79,7 @@ class Robot:
                 # wenn genau zwischen den beiden Farben, setzt integral auf 0
                 integral = 0
             derivative = error - lerror
-            lenkfaktor = 60*error + 10*integral + 40*derivative
+            lenkfaktor = 60 * error + 10 * integral + 40 * derivative
             lenkfaktor = lenkfaktor / 100
             power1 = tempo + lenkfaktor
             power2 = tempo - lenkfaktor
@@ -105,6 +110,10 @@ class Robot:
         Moves the robot d_cm [cm] on a straight line
         """
         pass
+
+    def set_communication(self, communication: CommunicationFacade):
+        self.communication = communication
+
 
 def run_robot():
     robo = Robot()

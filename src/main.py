@@ -10,7 +10,8 @@ import signal
 import measurements as ms
 from communication import Communication
 from communication_logger import CommunicationLogger
-import robot as r
+
+from robot import Robot
 
 client = None  # DO NOT EDIT
 
@@ -46,14 +47,17 @@ def run():
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    # replace with robot.run_robot()
-    r.run_robot()
-    print("Station erreicht")
     # Initialize communication_scripts, use a different logger if you want to display the communication_scripts rightaway
     communication = Communication(client, CommunicationLogger()).facade
 
     # setup error handling
-    communication.set_callback('error', lambda message: print("FEHLER: " + message))
+    communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
+
+    # replace with robot.run_robot()
+    robot = Robot()
+    robot.set_communication(communication)
+    robot.followline()
+    print("Station erreicht")
 
     # setup planet handling
     communication.ready()
