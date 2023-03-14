@@ -13,11 +13,12 @@ SETUP ENVIROMENT VARIABLES
 """
 
 # read ".env" file
-with open(".env") as f:
-    for line in f:
-        print(line)
-        key, value = line.split("=")
-        os.environ.setdefault(key, value.strip())
+if os.path.exists(".env"):
+    with open(".env") as f:
+        for line in f:
+            print(line)
+            key, value = line.split("=")
+            os.environ.setdefault(key, value.strip())
 
 
 """
