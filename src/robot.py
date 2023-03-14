@@ -168,6 +168,19 @@ class Robot:
             return True
         else:
             return False
+        
+    def __station_scan_alternative(self, sleeptime):
+        self.color.color_check()
+        self.motor_left.speed_sp = 80
+        self.motor_left.command = "run-forever"
+        self.motor_right.speed_sp = -80
+        self.motor_right.command = "run-forever"
+        time.sleep(sleeptime)
+        while self.color.subname == 'white':
+            self.color.color_check()
+        self.__stop()
+        print("found black")
+                
 
     def __move_distance_straight(self, d_cm: int):
         """
@@ -188,6 +201,7 @@ class Robot:
              print("4 for quit")
              print("5 for station_scan")
              print("6 for turn90")
+             print("7 for station_scan2")
              i = input()
              if i == "1":
                  self.__followline()
@@ -202,6 +216,8 @@ class Robot:
                  print(self.__station_scan(t))
              elif i == "6":
                  self.__turn90()
+             elif i == "7":
+                 self.__station_scan_alternative(1)
 
     def drive_until_start(self):
         """
