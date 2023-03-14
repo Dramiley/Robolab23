@@ -255,3 +255,11 @@ class Controller:
 
     def position_to_tuple(self, position):
         return ((position.x, position.y), int(position.direction))
+
+class Position:
+    x, y, direction = 0, 0, 0
+
+    def __init__(self, x, y, direction):
+        self.x = x
+        self.y = y
+        self.direction = direction
