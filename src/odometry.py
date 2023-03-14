@@ -75,7 +75,7 @@ class Odometry:
 
         return (new_coords_x, new_coords_y)
 
-    def get__dir(self) -> int:
+    def get_dir(self) -> int:
         """
         Returns current orientation direction based on current_dir
         """
