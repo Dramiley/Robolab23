@@ -31,6 +31,8 @@ class Odometry:
         self.motor_pos_list = [
             [start_pos_left, start_pos_right]]  # list of 2-element lists [[motor_pos1, motor_pos2], [.,.], ...]
 
+        # odometry should be running only when told so
+        self.running = False
         self.__calc_parameters()
 
     def start(self):
