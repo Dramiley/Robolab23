@@ -8,6 +8,8 @@ TODO:
     - store computed shortest_paths in a variable
 TODO:
     - maybe don't stop djikstra() even if target node is found->maybe will need following nodes later on (store!)
+
+TODO: add support for blocked path (don't mark as unexplored when entered node which has an adjacent blocked path)
 """
 
 # Attention: Do not import the ev3dev.ev3 module in this file
@@ -50,6 +52,7 @@ class Planet:
 
         Attributes:
             self.paths = Dict[Path]
+                - blocked paths have start==target
             self.nodes = List[Tuple[int, int]]
                 - maps node ids to coordinates of nodes for easier representation
             self.computed_shortest_paths = Dict
@@ -59,6 +62,7 @@ class Planet:
                 - values=tuple (path, weight)
             self.computations_uptodate (bool): True if no new path has been added since last computation (which could make the computations obsolete)
                 - ionitiates recomputation if False
+
         """
         self.paths = {}
         self.nodes = []
@@ -329,7 +333,21 @@ class Planet:
             # node is known and hence there must already exist a shortest path to it
             current_weight = self.computed_shortests_paths
 
+    def is_path_blocked(
+            self, start: Tuple[int, int], target: Tuple[int, int], dir: Direction
+    ) -> bool:
+        """
+        Returns bool whether path is blocked
+        """
+        start_same_as_target = self.paths[start][dir] == target
+        return start_same_as_target
+
     def is_path_explored(self, node: Tuple[int, int], dir: Direction):
+        """
+        Returns whether path has already been explored
+
+        TODO: doesn't work this way!!!->only bc node is known, doesnt mean the dir has already been explored!!!
+        """
         if self.__is_node_known(node):
             return True
         elif dir in self.paths[node]:
@@ -382,18 +400,4 @@ class Planet:
             # no more unexplored dirs for node_coords
             # remove as unexplored if all directions of node have been explored
             del self.unexplored[node_coords]
-
-    def add_blocked_path(self, param, param1):
-        """
-        Adds a blocked path to the map
-        """
-        pass
-
-    def is_exploration_complete(self) -> bool:
-        """
-        Returns: True if all nodes have been explored, False otherwise
-        @rtype: bool
-        """
-        # TODO: implement
-        return False
 

@@ -154,7 +154,7 @@ class TestRoboLabPlanet(unittest.TestCase):
         """
         start = (19, -2)
         target = (19, 2)
-        shortest_path = self.planet.shortest_path(start, target)
+        shortest_path = self.planet.get_shortest_path(start, target)
 
         shortest_path_should = [
             ((19, -2), Direction.EAST), ((20, -2), Direction.NORTH), ((20, 0), Direction.NORTH),
@@ -178,7 +178,7 @@ class TestRoboLabPlanet(unittest.TestCase):
         # candle has two paths of same length 5 from (19, -2) to (19, 2)
         start = (19, -2)
         target = (19, 2)
-        shortest_path = self.planet.shortest_path(start, target)
+        shortest_path = self.planet.get_shortest_path(start, target)
 
         shortest_path_should = [
             ((19, -2), Direction.EAST), ((20, -2), Direction.NORTH), ((20, 0), Direction.NORTH),
