@@ -33,11 +33,13 @@ class Odometry:
 
         self.__calc_parameters()
 
-    async def start(self, start_pos: Tuple[int, int] = (0, 0), start_dir: int = Direction.NORTH):
+    def start(self):
         """
         Starts the odometry tracking.
 
         WARNING: should only be called when following a line, so that rotations when exploring paths on a node don't get anything messed up
+
+        NOTE: Make sure to run this function in a separate thread!
         """
 
         self.current_pos = (0, 0)  # position is tracked relative
@@ -46,7 +48,7 @@ class Odometry:
 
         while self.running:
             self.__track_motor_pos()
-            await time.sleep(self.tracking_interval)
+            time.sleep(self.tracking_interval)
 
     def stop(self):
         """
@@ -79,14 +81,8 @@ class Odometry:
         """
         Returns current orientation direction based on current_dir
         """
-        self.get_current_dir = self.get_current_dir % 360  # makes sure self.current_dir is positive
-        return ((self.get_current_dir + 45) // 90) * 90  # +45 makes sure that values nearer to 90 than 0 are rounded up
-
-    def set_dir(self, dir: Direction):
-        self.current_dir = dir
-
-    def set_coords(self, coords: Tuple[int, int]):
-        self.start_pos_coords = coords
+        self.current_dir = self.current_dir % 360  # makes sure self.current_dir is positive
+        return ((self.current_dir + 45) // 90) * 90  # +45 makes sure that values nearer to 90 than 0 are rounded up
 
     def set_dir(self, dir: Direction):
         self.current_dir = dir
@@ -132,14 +128,14 @@ class Odometry:
         # Calculate positions
 
         for angle, distance in zip(alpha, s):
-            dir_vector = (math.cos(self.get_current_dir), math.sin(self.get_current_dir))  # unit vector denoting the direction
+            dir_vector = (math.cos(self.current_dir), math.sin(self.current_dir))  # unit vector denoting the direction
 
             # get vector which points towards new point
             rotated_vector = self.__rotate_vector_by_deg(dir_vector, angle / 2)
             # calculate new position coordinates
             self.current_pos += distance * rotated_vector
             # update dir
-            self.get_current_dir += angle
+            self.current_dir += angle
 
     def __get_driven_distance(self, r: int, al: int) -> int:
         """

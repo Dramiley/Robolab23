@@ -10,6 +10,7 @@ from controller_webview import Webview
 
 from typing import List
 
+import threading
 
 class Position:
     x, y, direction = 0, 0, 0
@@ -75,7 +76,7 @@ class Controller:
 
         # Zusätzlich zu den Planetennachrichten empfängt der Roboter an Kommunikationspunkten auch Befehle vom
         # Mutterschiff.
-        self.communication.set_callback('target', self.queue_received_target)
+        self.communication.set_callback('target', self.receive_target)
 
         # Wurde das Ziel tatsächlich erreicht bzw. die gesamte Karte aufgedeckt, antwortet der Server mit einer
         # Bestätigung vom Typ done (3) und dem Ende der Erkundung.
@@ -85,13 +86,14 @@ class Controller:
 
         # remember last position
         self.last_position = Position(startX, startY, startOrientation)
+
         # setup planet
         self.planet = Planet()
 
         # setup odometry
         self.odometry = Odometry(self.robot)
-        self.odometry.set_coords((startX, startY))
-        self.odometry.set_dir(startOrientation)
+        self.odometry.set_pos((startX, startY))
+        self.odometry.set_coords(startOrientation)
 
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
@@ -102,11 +104,10 @@ class Controller:
 
     def __explore(self):
 
-        # flush queued targets
-        self.__flush_received_target_queue()
-
         # starte odometrie
-        self.odometry.start()
+        # TODO: check: Thread should terminate when self.odometry.stop() is called
+        odometry_thread = threading.thread(self.odometry.start)
+        odometry_thread.start()
 
         # wenn es nichts mehr zu erkunden gibt, dann ist die erkundung beendet
         if self.planet.is_exploration_complete():
@@ -115,7 +116,7 @@ class Controller:
             return
 
         # erstmal nach norden stellen
-        alte_richtung = self.odometry.get_dir()
+        alte_richtung = self.odometry.current_dir
         # TODO: change->calc dir to turn to into
         self.robot.turn_deg(-1 * alte_richtung)
 
@@ -137,7 +138,7 @@ class Controller:
 
             # pop last history entry
             last_history_entry = self.history.pop()
-            self.__receive_target(last_history_entry[0], last_history_entry[1])
+            self.receive_target(last_history_entry[0], last_history_entry[1])
 
         else:
 
@@ -252,17 +253,7 @@ class Controller:
         # now we can finally drive to the next communication point
         self.robot.notify_at_communication_point()
 
-    __receive_target_queue = []
-
-    def queue_received_target(self, x, y):
-        self.__receive_target_queue.append((x, y))
-
-    def __flush_received_target_queue(self):
-        for (x, y) in self.__receive_target_queue:
-            self.__receive_target(x, y)
-        self.__receive_target_queue = []
-
-    def __receive_target(self, x, y):
+    def receive_target(self, x, y):
         """
         Zusätzlich zu den Planetennachrichten empfängt der Roboter an Kommunikationspunkten auch Befehle vom Mutterschiff.
         Eine Nachricht vom Typ target (1) erteilt dem Roboter den Auftrag, auf kürzestem Weg die angegebenen Koordinaten anzufahren, sofern er diesen anhand seiner aktuellen Karte berechnen kann. Sollte dies nicht möglich sein, wird das Ziel vermerkt und die Erkundung normal fortgesetzt, bis eine solche Berechnung möglich ist oder das Ziel erreicht wurde.
@@ -285,6 +276,7 @@ class Controller:
             for position in path:
                 self.robot.turn_deg(position[1] - last_position.direction)
                 self.robot.drive_until_communication_point()
+
             self.__target_reached("Target reached.")
 
     def receive_done(self, message):
