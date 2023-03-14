@@ -6,7 +6,7 @@ from odometry import Odometry
 from robot import Robot
 from robot_dummy import RobotDummy
 from planet import Planet
-from webview import Webview
+from controller_webview import Webview
 
 from typing import List
 
@@ -82,13 +82,15 @@ class Controller:
     def receive_planet(self, _, startX, startY, startOrientation):
 
         # remember last position
-        self.last_position = Position(int(startX), int(startY), startOrientation)
+        self.last_position = Position(startX, startY, startOrientation)
 
         # setup planet
         self.planet = Planet()
 
         # setup odometry
         self.odometry = Odometry(self.robot)
+        self.odometry.set_pos((startX, startY))
+        self.odometry.set_coords(startOrientation)
 
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
@@ -98,6 +100,9 @@ class Controller:
         self.__explore()
 
     def __explore(self):
+
+        # starte odometrie
+        self.odometry.start()
 
         # wenn es nichts mehr zu erkunden gibt, dann ist die erkundung beendet
         if self.planet.is_exploration_complete():
@@ -139,12 +144,13 @@ class Controller:
             # entscheide dich für die erste möglichkeit (DFS)
             for i in range(0, 3):
                 if possible_explore_paths[i]:
-
                     # teile die entscheidung dem mutterschiff mit
                     self.communication.path_select(self.last_position.x, self.last_position.y, i * 90)
 
                     # das mutterschiff wird uns dann beauftragen diesen oder einen anderen Pfade zu nehmen
                     break
+
+        self.odometry.stop()
 
     def __get_possible_explore_paths(self) -> List[bool]:
         """
@@ -174,7 +180,7 @@ class Controller:
 
         # calculate start and end position
         start_position = self.last_position
-        end_position = self.odometry.get_current_coords()
+        end_position = self.odometry.get_coords()
 
         if (start_position.x == end_position.x and start_position.y == end_position.y):
             path_status = "blocked"
@@ -204,7 +210,8 @@ class Controller:
         """
 
         # starte odometry
-        self.odometry.start((startX, startY), int(startOrientation))
+        self.odometry.set_coords((startX, startY))
+        self.odometry.set_dir(startOrientation)
 
         # update odometry inside planet
         self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
@@ -224,8 +231,9 @@ class Controller:
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-unveiled/
         """
 
-        self.odometry.receive_path_unveiled(startX, startY, startOrientation, endX, endY, endOrientation, pathStatus,
-                                            pathWeight)
+        # TODO: check
+        self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
+        # self.odometry.receive_path_unveiled(startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight)
 
     def receive_path_select(self, startDirection):
         """
@@ -234,7 +242,7 @@ class Controller:
         """
 
         # update last position and path status
-        self.odometry.receive_path_select(startDirection)
+        self.odometry.set_dir(startDirection)
 
         # now we can finally drive to the next communication point
         self.robot.notify_at_communication_point()
