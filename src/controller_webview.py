@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-This is a simple Webserver to display the current state of the controller
+This is the old Webserver to display the current state of the controller
 """
 # Python 3 server example
 from http.server import BaseHTTPRequestHandler, HTTPServer
