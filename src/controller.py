@@ -2,12 +2,22 @@ import time
 
 from communication import Communication
 from communication_logger import CommunicationLogger
-from odometry import Odometry, Position
+from odometry import Odometry
 from robot import Robot
 from planet import Planet
 from webview import Webview
 
 from typing import List
+
+
+class Position:
+    x, y, direction = 0, 0, 0
+
+    def __init__(self, x, y, direction):
+        self.x = x
+        self.y = y
+        self.direction = direction
+
 
 class Controller:
     robot = None
@@ -76,7 +86,7 @@ class Controller:
 
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
-        self.planet.add_path((startX, startY), (startX, startY),int(startOrientation) + 180)
+        self.planet.add_path((startX, startY), (startX, startY), int(startOrientation) + 180)
 
         # los gehts
         self.explore()
@@ -255,11 +265,3 @@ class Controller:
 
     def position_to_tuple(self, position):
         return ((position.x, position.y), int(position.direction))
-
-class Position:
-    x, y, direction = 0, 0, 0
-
-    def __init__(self, x, y, direction):
-        self.x = x
-        self.y = y
-        self.direction = direction

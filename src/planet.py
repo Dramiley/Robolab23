@@ -8,6 +8,8 @@ TODO:
     - store computed shortest_paths in a variable
 TODO:
     - maybe don't stop djikstra() even if target node is found->maybe will need following nodes later on (store!)
+
+TODO: add support for blocked path (don't mark as unexplored when entered node which has an adjacent blocked path)
 """
 
 # Attention: Do not import the ev3dev.ev3 module in this file
@@ -119,11 +121,6 @@ class Planet:
                  weight: int):
         """
         Adds new path to self.paths AND updates self.unexplored
-
-        NOTE: loops are handled as blocked paths and blocked paths as loops
-            - reasoning: we don't need to drive loops neither
-                1. for finding a target (can only increase path weight)
-                2. nor for exploration (since we have already explored the path if it is added)
         """
         start_coords = start[0]
         start_entry_dir = start[1]
@@ -341,17 +338,6 @@ class Planet:
             return True
 
         return False
-
-    def is_path_blocked(self, node: Tuple[int, int], dir: Direction) -> bool:
-        """
-        Returns whether a path is blocked
-
-        WARNING: Make sure the passed path is already explored! (using is_path_explored())
-        """
-        paths_parameters = self.paths[node][dir]
-        # end_node is first argument of (entry_node, entry_dir, weight)
-        end_node = paths_parameters[0]
-        return  end_node
 
     def add_unexplored_path(self, node: Tuple[int, int], dir: Direction):
         """

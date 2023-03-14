@@ -212,6 +212,7 @@ class Robot:
         Drives the robot to the next communication point
         """
         self.__followline()
+        pass
 
     def notify_at_communication_point(self):
         """
@@ -228,4 +229,10 @@ class Robot:
         self.motor_left.run_timed(time_sp=1250, speed_sp=133)
         self.motor_right.run_timed(time_sp=1250, speed_sp=-133)
         time.sleep(1.25 / 90 * (deg % 360))
-        self.__stop()
+        self.stop()
+
+    def has_path_ahead(self):
+        """
+        Returns true if the robot has a path ahead
+        """
+        pass
