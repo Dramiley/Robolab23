@@ -20,24 +20,24 @@ class DummyMotor:
 
 class RobotDummy(Robot):
     controller = None
-    orientation = 0
-    position = (0, 0)
+    __orientation = 0
+    __position = (0, 0)
 
     motor_left = DummyMotor()
     motor_right = DummyMotor()
 
     # read map from file
-    with open('maps/Fassaden-M1.json') as json_file:
-        map = json.load(json_file)
-        position = map['x'], map['y']
-        orientation = map['orientation']
+    with open('maps/Fassaden-M1.json') as __json_file:
+        __map = json.load(__json_file)
+        __position = __map['x'], __map['y']
+        __orientation = __map['orientation']
 
     def has_path_ahead(self):
         # can we drive into our current orientation?
-        index_of_current_orientation = self.orientation // 90
+        index_of_current_orientation = self.__orientation // 90
 
         # this is where we are
-        path = self.__path_by_coordinates(self.position, self.map)
+        path = self.__path_by_coordinates(self.__position, self.__map)
 
         # output the path we are going to take
         new_path = path['paths'][index_of_current_orientation]
@@ -47,10 +47,10 @@ class RobotDummy(Robot):
 
     def drive_until_communication_point(self):
         # can we drive into our current orientation?
-        index_of_current_orientation = self.orientation // 90
+        index_of_current_orientation = self.__orientation // 90
 
         # this is where we are
-        path = self.__path_by_coordinates(self.position, self.map)
+        path = self.__path_by_coordinates(self.__position, self.__map)
 
         # output the path we are going to take
         new_path = path['paths'][index_of_current_orientation]
@@ -63,33 +63,29 @@ class RobotDummy(Robot):
             raise Exception("Path is not an object")
 
         # update position
-        self.orientation = new_path['orientation']
-        self.position = new_path['x'], new_path['y']
+        self.__orientation = new_path['orientation']
+        self.__position = new_path['x'], new_path['y']
 
         # log
-        self.log("Position: " + str(self.position) + " | Orientation: " + str(self.orientation))
-
-    def notify_at_communication_point(self):
-        self.drive_until_communication_point()
-        self.controller.communication_point_reached()
+        self.__log("Position: " + str(self.__position) + " | Orientation: " + str(self.__orientation))
 
     def turn_deg(self, deg):
         # runde auf 90°
         deg = round(deg / 90) * 90
 
         # drehe um die angegebene Anzahl an Grad
-        self.orientation += deg
+        self.__orientation += deg
 
         # runde auf 360°
-        self.orientation %= 360
+        self.__orientation %= 360
 
         # log
-        self.log("Turning " + str(deg) + "° | Orientation: " + str(self.orientation))
+        self.__log("Turning " + str(deg) + "° | Orientation: " + str(self.__orientation))
 
     def set_controller(self, controller):
         self.controller = controller
 
-    def log(self, message=""):
+    def __log(self, message=""):
         # print to console
         print(message)
 
@@ -99,7 +95,7 @@ class RobotDummy(Robot):
     def __update_visualisation(self):
         # write to file
         with open('dummy/position.json', 'w') as outfile:
-            json.dump({'x': self.position[0], 'y': self.position[1], 'orientation': self.orientation}, outfile)
+            json.dump({'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation}, outfile)
 
         time.sleep(.5)
 
@@ -134,19 +130,27 @@ class RobotDummy(Robot):
 
         print("Using dummy robot ...")
 
-    def __del__(self):
+    def someFunctionThatDoesntExistOnTheRealRobot(self, hi):
+        # does things
+        b = 3
+        print(b)
+        pass
 
-        # wait for user to press any input
-        time.sleep(1)
 
-        """
-        # stop webserver via node
-        try:
-            stream = os.system("pkill node")
-        except Exception as e:
-            print("Server already off")
-        """
-    # def is_
+def __del__(self):
+    # wait for user to press any input
+    time.sleep(1)
+
+    """
+    # stop webserver via node
+    try:
+        stream = os.system("pkill node")
+    except Exception as e:
+        print("Server already off")
+    """
+
+
+# def is_
 
 
 if __name__ == "__main__":
