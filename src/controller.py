@@ -121,7 +121,7 @@ class Controller:
             # ist es weiterhin möglich diesen pfad zu erkunden?
             possible_explore_paths[i] = not is_blocked and not is_explored
 
-        # wenn alle richtungen blockiert sind, dann ist der pfad zu ende
+        # wenn alle richtungen blockiert sind, dann ist der pfad zu Ende
         if not any(possible_explore_paths):
 
             # pop last history entry
@@ -137,8 +137,11 @@ class Controller:
             # entscheide dich für die erste möglichkeit
             for i in range(0, 3):
                 if possible_explore_paths[i]:
+
                     # teile die entscheidung dem mutterschiff mit
                     self.communication.path_select(self.last_position.x, self.last_position.y, i * 90)
+
+                    # das mutterschiff wird uns dann beauftragen diesen oder einen anderen Pfade zu nehmen
                     break
 
     def __get_possible_explore_paths(self) -> List[bool]:
@@ -169,7 +172,7 @@ class Controller:
 
         # calculate start and end position
         start_position = self.last_position
-        end_position = self.odometry.get_position()
+        end_position = self.odometry.get_current_coords()
 
         if (start_position.x == end_position.x and start_position.y == end_position.y):
             path_status = "blocked"
