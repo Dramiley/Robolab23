@@ -261,7 +261,8 @@ class Controller:
         Mithilfe der Odometrie schätzt er dabei seine neue Position ab.
         :return: void
         """
-
+        # only track when following a line
+        self.odometry.stop()
         # calculate start and end position
         start_position = self.last_position
         end_position = self.odometry.get_coords()
@@ -335,6 +336,7 @@ class Controller:
         self.__rotate_robo_in_dir(startDirection)
 
         # now we can finally drive to the next communication point
+        self.odometry.start()
         self.robot.drive_until_communication_point()
 
     def receive_target(self, x, y):
