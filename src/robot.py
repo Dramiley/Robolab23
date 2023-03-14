@@ -155,9 +155,9 @@ class Robot:
         time.sleep(0.17)
         self.__move_distance_straight(6)
         time.sleep(1)
-        
-        
-        
+
+
+
     def __station_scan(self, turns):
         while turns > 0:
             self.__turn90()
@@ -205,18 +205,11 @@ class Robot:
              elif i == "7":
                  self.__station_center()
 
-    def drive_until_start(self):
-        """
-        Drives the robot until it reaches the start node
-        """
-        self.__run()
-
     def drive_until_communication_point(self):
         """
         Drives the robot to the next communication point
         """
         self.__followline()
-        pass
 
     def notify_at_communication_point(self):
         """
@@ -224,7 +217,6 @@ class Robot:
         """
         self.__followline()
         self.controller.communication_point_reached()
-        pass
 
     def turn_deg(self, deg):
         """
