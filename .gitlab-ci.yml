@@ -24,13 +24,13 @@ cache:
     - venv/
 
 before_script:
-  - python --version  # For debugging
+  - python --version
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
 
 test:
   script:
-    - python selfcheck.py
+    - python src/selfcheck.py
 
 
