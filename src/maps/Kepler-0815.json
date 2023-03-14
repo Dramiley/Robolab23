@@ -55,12 +55,20 @@
                           "orientation": 180,
                           "paths": [
                             {
-                              "x": 311,
-                              "y": 0,
-                              "orientation": 0
+                              "x": 312,
+                              "y": 1,
+                              "orientation": 90
                             },
-                            -2,
-                            -2,
+                            {
+                              "x": 312,
+                              "y": 0,
+                              "orientation": 90
+                            },
+                            {
+                              "x": 312,
+                              "y": -1,
+                              "orientation": 90
+                            },
                             {
                               "color": "red",
                               "x": 310,
@@ -139,7 +147,11 @@
                           "orientation": 90
                         },
                         null,
-                        -2
+                        {
+                          "x": 312,
+                          "y": -1,
+                          "orientation": 270
+                        }
                       ]
                     },
                     null
@@ -225,13 +237,25 @@
           "orientation": 180,
           "paths": [
             {
-              "x": 311,
-              "y": 0,
-              "orientation": 0
+              "x": 312,
+              "y": 1,
+              "orientation": 90
             },
-            -2,
-            -2,
-            -2
+            {
+              "x": 312,
+              "y": 0,
+              "orientation": 90
+            },
+            {
+              "x": 312,
+              "y": -1,
+              "orientation": 90
+            },
+            {
+              "x": 310,
+              "y": 2,
+              "orientation": 0
+            }
           ]
         },
         null
