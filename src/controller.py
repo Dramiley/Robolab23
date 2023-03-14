@@ -215,7 +215,9 @@ class Controller:
         start_position = self.last_position
         end_position = self.odometry.get_coords()
 
-        if (start_position.x == end_position.x and start_position.y == end_position.y):
+        is_path_blocked = self.robot.was_path_blocked
+
+        if is_path_blocked:
             path_status = "blocked"
         else:
             path_status = "free"
