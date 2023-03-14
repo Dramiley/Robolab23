@@ -229,7 +229,6 @@ class Communication:
     def check_syntax(self, topic, payload):
         self.client.publish('comtest/{}'.format(self.group_id), payload=payload, qos=2)
 
-
     def done(self):
         print("Disconnecting from broker")
         self.client.disconnect()
