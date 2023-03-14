@@ -1,20 +1,33 @@
 #!/usr/bin/env python3
-
-import logging
 import os
-import time
+import logging
 
 import paho.mqtt.client as mqtt
 import uuid
 import signal
-import measurements as ms
-from communication import Communication
-from communication_logger import CommunicationLogger
 
 from controller import Controller
-from robot import Robot
 
+"""
+SETUP ENVIROMENT VARIABLES
+"""
+
+# read ".env" file
+with open(".env") as f:
+    for line in f:
+        print(line)
+        key, value = line.split("=")
+        os.environ.setdefault(key, value.strip())
+
+
+"""
+SETUP COMMUNICATION
+"""
 client = None  # DO NOT EDIT
+
+"""
+SETUP PROGRAM
+"""
 
 
 def run():
@@ -54,6 +67,10 @@ def signal_handler(sig=None, frame=None, raise_interrupt=True):
     if raise_interrupt:
         raise KeyboardInterrupt()
 
+
+"""
+RUN PROGRAM
+"""
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)

@@ -44,6 +44,7 @@ class RobotDummy(Robot):
 
         # check if our path is valid
         return new_path is None
+
     def drive_until_communication_point(self):
         # can we drive into our current orientation?
         index_of_current_orientation = self.orientation // 90
@@ -121,7 +122,6 @@ class RobotDummy(Robot):
                 return result
 
     def __init__(self):
-
         """
         try:
             stream = os.system("cd dummy; node server.js &")
@@ -131,6 +131,8 @@ class RobotDummy(Robot):
         # wait for user to press any input
         time.sleep(.7)
         """
+
+        print("Using dummy robot ...")
 
     def __del__(self):
 
@@ -144,7 +146,8 @@ class RobotDummy(Robot):
         except Exception as e:
             print("Server already off")
         """
-    #def is_
+    # def is_
+
 
 if __name__ == "__main__":
     r = RobotDummy()

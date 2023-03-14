@@ -32,7 +32,7 @@ Icon
 .vscode/*
 src/.vscode/*
 src/dummy/position.json
-src/config.py
+src/.env
 
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
@@ -252,7 +252,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+src/.env
 .venv
 env/
 venv/
