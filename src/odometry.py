@@ -39,8 +39,7 @@ class Odometry:
 
         WARNING: should only be called when following a line, so that rotations when exploring paths on a node don't get anything messed up
         """
-        self.start_pos_coords = start_pos
-        self.current_dir = start_dir
+
         self.current_pos = (0, 0)  # position is tracked relative
 
         self.motor_pos_list = []
@@ -82,6 +81,12 @@ class Odometry:
         """
         self.current_dir = self.current_dir % 360  # makes sure self.current_dir is positive
         return ((self.current_dir + 45) // 90) * 90  # +45 makes sure that values nearer to 90 than 0 are rounded up
+
+    def set_dir(self, dir: Direction):
+        self.current_dir = dir
+
+    def set_coords(self, coords: Tuple[int, int]):
+        self.start_pos_coords = coords
 
     def __calc_parameters(self):
         wheel_radius = 2.7  # in cm
