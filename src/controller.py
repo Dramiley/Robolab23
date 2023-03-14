@@ -37,7 +37,7 @@ class Controller:
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
         # replace with robot.run_robot()
-        self.robot = RobotDummy()
+        self.robot = Robot()
         self.robot.set_controller(self)
 
         # setup callbacks
@@ -72,16 +72,20 @@ class Controller:
         # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
         self.communication.ready()
 
+        # as long as the programm is not exited, wait
+        while True:
+            time.sleep(1)
+
     def receive_planet(self, planetName: str, startX: int, startY: int, startOrientation: int):
 
         # remember last position
         self.last_position = Position(startX, startY, startOrientation)
 
         # setup planet
-        self.planet = Planet(planetName)
+        self.planet = Planet()
 
         # setup odometry
-        self.odometry = Odometry(self.robot, (startX, startY), int(startOrientation))
+        self.odometry = Odometry(self.robot)
 
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
@@ -91,6 +95,8 @@ class Controller:
         self.explore()
 
     def explore(self):
+
+
         # wenn es nichts mehr zu erkunden gibt, dann ist die erkundung beendet
         if self.planet.is_exploration_complete():
             self.exploration_complete("alles erkundet.")
@@ -189,6 +195,9 @@ class Controller:
         Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
         """
+
+        # starte odometry
+        self.odometry.start((startX, startY), int(startOrientation))
 
         # update odometry inside planet
         self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
