@@ -2,11 +2,21 @@ import time
 
 from communication import Communication
 from communication_logger import CommunicationLogger
-from odometry import Odometry, Position
+from odometry import Odometry
 from robot import Robot
-from robot_dummy import RobotDummy
 from planet import Planet
 from webview import Webview
+
+from typing import List
+
+
+class Position:
+    x, y, direction = 0, 0, 0
+
+    def __init__(self, x, y, direction):
+        self.x = x
+        self.y = y
+        self.direction = direction
 
 
 class Controller:
@@ -28,13 +38,11 @@ class Controller:
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
         # replace with robot.run_robot()
-        self.robot = RobotDummy()
+        self.robot = Robot()
         self.robot.set_controller(self)
 
         # setup callbacks
         self.init_callbacks()
-
-        time.sleep(1)
 
     def init_callbacks(self):
         # bei einer Antwort des Mutterschiffs mit dem Typ "planet" wird der Name des Planeten ausgegeben
@@ -65,19 +73,20 @@ class Controller:
         # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
         self.communication.ready()
 
-    def receive_planet(self, planetName, startX, startY, startOrientation):
+    def receive_planet(self, planetName: str, startX: int, startY: int, startOrientation: int):
 
         # remember last position
         self.last_position = Position(startX, startY, startOrientation)
 
         # setup planet
-        self.planet = Planet(planetName, startX, startY, startOrientation)
+        self.planet = Planet(planetName)
 
         # setup odometry
         self.odometry = Odometry(self.robot, (startX, startY), int(startOrientation))
 
         # aktuelle position um 180 grad gedreht als blockiert merken
-        self.planet.add_blocked_path((startX, startY), int(startOrientation) + 180)
+        # ->because we always start from a dead end
+        self.planet.add_path((startX, startY), (startX, startY), int(startOrientation) + 180)
 
         # los gehts
         self.explore()
@@ -90,7 +99,7 @@ class Controller:
 
         # erstmal nach norden stellen
         alte_richtung = self.odometry.current_dir
-        self.robot.turn_deg(-1 * alte_richtung)
+        self.robot.turnDeg(-1 * alte_richtung)
 
         # in welche richtungen beginnen schwarze linien?
         possible_explore_paths = self.get_possible_explore_paths()
@@ -125,13 +134,13 @@ class Controller:
                     self.communication.path_select(self.last_position.x, self.last_position.y, i * 90)
                     break
 
-    def get_possible_explore_paths(self) -> [bool, bool, bool, bool]:
+    def get_possible_explore_paths(self) -> List[bool]:
         """
         Explores all paths from the current node
         @return: list of directions to nodes that have not been explored yet
         true if path exists, false otherwise
         """
-        possible_explore_paths: [bool, bool, bool, bool] = [False, False, False, False]
+        possible_explore_paths: List[bool] = [False, False, False, False]
 
         # check all paths
         for i in range(0, 3):
@@ -139,7 +148,7 @@ class Controller:
             possible_explore_paths[i] = self.robot.has_path_ahead()
 
             # turn to next path
-            self.robot.turn_deg(90)
+            self.robot.turnDeg(90)
 
         return possible_explore_paths
 
@@ -236,7 +245,7 @@ class Controller:
             # es gibt einen shortest path, liste von positionen mit richtung.
             # fahre zuerst zum ersten punkt, dann zum zweiten, dann zum dritten, ...
             for position in path:
-                self.robot.turn_deg(position[1] - last_position.direction)
+                self.robot.turnDeg(position[1] - last_position.direction)
                 self.robot.drive_until_communication_point()
             self.target_reached("Target reached.")
 
@@ -246,7 +255,7 @@ class Controller:
         """
         print("Done.")
         print("Message: " + message)
-        self.robot.stop()
+        self.robot.__stop()
         self.communication.done()
 
     def tuple_to_position(self, tuple):
