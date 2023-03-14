@@ -86,7 +86,7 @@ class RobotDummy:
         with open('dummy/position.json', 'w') as outfile:
             json.dump({'x': self.position[0], 'y': self.position[1], 'orientation': self.orientation}, outfile)
 
-        time.sleep(.3)
+        # time.sleep(.3)
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates
@@ -138,6 +138,26 @@ if __name__ == "__main__":
     r.turn_deg(-90)
     r.drive_until_communication_point()
     r.turn_deg(180)
+    r.drive_until_communication_point()
+    r.drive_until_communication_point()
+    r.turn_deg(180)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(-90)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(180)
+    r.drive_until_communication_point()
+    r.drive_until_communication_point()
+    r.turn_deg(180)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(-90)
     r.drive_until_communication_point()
     r.drive_until_communication_point()
 """
