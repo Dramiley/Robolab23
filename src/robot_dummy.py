@@ -32,6 +32,18 @@ class RobotDummy(Robot):
         position = map['x'], map['y']
         orientation = map['orientation']
 
+    def has_path_ahead(self):
+        # can we drive into our current orientation?
+        index_of_current_orientation = self.orientation // 90
+
+        # this is where we are
+        path = self.__path_by_coordinates(self.position, self.map)
+
+        # output the path we are going to take
+        new_path = path['paths'][index_of_current_orientation]
+
+        # check if our path is valid
+        return new_path is None
     def drive_until_communication_point(self):
         # can we drive into our current orientation?
         index_of_current_orientation = self.orientation // 90
@@ -132,7 +144,7 @@ class RobotDummy(Robot):
         except Exception as e:
             print("Server already off")
         """
-
+    #def is_
 
 if __name__ == "__main__":
     r = RobotDummy()
