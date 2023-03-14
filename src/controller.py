@@ -99,7 +99,7 @@ class Controller:
 
         # wenn es nichts mehr zu erkunden gibt, dann ist die erkundung beendet
         if self.planet.is_exploration_complete():
-            self.exploration_complete("alles erkundet.")
+            self.exploration_complete()
             return
 
         # erstmal nach norden stellen

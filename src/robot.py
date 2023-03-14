@@ -72,6 +72,10 @@ class Robot:
         self.motor_left.run_timed(time_sp=1250, speed_sp=131)
         self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
         time.sleep(1.5)
+    
+    def __ScanTurn(self):
+        self.motor_left.run_timed(time_sp=1250, speed_sp=131)
+        self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
 
     def __speak(self, text):
         try:
@@ -153,7 +157,7 @@ class Robot:
     def __station_center(self):
         self.motor_left.run_timed(time_sp=500, speed_sp=60)
         time.sleep(0.5)
-        self.__move_distance_straight(6)
+        self.__move_distance_straight(5)
         time.sleep(1)
         
         
@@ -169,17 +173,22 @@ class Robot:
         else:
             return False
         
-    def __station_scan_alternative(self, sleeptime):
+    def __station_scan_alternative(self):
         self.color.color_check()
-        self.motor_left.speed_sp = 80
-        self.motor_left.command = "run-forever"
-        self.motor_right.speed_sp = -80
-        self.motor_right.command = "run-forever"
-        time.sleep(sleeptime)
-        while self.color.subname == 'white':
+        if self.color.subname == 'black' or self.color.subname == 'grey':
+            self.motor_left.run_timed(time_sp=300, speed_sp=131)
+            self.motor_right.run_timed(time_sp=300, speed_sp=-131)
+            time.sleep(0.3)
+        starttime = time.time()
+        self.__ScanTurn()
+        while self.color.subname == 'white' and time.time() - starttime <= 2:
             self.color.color_check()
         self.__stop()
-        print("found black")
+        if self.color.subname == 'black' or self.color.subname == 'grey':
+            return True
+        else:
+            return False
+
                 
 
     def __move_distance_straight(self, d_cm: int):
@@ -217,7 +226,7 @@ class Robot:
              elif i == "6":
                  self.__turn90()
              elif i == "7":
-                 self.__station_scan_alternative(1)
+                 print(self.__station_scan_alternative())
 
     def drive_until_start(self):
         """
