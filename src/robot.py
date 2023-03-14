@@ -22,6 +22,7 @@ class Robot:
     color: ms.ColorDetector = None
     obj_detec: ms.ObjectDetector = None
     middlegreytone = 200
+    path_was_blocked = False # stores whether last path driven was blocked or not->set when obstacle is detected
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
 
@@ -65,14 +66,14 @@ class Robot:
 
     def __turn180(self):  # 180 Grad drehen
         self.motor_left.run_timed(time_sp=2500, speed_sp=131)
-        self.motor_right.run_timed(time_sp=2500, speed_sp=-131) 
+        self.motor_right.run_timed(time_sp=2500, speed_sp=-131)
         time.sleep(2.5)
 
     def __turn90(self):
         self.motor_left.run_timed(time_sp=1250, speed_sp=131)
         self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
         time.sleep(1.5)
-    
+
     def __ScanTurn(self):
         self.motor_left.run_timed(time_sp=1250, speed_sp=131)
         self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
@@ -105,6 +106,9 @@ class Robot:
         self.__move_time(500, -100)
         time.sleep(1)
         self.__speak('Meteroit spotted')
+
+        self.path_was_blocked = True
+
         self.__turn170()
         self.__followline()
 
@@ -162,12 +166,12 @@ class Robot:
         time.sleep(0.5)
         self.__move_distance_straight(5)
         time.sleep(1)
-        
-        
+
+
     def __station_scan(self):
         self.color.color_check()
         while self.color.subname != 'white':
-            self.__drive(131, -131)	
+            self.__drive(131, -131)
             self.color.color_check()
         self.__stop()
         starttime = time.time()
@@ -180,7 +184,7 @@ class Robot:
         else:
             return False
 
-                
+
 
     def __move_distance_straight(self, d_cm):
         """
@@ -229,6 +233,7 @@ class Robot:
         """
         Drives the robot to the next communication point
         """
+        self.path_was_blocked = False # reset
         self.__followline()
         self.controller.communication_point_reached()
 
