@@ -9,8 +9,7 @@ from planet import Planet
 from controller_webview import Webview
 
 from typing import List
-
-import threading
+from threading import Thread
 
 class Position:
     x, y, direction = 0, 0, 0
@@ -106,7 +105,7 @@ class Controller:
 
         # starte odometrie
         # TODO: check: Thread should terminate when self.odometry.stop() is called
-        odometry_thread = threading.thread(self.odometry.start)
+        odometry_thread = Thread(target=self.odometry.start, args=())
         odometry_thread.start()
 
         # wenn es nichts mehr zu erkunden gibt, dann ist die erkundung beendet

@@ -2,6 +2,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import time
 
+from robot import Robot
+
 """
 This is a dummy class for the robot.
 The path is read from a json file.
@@ -16,7 +18,7 @@ class DummyMotor:
     position = 0
 
 
-class RobotDummy:
+class RobotDummy(Robot):
     controller = None
     orientation = 0
     position = (0, 0)
@@ -247,5 +249,5 @@ if __name__ == "__main__":
     r.drive_until_communication_point()
     r.drive_until_communication_point()
     r.drive_until_communication_point()
-    
+
 """
