@@ -65,7 +65,7 @@ class Planet:
         self.paths = {}
         self.nodes = []
 
-        self.unexplored = {} # dict keeping track of unexplored paths of the form node: Set[Direction]
+        self.unexplored = {} # dict keeping track of unexplored paths of the form node: Set[Direction] which are the unexplored directions
         self.computed_shortests_paths = {} # stores shortests paths, indezes=2-element sets, values=List[node, dir]
         self.computations_uptodate = False
 
@@ -362,27 +362,29 @@ class Planet:
 
         return False
 
-    def add_unexplored_path(self, node: Tuple[int, int], dir: Direction):
+    def add_possible_unexplored_path(self, node: Tuple[int, int], dir: Direction):
         """
         Tracks unexplored path (node, direction)
+            ->adds path to self.unexplored if it is not explored
         """
+        if self.paths[node][dir] != None:
+            return
+
         if node not in self.unexplored:
             self.unexplored[node] = ()
 
         self.unexplored[node].add(dir)
 
-    def get_next_exploration_path(self, current_node: Tuple[int, int]=(0, 0)) -> List[Tuple[Tuple[int, int], Direction]]:
+    def get_next_exploration_dir(self, current_node: Tuple[int, int]=(0, 0)) -> Direction:
         """
-        WARNING: Make sure to mark the node as explored once it has been reached!!!
-            - do automatically on add_path!!!
 
-        Continue exploring planet using dfs, chooses next node based on distances from current pos
+        Continue exploring planet by going to the nextnearest node which has an unexplored dir
 
         1. get next node to be explored (if there is one!!!)
         2. drive to that node and continue exploring it in that direction
 
         Returns:
-            - direction in which exploration should be started (from currentnode)
+            - direction which to follow for exploration
             - None if whole map has been explored
 
         """
@@ -390,11 +392,17 @@ class Planet:
             # planet is fully explored!!!
             return None
 
+        if current_node in self.unexplored:
+            # continue exploring that current node (->dfs)
+            return next(iter(self.unexplored[current_node]))
+
         # distances are a list of the form [(Path, weight)]
         distances = [self.__djikstra(current_node, target) for target in self.unexplored]
         next_path = distances.index(min(distances.values(), key=operator.itemgetter(1))) # itemgetter gets 2nd elem (weight)
-        next_path_without_weight = next_path[0]
-        return next_path_without_weight
+        next_path_without_weight = next_path[0] # format: List[Tuple[node, Direction]]
+        # TODO: check that next_dir really accesses the direction-element!
+        next_dir = next_path_without_weight[0][1]
+        return next_dir
 
     def __mark_dir_explored(self, node_coords: Tuple[int, int], dir: Direction):
         """

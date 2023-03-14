@@ -22,6 +22,7 @@ class Robot:
     color: ms.ColorDetector = None
     obj_detec: ms.ObjectDetector = None
     middlegreytone = 200
+    path_was_blocked = False # stores whether last path driven was blocked or not->set when obstacle is detected
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
 
@@ -65,14 +66,14 @@ class Robot:
 
     def __turn180(self):  # 180 Grad drehen
         self.motor_left.run_timed(time_sp=2500, speed_sp=131)
-        self.motor_right.run_timed(time_sp=2500, speed_sp=-131) 
+        self.motor_right.run_timed(time_sp=2500, speed_sp=-131)
         time.sleep(2.5)
 
     def __turn90(self):
         self.motor_left.run_timed(time_sp=1250, speed_sp=131)
         self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
         time.sleep(1.5)
-    
+
     def __ScanTurn(self):
         self.motor_left.run_timed(time_sp=1250, speed_sp=131)
         self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
@@ -105,6 +106,9 @@ class Robot:
         self.__move_time(500, -100)
         time.sleep(1)
         self.__speak('Meteroit spotted')
+
+        self.path_was_blocked = True
+
         self.__turn170()
         self.__followline()
 
@@ -162,12 +166,12 @@ class Robot:
         time.sleep(0.5)
         self.__move_distance_straight(5)
         time.sleep(1)
-        
-        
+
+
     def __station_scan(self):
         self.color.color_check()
         while self.color.subname != 'white':
-            self.__drive(131, -131)	
+            self.__drive(131, -131)
             self.color.color_check()
         self.__stop()
         starttime = time.time()
@@ -179,8 +183,6 @@ class Robot:
             return True
         else:
             return False
-
-                
 
     def __move_distance_straight(self, d_cm):
         """
@@ -194,6 +196,7 @@ class Robot:
 
     def __run(self):
         self.__calibrate()
+<<<<<<< HEAD
         while True:
              print("1 for followline")
              print("2 for station_center")
@@ -214,20 +217,44 @@ class Robot:
                   print(self.__station_scan())
              elif i == "6":
                  self.__turn90()
+=======
+        # while True:
+        #      print("1 for followline")
+        #      print("2 for station_center")
+        #      print("3 for turn180")
+        #      print("4 for quit")
+        #      print("5 for station_scan")
+        #      print("6 for turn90")
+        #      print("7 for station_scan2")
+        #      i = input()
+        #      if i == "1":
+        #          self.__followline()
+        #      elif i == "2":
+        #          self.__station_center()
+        #      elif i == "3":
+        #          self.__turn180()
+        #      elif i == "4":
+        #          break
+        #      elif i == "5":
+        #          t = int(input("Wie oft drehen?\n"))
+        #          print(self.__station_scan(t))
+        #      elif i == "6":
+        #          self.__turn90()
+        #      elif i == "7":
+        #          print(self.__station_scan_alternative())
+>>>>>>> master
 
     def drive_until_communication_point(self):
         """
         Drives the robot to the next communication point
         """
+<<<<<<< HEAD
         #self.__followline()
         self.__run()
-
-    def notify_at_communication_point(self):
-        """
-        Drives the robot to the next communication point
-        """
+=======
+        self.path_was_blocked = False # reset
         self.__followline()
-        self.controller.communication_point_reached()
+>>>>>>> master
 
     def turn_deg(self, deg):
         """
@@ -242,4 +269,4 @@ class Robot:
         """
         Returns true if the robot has a path ahead
         """
-        pass
+        raise NotImplementedError("That's bad news man")
