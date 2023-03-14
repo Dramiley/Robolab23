@@ -22,16 +22,12 @@ variables:
 cache:
   paths:
     - .cache/pip
-    - venv/
 
 before_script:
   - python3 --version
-  - pip install virtualenv
-  - virtualenv venv
-  - source venv/bin/activate
 
 test:
   script:
-    - python src/selfcheck.py
+    - python3 src/selfcheck.py
 
 
