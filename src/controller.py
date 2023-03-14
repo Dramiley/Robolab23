@@ -45,7 +45,10 @@ from planet import Planet, Direction
 from typing import List, Tuple
 from threading import Thread
 
-env = {"SIMULATOR": True, "DEBUG": False, "GITLAB_RUNNER": False}
+# DONT CHANGE ANYTHING HERE, ONLY IN .env
+# Bitte nicht hierdrinne verändern, sondern in der src/.env setzen.
+# siehe https://se-gitlab.inf.tu-dresden.de/robolab-spring/ws2022/group-046/-/blob/master/README.md#example-for-development-purposes
+env = {"SIMULATOR": False, "DEBUG": False, "GITLAB_RUNNER": False}
 
 if os.path.exists(".env"):
     with open(".env") as f:
