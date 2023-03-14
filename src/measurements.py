@@ -28,15 +28,17 @@ class ColorDetector:
             if self.cs.red > 120 and self.cs.blue < 80 and self.cs.green < 80:
                 self.name = 'red'
                 print(self.name)
-            elif self.cs.red < 60 and self.cs.blue > 100 and self.cs.green > 100:
+            elif self.cs.red < 60 and self.cs.blue > 100 and self.cs.green > 90:
                 self.name = 'blue'
             else:
                 self.name = 'grey'
                 self.greytone = (self.cs.red + self.cs.blue + self.cs.green) // 3
                 if self.greytone < 100:
                     self.subname = 'black'
-                elif self.greytone > 100:
+                elif self.greytone > 230:
                     self.subname = 'white'
+                elif self.greytone > 100 and self.greytone < 230:
+                    self.subname = 'grey'
         except Exception as e:
             print("Could not initialize color sensors")
             print(e)

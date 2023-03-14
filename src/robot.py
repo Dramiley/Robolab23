@@ -64,14 +64,14 @@ class Robot:
         time.sleep(2.5)
 
     def __turn180(self):  # 180 Grad drehen
-        self.motor_left.run_timed(time_sp=2500, speed_sp=132)
-        self.motor_right.run_timed(time_sp=2500, speed_sp=-132)  #
+        self.motor_left.run_timed(time_sp=2500, speed_sp=131)
+        self.motor_right.run_timed(time_sp=2500, speed_sp=-131) 
         time.sleep(2.5)
 
     def __turn90(self):
-        self.motor_left.run_timed(time_sp=1250, speed_sp=132)
-        self.motor_right.run_timed(time_sp=1250, speed_sp=-132)
-        time.sleep(1.25)
+        self.motor_left.run_timed(time_sp=1250, speed_sp=131)
+        self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
+        time.sleep(1.5)
 
     def __speak(self, text):
         try:
@@ -151,8 +151,8 @@ class Robot:
         self.motor_right.command = "run-forever"
 
     def __station_center(self):
-        self.motor_left.run_timed(time_sp=170, speed_sp=80)
-        time.sleep(0.17)
+        self.motor_left.run_timed(time_sp=500, speed_sp=60)
+        time.sleep(0.5)
         self.__move_distance_straight(6)
         time.sleep(1)
         
@@ -163,7 +163,8 @@ class Robot:
             self.__turn90()
             turns = turns - 1
         self.color.color_check()
-        if self.color.subname == 'black':
+        print(self.color.greytone)
+        if self.color.subname == 'black' or self.color.subname == 'grey':
             return True
         else:
             return False
@@ -182,17 +183,16 @@ class Robot:
         self.__calibrate()
         while True:
              print("1 for followline")
-             print("2 for station_scan")
+             print("2 for station_center")
              print("3 for turn180")
              print("4 for quit")
              print("5 for station_scan")
              print("6 for turn90")
-             print("7 for station_center")
              i = input()
              if i == "1":
                  self.__followline()
              elif i == "2":
-                 self.__station_scan()
+                 self.__station_center()
              elif i == "3":
                  self.__turn180()
              elif i == "4":
@@ -202,8 +202,6 @@ class Robot:
                  print(self.__station_scan(t))
              elif i == "6":
                  self.__turn90()
-             elif i == "7":
-                 self.__station_center()
 
     def drive_until_start(self):
         """
