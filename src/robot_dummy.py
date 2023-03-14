@@ -7,6 +7,9 @@ This is a dummy class for the robot.
 The path is read from a json file.
 """
 
+# start webserver via node
+import os
+
 
 class RobotDummy:
     controller = None
@@ -79,7 +82,7 @@ class RobotDummy:
         with open('dummy/position.json', 'w') as outfile:
             json.dump({'x': self.position[0], 'y': self.position[1], 'orientation': self.orientation}, outfile)
 
-        #time.sleep(.3)
+        # time.sleep(.3)
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates
@@ -99,15 +102,23 @@ class RobotDummy:
             if result is not None:
                 return result
 
+    def __init__(self):
+
+        stream = os.system("cd dummy; node server.js &")
+
+        # wait for user to press any input
+        time.sleep(.7)
+
+    def __del__(self):
+
+        # wait for user to press any input
+        time.sleep(1)
+
+        # stop webserver via node
+        stream = os.system("pkill node")
+
 
 if __name__ == "__main__":
-    # start webserver via node
-    import os
-
-    # stream = os.system("cd dummy; node server.js &")
-    # wait for user to press any input
-    # time.sleep(.7)
-
     # start robot
     r = RobotDummy()
     r.drive_until_start()
@@ -128,8 +139,6 @@ if __name__ == "__main__":
     r.turn_deg(90)
     r.drive_until_communication_point()
     r.drive_until_communication_point()
-
-
 
     r.turn_deg(90)
     r.drive_until_communication_point()
@@ -200,5 +209,4 @@ if __name__ == "__main__":
     r.drive_until_communication_point()
     r.drive_until_communication_point()
     r.drive_until_communication_point()
-    stream = os.system("pkill node")
     """
