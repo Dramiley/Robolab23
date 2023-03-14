@@ -83,7 +83,11 @@ class Communication:
         :param message: Object
         :return: void
         """
-        payload = json.loads(message.payload.decode('utf-8'))
+        payload = ""
+        try:
+            payload = json.loads(message.payload.decode('utf-8'))
+        except:
+            print("json.loads failed")
 
         # if "from" is the client itself, ignore the message
         if 'from' in payload and payload['from'] == "client":
@@ -113,7 +117,10 @@ class Communication:
 
         # check if message type has a callback registered and call it
         if payload['type'] in self.callbacks:
-            self.callback(payload['type'], payload['payload'])
+            try:
+                self.callback(payload['type'], payload['payload'])
+            except:
+                self.logger(f'Callback of type {payload["type"]} failed')
         else:
             self.logger.error('No callback for message type ' + payload['type'] + ' registered')
 
