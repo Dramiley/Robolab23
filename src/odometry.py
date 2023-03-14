@@ -56,7 +56,7 @@ class Odometry:
         self.running = False
         self.__calculate()
 
-    def get_current_coords(self) -> Tuple[int, int]:
+    def get_coords(self) -> Tuple[int, int]:
         """
         Returns current coords based on self.current_pos by rounding cm to coordinates (nearest multiple of 50cm)
         """
@@ -75,7 +75,7 @@ class Odometry:
 
         return (new_coords_x, new_coords_y)
 
-    def get_current_dir(self) -> int:
+    def get__dir(self) -> int:
         """
         Returns current orientation direction based on current_dir
         """

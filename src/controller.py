@@ -103,6 +103,7 @@ class Controller:
 
         # erstmal nach norden stellen
         alte_richtung = self.odometry.current_dir
+        # TODO: change->calc dir to turn to into
         self.robot.turn_deg(-1 * alte_richtung)
 
         # in welche richtungen beginnen schwarze linien?
@@ -129,9 +130,10 @@ class Controller:
 
             # append history entry
             if sum(possible_explore_paths) > 2:
+                # there are other dirs to explore on this node
                 self.history.append((self.last_position.x, self.last_position.y))
 
-            # entscheide dich für die erste möglichkeit
+            # entscheide dich für die erste möglichkeit (DFS)
             for i in range(0, 3):
                 if possible_explore_paths[i]:
                     # teile die entscheidung dem mutterschiff mit
