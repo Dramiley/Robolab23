@@ -32,7 +32,8 @@ Icon
 .vscode/*
 src/.vscode/*
 src/dummy/position.json
-src/config.py
+src/dummy/yarn.lock
+src/.env
 
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
