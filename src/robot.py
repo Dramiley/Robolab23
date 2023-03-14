@@ -184,8 +184,6 @@ class Robot:
         else:
             return False
 
-
-
     def __move_distance_straight(self, d_cm):
         """
         Moves the robot d_cm [cm] on a straight line#
@@ -198,44 +196,37 @@ class Robot:
 
     def __run(self):
         self.__calibrate()
-        while True:
-             print("1 for followline")
-             print("2 for station_center")
-             print("3 for turn180")
-             print("4 for quit")
-             print("5 for station_scan")
-             print("6 for turn90")
-             print("7 for station_scan2")
-             i = input()
-             if i == "1":
-                 self.__followline()
-             elif i == "2":
-                 self.__station_center()
-             elif i == "3":
-                 self.__turn180()
-             elif i == "4":
-                 break
-             elif i == "5":
-                 t = int(input("Wie oft drehen?\n"))
-                 print(self.__station_scan(t))
-             elif i == "6":
-                 self.__turn90()
-             elif i == "7":
-                 print(self.__station_scan_alternative())
+        # while True:
+        #      print("1 for followline")
+        #      print("2 for station_center")
+        #      print("3 for turn180")
+        #      print("4 for quit")
+        #      print("5 for station_scan")
+        #      print("6 for turn90")
+        #      print("7 for station_scan2")
+        #      i = input()
+        #      if i == "1":
+        #          self.__followline()
+        #      elif i == "2":
+        #          self.__station_center()
+        #      elif i == "3":
+        #          self.__turn180()
+        #      elif i == "4":
+        #          break
+        #      elif i == "5":
+        #          t = int(input("Wie oft drehen?\n"))
+        #          print(self.__station_scan(t))
+        #      elif i == "6":
+        #          self.__turn90()
+        #      elif i == "7":
+        #          print(self.__station_scan_alternative())
 
     def drive_until_communication_point(self):
         """
         Drives the robot to the next communication point
         """
-        self.__followline()
-
-    def notify_at_communication_point(self):
-        """
-        Drives the robot to the next communication point
-        """
         self.path_was_blocked = False # reset
         self.__followline()
-        self.controller.communication_point_reached()
 
     def turn_deg(self, deg):
         """
@@ -250,4 +241,4 @@ class Robot:
         """
         Returns true if the robot has a path ahead
         """
-        pass
+        raise NotImplementedError("That's bad news man")
