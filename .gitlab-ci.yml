@@ -23,11 +23,16 @@ cache:
   paths:
     - .cache/pip
 
+
+stages:
+  - Does it run at all?
+
 before_script:
   - python3 --version
   - pip install -r requirements.txt
 
 test:
+  stage: Does it run at all?
   script:
     - cd src
     - python3 selfcheck.py ci
