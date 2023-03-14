@@ -47,11 +47,11 @@ class Robot:
         self.motor_left.run_timed(time_sp=t, speed_sp=s)
         self.motor_right.run_timed(time_sp=t, speed_sp=s)
 
-    def __drive(self):
+    def __drive(self, speedleft, speedright):
 
-        self.motor_left.speed_sp = 80
+        self.motor_left.speed_sp = speedleft
         self.motor_left.command = "run-forever"
-        self.motor_right.speed_sp = 80
+        self.motor_right.speed_sp = speedright
         self.motor_right.command = "run-forever"
 
     def __stop(self):  # Stoppen
@@ -157,45 +157,36 @@ class Robot:
     def __station_center(self):
         self.motor_left.run_timed(time_sp=500, speed_sp=60)
         time.sleep(0.5)
+        self.motor_left.run_timed(time_sp=312, speed_sp=65)
+        self.motor_right.run_timed(time_sp=312, speed_sp=-65)
+        time.sleep(0.5)
         self.__move_distance_straight(5)
         time.sleep(1)
         
         
-        
-    def __station_scan(self, turns):
-        while turns > 0:
-            self.__turn90()
-            turns = turns - 1
+    def __station_scan(self):
         self.color.color_check()
-        print(self.color.greytone)
-        if self.color.subname == 'black' or self.color.subname == 'grey':
-            return True
-        else:
-            return False
-        
-    def __station_scan_alternative(self):
-        self.color.color_check()
-        if self.color.subname == 'black' or self.color.subname == 'grey':
-            self.motor_left.run_timed(time_sp=300, speed_sp=131)
-            self.motor_right.run_timed(time_sp=300, speed_sp=-131)
-            time.sleep(0.3)
-        starttime = time.time()
-        self.__ScanTurn()
-        while self.color.subname == 'white' and time.time() - starttime <= 2:
+        while self.color.subname != 'white':
+            self.__drive(131, -131)	
             self.color.color_check()
         self.__stop()
-        if self.color.subname == 'black' or self.color.subname == 'grey':
+        starttime = time.time()
+        self.__ScanTurn()
+        while self.color.subname != 'black' and time.time() - starttime <= 2:
+            self.color.color_check()
+        self.__stop()
+        if self.color.subname == 'black':
             return True
         else:
             return False
 
                 
 
-    def __move_distance_straight(self, d_cm: int):
+    def __move_distance_straight(self, d_cm):
         """
         Moves the robot d_cm [cm] on a straight line#
         """
-        self.__move_time(1000, d_cm * 20)
+        self.__move_time(1000, int(d_cm * 20))
         time.sleep(1)
 
     def set_controller(self, controller):
