@@ -86,12 +86,12 @@ class Controller:
     communication = None
     odometry = None
     planet = None
-    last_position = Position(0, 0, 0) # updated by received msg from mothership or rotations by rob
+    last_position = Position(0, 0, 0)  # updated by received msg from mothership or rotations by rob
 
-    given_new_target = False # tracks whether we have a target to drive to by the mothership
+    given_new_target = False  # tracks whether we have a target to drive to by the mothership
     target_pos = None
 
-    path_to_drive = [] # stores the path we have to drive (drive path->pop first elem->ask mothership whether path should be followed on)
+    path_to_drive = []  # stores the path we have to drive (drive path->pop first elem->ask mothership whether path should be followed on)
     history = []
 
     def __init__(self, client):
@@ -155,7 +155,7 @@ class Controller:
         if self.target_pos != None:
             # we have a given target we need to drive to
             last_pos = (self.last_position.x, self.last_position.y)
-            shortest_path = self.planet.get_shortest_path(last_pos, self.target) # =List[Tuple[pos, dir]]
+            shortest_path = self.planet.get_shortest_path(last_pos, self.target)  # =List[Tuple[pos, dir]]
 
             if shortest_path == []:
                 # we are already at target
@@ -186,7 +186,6 @@ class Controller:
             return
 
         return next_dir
-
 
     def __init_callbacks(self):
         # bei einer Antwort des Mutterschiffs mit dem Typ "planet" wird der Name des Planeten ausgegeben
@@ -241,16 +240,16 @@ class Controller:
 
         TODO: don't scan nodes which are already explored completely
         """
-        start_dir = self.last_position.direction # the direction we came from
+        start_dir = self.last_position.direction  # the direction we came from
         current_dir = start_dir
 
         # check all paths
-        for i in range(1, 3): # 1 because there must be a path on the one we came from
+        for i in range(1, 3):  # 1 because there must be a path on the one we came from
             # check if there is a black line beginning
             # turn to next path
             self.robot.turn_deg(90)
             # update current orientation
-            current_dir = (current_dir+90) % 360
+            current_dir = (current_dir + 90) % 360
             # check whether there is a path
             possible_path = self.robot.has_path_ahead()
 
