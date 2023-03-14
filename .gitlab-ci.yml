@@ -25,7 +25,7 @@ cache:
     - venv/
 
 before_script:
-  - python --version
+  - python3 --version
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
