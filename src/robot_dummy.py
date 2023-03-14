@@ -25,7 +25,7 @@ class RobotDummy:
     motor_right = DummyMotor()
 
     # read map from file
-    with open('maps/Kepler-0815.json') as json_file:
+    with open('maps/Fassaden-M1.json') as json_file:
         map = json.load(json_file)
         position = map['x'], map['y']
         orientation = map['orientation']

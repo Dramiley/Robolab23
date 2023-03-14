@@ -36,7 +36,7 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        self.communication.test_planet('Kepler-0815')
+        self.communication.test_planet('Fassaden-M1')
 
         # replace with robot.run_robot()
         self.robot = RobotDummy()
