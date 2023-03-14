@@ -1,19 +1,31 @@
 import time
+import os
 
 from communication import Communication
 from communication_logger import CommunicationLogger
 from odometry import Odometry
 from robot import Robot
 from robot_dummy import RobotDummy
-from planet import Planet
-import os
+from planet import Planet, Direction
 
-from typing import List
+from typing import List, Tuple
 from threading import Thread
 
-# read environment variables
-SIMULATOR = os.environ.get("SIMULATOR") == "True"
-DEBUG = os.environ.get("DEBUG") == "True"
+env = {"SIMULATOR": False, "DEBUG": False}
+
+if os.path.exists(".env"):
+    with open(".env") as f:
+        for line in f:
+            key, value = line.split("=")
+            value = value.replace("\n", "")
+            if value == "True" or value == "False":
+                env[key] = value == "True"
+            else:
+                env[key] = value
+
+"""
+TODO: self.odometry.stop()
+"""
 
 
 class Position:
@@ -43,7 +55,7 @@ class Controller:
 
         self.communication.test_planet('Fassaden-M1')
 
-        if SIMULATOR:
+        if env["SIMULATOR"]:
             self.robot = RobotDummy()
         else:
             self.robot = Robot()
@@ -61,6 +73,8 @@ class Controller:
 
         # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
         self.communication.ready()
+
+        # all after this means program exited
 
         # as long as the programm is not exited, wait
         while True:
@@ -108,6 +122,19 @@ class Controller:
         # los gehts
         self.__explore()
 
+    def __select_path(self, possible_explore_paths: List[bool]):
+        """
+        Selects one of the possible path
+        """
+        # entscheide dich für die erste möglichkeit (DFS)
+        for i in range(0, 3):
+            if possible_explore_paths[i]:
+                # teile die entscheidung dem mutterschiff mit
+                self.communication.path_select(self.last_position.x, self.last_position.y, i * 90)
+
+                # das mutterschiff wird uns dann beauftragen diesen oder einen anderen Pfade zu nehmen
+                break
+
     def __explore(self):
 
         # starte odometrie
@@ -121,48 +148,43 @@ class Controller:
             self.__exploration_complete()
             return
 
-        # erstmal nach norden stellen
-        alte_richtung = self.odometry.current_dir
-        # TODO: change->calc dir to turn to into
-        self.robot.turn_deg(-1 * alte_richtung)
+        old_dir = self.odometry.get_dir()
 
-        # in welche richtungen beginnen schwarze linien?
+        # get lines which can be followed (from robot)
         possible_explore_paths = self.__get_possible_explore_paths()
 
         # welche richtungen sind noch nicht erkundet worden und nicht blockiert?
         for i in range(0, 3):
             if not possible_explore_paths[i]:
                 continue
-            is_blocked = self.planet.is_path_blocked((self.last_position.x, self.last_position.y), i * 90)
-            is_explored = self.planet.is_path_explored((self.last_position.x, self.last_position.y), i * 90)
+            explored_dir = (old_dir + i * 90) % 90
+            is_blocked = self.planet.is_path_blocked((self.last_position.x, self.last_position.y), explored_dir)
+            is_explored = self.planet.is_path_explored((self.last_position.x, self.last_position.y), explored_dir)
 
-            # ist es weiterhin möglich diesen pfad zu erkunden?
+            # ist es in welche richtungen beginnen schwarze linien?weiterhin möglich diesen pfad zu erkunden?
             possible_explore_paths[i] = not is_blocked and not is_explored
 
         # wenn alle richtungen blockiert sind, dann ist der pfad zu Ende
         if not any(possible_explore_paths):
 
             # pop last history entry
-            last_history_entry = self.history.pop()
-            self.receive_target(last_history_entry[0], last_history_entry[1])
+            # TODO: last_history might be empty!!!
+            if self.history:
+                last_history_entry = self.history.pop()
+                #
+                self.receive_target(last_history_entry[0], last_history_entry[1])
+            else:
+                self.__explore()
 
         else:
+            # there are still paths to explore
 
             # append history entry
             if sum(possible_explore_paths) > 2:
                 # there are other dirs to explore on this node
                 self.history.append((self.last_position.x, self.last_position.y))
 
-            # entscheide dich für die erste möglichkeit (DFS)
-            for i in range(0, 3):
-                if possible_explore_paths[i]:
-                    # teile die entscheidung dem mutterschiff mit
-                    self.communication.path_select(self.last_position.x, self.last_position.y, i * 90)
-
-                    # das mutterschiff wird uns dann beauftragen diesen oder einen anderen Pfade zu nehmen
-                    break
-
-        self.odometry.stop()
+            self.__select_path()
 
     def __get_possible_explore_paths(self) -> List[bool]:
         """
@@ -279,11 +301,36 @@ class Controller:
         else:
             # es gibt einen shortest path, liste von positionen mit richtung.
             # fahre zuerst zum ersten punkt, dann zum zweiten, dann zum dritten, ...
-            for position in path:
-                self.robot.turn_deg(position[1] - last_position.direction)
-                self.robot.drive_until_communication_point()
+            is_path_driven_complete = self.drive_path(path)
 
-            self.__target_reached("Target reached.")
+            # mothership might have told us to take another direction at some point->take another path
+            if is_path_driven_complete:
+                self.__target_reached("Target reached.")
+
+    def drive_path(self, path: List[Tuple[Tuple[int, int], Direction]], start_pos: Tuple[int],
+                   start_dir: Direction) -> bool:
+        """
+        Performs all actions required to drive a given path
+
+        Args:
+            path: actual path to follow given as list of tuples of form (node_coords, dir)
+        Returns:
+            Bool: True if path has been driven completely
+
+        """
+        current_dir = start_dir
+        for position in path:
+            # 1. turn to the dir we want to turn to
+            target_dir = position[1]
+            deg_to_turn = target_dir - current_dir
+            self.robot.turn_deg(target_dir - current_dir)
+
+            # drive to the communication point
+            self.robot.notify_at_communication_point()
+
+            # if mothership doesn't want us to take that path->compute a new one and restart this function (+RETURN FALSE!!!?)
+        #
+        return True
 
     def receive_done(self, message):
         """
