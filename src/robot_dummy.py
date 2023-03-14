@@ -17,25 +17,6 @@ class RobotDummy:
     with open('maps/Kepler-0815.json') as json_file:
         map = json.load(json_file)
 
-    # def __init__(self):
-    ## we need to fill the map with the correct paths
-    # self.map = self.__fill_map(self.map)
-
-    """
-    def __fill_map(self, path):
-        if path is None:
-            return None
-        elif path == -1:
-            # if a child path is -1, replace it with the parent path
-            for i in range(0, 4):
-                if path['paths'][i] == -1:
-                    path['paths'][i] = json.loads('{"x": ' + str(path['x']) + ', "y": ' + str(path['y']) + ', "orientation": ' + str(path['orientation']) + '}')
-        elif path == -2:
-            pass
-        else:
-            return path
-    """
-
     def drive_until_start(self):
         self.position = self.map['x'], self.map['y']
 
@@ -53,7 +34,7 @@ class RobotDummy:
         new_path = path['paths'][index_of_current_orientation]
 
         # check if our path is valid
-        # print("Taking new path: " + str(index_of_current_orientation))
+        print("Taking new path: " + str(new_path))
         if new_path is None:
             raise Exception("Invalid path")
         elif new_path == -1 or new_path == -2:
@@ -98,13 +79,16 @@ class RobotDummy:
         with open('dummy/position.json', 'w') as outfile:
             json.dump({'x': self.position[0], 'y': self.position[1], 'orientation': self.orientation}, outfile)
 
-        time.sleep(.5)
+        time.sleep(.3)
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates
         # a path also contains an array paths
 
         if path is None or path == -1 or path == -2:
+            return None
+
+        if 'paths' not in path:
             return None
 
         if path['x'] == coordinates[0] and path['y'] == coordinates[1]:
@@ -120,13 +104,29 @@ if __name__ == "__main__":
     # start webserver via node
     import os
 
-    stream = os.system("cd dummy; node server.js &")
+    # stream = os.system("cd dummy; node server.js &")
     # wait for user to press any input
-    time.sleep(.7)
+    # time.sleep(.7)
 
     # start robot
     r = RobotDummy()
     r.drive_until_start()
+    r.turn_deg(-90)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(-90)
+    r.drive_until_communication_point()
+    r.turn_deg(180)
+    r.drive_until_communication_point()
+
+    """
     r.drive_until_communication_point()
     r.drive_until_communication_point()
     r.turn_deg(90)
@@ -142,3 +142,4 @@ if __name__ == "__main__":
     r.drive_until_communication_point()
     r.drive_until_communication_point()
     stream = os.system("pkill node")
+    """
