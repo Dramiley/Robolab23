@@ -117,7 +117,7 @@ class CommunicationFacade:
           }
         }''' % message)
 
-    def exploration_completed(self, message):
+    def exploration_completed(self, message: str="Take me home pleeaaasse :'("):
         """
         Sends a explorationCompleted message to the server
         :param message: The message
