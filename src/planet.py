@@ -88,8 +88,12 @@ class Planet:
             :param weight: Integer
             :return: void
 
-            TODO: initiate recomputation of self.computed_shortest_paths
-                - instead of having to compute them every time on the run
+        NOTE:
+            - blocked paths are registered as loops (start=target)
+            - Convention for registering blocked paths: weight=-1 (but there shouldn't be errors )
+
+        TODO: initiate recomputation of self.computed_shortest_paths
+            - instead of having to compute them every time on the run
         """
         start_coords = start[0]
         start_entry_dir = start[1]
@@ -155,6 +159,25 @@ class Planet:
 
         # YOUR CODE FOLLOWS (remove pass, please!)
         return self.paths
+
+    def update_path_to_blocked(self, start: Tuple[int, int], end: Tuple[int, int], start_dir: Direction):
+        """
+        Since meteorites can land anytime, already explored paths can get blocked later on.
+        Calling this function allows to register already explored paths as blocked
+
+        WARNINGS: make sure that path is explored (calling is_path_explored() )
+        """
+        the_blocked_path = self.paths[start][start_dir] # format (node, dir, weight)
+        end_dir = the_blocked_path[1]
+
+        # for debugging
+        if the_blocked_path[0] == end:
+            #it should node==target
+            raise AssertionError("Somehow path points to another target node than the one given")
+
+        # make path blocked for start
+        self.paths[start][start_dir] = (start, start_dir, -1)
+        self.paths[end][end_dir] = (end, end_dir, -1)
 
     def __expand_node(
             self, node: Tuple[int, int],
