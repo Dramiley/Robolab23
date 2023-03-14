@@ -2,6 +2,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import time
 
+from robot import Robot
+
 """
 This is a dummy class for the robot.
 The path is read from a json file.
@@ -11,20 +13,24 @@ The path is read from a json file.
 import os
 
 
-class RobotDummy:
+class DummyMotor:
+    count_per_rot = 100
+    position = 0
+
+
+class RobotDummy(Robot):
     controller = None
     orientation = 0
     position = (0, 0)
 
+    motor_left = DummyMotor()
+    motor_right = DummyMotor()
+
     # read map from file
-    with open('maps/Kepler-0815.json') as json_file:
+    with open('maps/Fassaden-M1.json') as json_file:
         map = json.load(json_file)
-
-    def drive_until_start(self):
-        self.position = self.map['x'], self.map['y']
-
-        # log
-        self.log("Start at: " + str(self.position) + " | Orientation: " + str(self.orientation))
+        position = map['x'], map['y']
+        orientation = map['orientation']
 
     def drive_until_communication_point(self):
         # can we drive into our current orientation?
@@ -82,7 +88,7 @@ class RobotDummy:
         with open('dummy/position.json', 'w') as outfile:
             json.dump({'x': self.position[0], 'y': self.position[1], 'orientation': self.orientation}, outfile)
 
-        # time.sleep(.3)
+        time.sleep(.5)
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates
@@ -104,6 +110,7 @@ class RobotDummy:
 
     def __init__(self):
 
+        """
         try:
             stream = os.system("cd dummy; node server.js &")
         except Exception as e:
@@ -111,25 +118,52 @@ class RobotDummy:
 
         # wait for user to press any input
         time.sleep(.7)
+        """
 
     def __del__(self):
 
         # wait for user to press any input
         time.sleep(1)
 
+        """
         # stop webserver via node
         try:
             stream = os.system("pkill node")
         except Exception as e:
             print("Server already off")
-
+        """
 
 
 if __name__ == "__main__":
-    # start robot
     r = RobotDummy()
-    r.drive_until_start()
+    r.drive_until_communication_point()
     r.turn_deg(-90)
+    r.drive_until_communication_point()
+    r.turn_deg(180)
+    r.drive_until_communication_point()
+    r.drive_until_communication_point()
+    r.turn_deg(180)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(-90)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(180)
+    r.drive_until_communication_point()
+    r.drive_until_communication_point()
+    r.turn_deg(180)
+    r.drive_until_communication_point()
+    r.turn_deg(90)
+    r.drive_until_communication_point()
+    r.turn_deg(-90)
+    r.drive_until_communication_point()
+    r.drive_until_communication_point()
+"""
+    # start robot
     r.drive_until_communication_point()
     r.turn_deg(-90)
     r.drive_until_communication_point()
@@ -193,7 +227,6 @@ if __name__ == "__main__":
     r.turn_deg(-90)
     r.drive_until_communication_point()
 
-    """
     r.drive_until_communication_point()
     r.turn_deg(90)
     r.drive_until_communication_point()
@@ -216,4 +249,5 @@ if __name__ == "__main__":
     r.drive_until_communication_point()
     r.drive_until_communication_point()
     r.drive_until_communication_point()
-    """
+
+"""

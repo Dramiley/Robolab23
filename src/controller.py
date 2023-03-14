@@ -6,9 +6,12 @@ from odometry import Odometry
 from robot import Robot
 from robot_dummy import RobotDummy
 from planet import Planet
-from webview import Webview
+from controller_webview import Webview
 
 from typing import List
+from threading import Thread
+
+from config import Config
 
 
 class Position:
@@ -36,14 +39,34 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
+        self.communication.test_planet('Fassaden-M1')
+
         # replace with robot.run_robot()
-        self.robot = Robot()
+        if Config.useDummy:
+            print("Using dummy robot")
+            self.robot = RobotDummy()
+        else:
+            self.robot = Robot()
         self.robot.set_controller(self)
 
         # setup callbacks
-        self.init_callbacks()
+        self.__init_callbacks()
 
-    def init_callbacks(self):
+    def begin(self):
+        print("Controller started")
+
+        # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
+        # abgesetzt, Anfahrtsweg fahren
+        self.robot.drive_until_communication_point()
+
+        # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
+        self.communication.ready()
+
+        # as long as the programm is not exited, wait
+        while True:
+            time.sleep(1)
+
+    def __init_callbacks(self):
         # bei einer Antwort des Mutterschiffs mit dem Typ "planet" wird der Name des Planeten ausgegeben
         self.communication.set_callback('planet', self.receive_planet)
 
@@ -53,30 +76,19 @@ class Controller:
         # bei einer Antwort des Mutterschiffs mit dem Typ "path-unveiled" wird der Pfad ausgegeben
         self.communication.set_callback('pathUnveiled', self.receive_path_unveiled)
 
-        #  In einigen Fällen kann es vorkommen, dass dem Mutterschiff günstigere Routen oder Hindernisse bekannt sind. In diesem Fall weist das Mutterschiff den Roboter an, einen anderen Pfad zu befahren
+        # In einigen Fällen kann es vorkommen, dass dem Mutterschiff günstigere Routen oder Hindernisse bekannt sind.
+        # In diesem Fall weist das Mutterschiff den Roboter an, einen anderen Pfad zu befahren
         self.communication.set_callback('pathSelect', self.receive_path_select)
 
-        # Zusätzlich zu den Planetennachrichten empfängt der Roboter an Kommunikationspunkten auch Befehle vom Mutterschiff.
+        # Zusätzlich zu den Planetennachrichten empfängt der Roboter an Kommunikationspunkten auch Befehle vom
+        # Mutterschiff.
         self.communication.set_callback('target', self.receive_target)
 
-        # Wurde das Ziel tatsächlich erreicht bzw. die gesamte Karte aufgedeckt, antwortet der Server mit einer Bestätigung vom Typ done (3) und dem Ende der Erkundung.
+        # Wurde das Ziel tatsächlich erreicht bzw. die gesamte Karte aufgedeckt, antwortet der Server mit einer
+        # Bestätigung vom Typ done (3) und dem Ende der Erkundung.
         self.communication.set_callback('done', self.receive_done)
 
-    def begin(self):
-        print("Controller started")
-
-        # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation abgesetzt
-        # Anfahrtsweg fahren
-        self.robot.drive_until_start()
-
-        # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
-        self.communication.ready()
-
-        # as long as the programm is not exited, wait
-        while True:
-            time.sleep(1)
-
-    def receive_planet(self, planetName: str, startX: int, startY: int, startOrientation: int):
+    def receive_planet(self, planetName, startX, startY, startOrientation):
 
         # remember last position
         self.last_position = Position(startX, startY, startOrientation)
@@ -86,28 +98,36 @@ class Controller:
 
         # setup odometry
         self.odometry = Odometry(self.robot)
+        self.odometry.set_coords((startX, startY))
+        self.odometry.set_dir(startOrientation)
 
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
         self.planet.add_path((startX, startY), (startX, startY), int(startOrientation) + 180)
 
         # los gehts
-        self.explore()
+        self.__explore()
 
-    def explore(self):
+    def __explore(self):
 
+        # starte odometrie
+        # TODO: check: Thread should terminate when self.odometry.stop() is called
+        odometry_thread = Thread(target=self.odometry.start, args=())
+        odometry_thread.start()
 
         # wenn es nichts mehr zu erkunden gibt, dann ist die erkundung beendet
         if self.planet.is_exploration_complete():
-            self.exploration_complete()
+            print("Exploration complete")
+            self.__exploration_complete()
             return
 
         # erstmal nach norden stellen
         alte_richtung = self.odometry.current_dir
-        self.robot.turnDeg(-1 * alte_richtung)
+        # TODO: change->calc dir to turn to into
+        self.robot.turn_deg(-1 * alte_richtung)
 
         # in welche richtungen beginnen schwarze linien?
-        possible_explore_paths = self.get_possible_explore_paths()
+        possible_explore_paths = self.__get_possible_explore_paths()
 
         # welche richtungen sind noch nicht erkundet worden und nicht blockiert?
         for i in range(0, 3):
@@ -119,7 +139,7 @@ class Controller:
             # ist es weiterhin möglich diesen pfad zu erkunden?
             possible_explore_paths[i] = not is_blocked and not is_explored
 
-        # wenn alle richtungen blockiert sind, dann ist der pfad zu ende
+        # wenn alle richtungen blockiert sind, dann ist der pfad zu Ende
         if not any(possible_explore_paths):
 
             # pop last history entry
@@ -130,16 +150,21 @@ class Controller:
 
             # append history entry
             if sum(possible_explore_paths) > 2:
+                # there are other dirs to explore on this node
                 self.history.append((self.last_position.x, self.last_position.y))
 
-            # entscheide dich für die erste möglichkeit
+            # entscheide dich für die erste möglichkeit (DFS)
             for i in range(0, 3):
                 if possible_explore_paths[i]:
                     # teile die entscheidung dem mutterschiff mit
                     self.communication.path_select(self.last_position.x, self.last_position.y, i * 90)
+
+                    # das mutterschiff wird uns dann beauftragen diesen oder einen anderen Pfade zu nehmen
                     break
 
-    def get_possible_explore_paths(self) -> List[bool]:
+        self.odometry.stop()
+
+    def __get_possible_explore_paths(self) -> List[bool]:
         """
         Explores all paths from the current node
         @return: list of directions to nodes that have not been explored yet
@@ -153,7 +178,7 @@ class Controller:
             possible_explore_paths[i] = self.robot.has_path_ahead()
 
             # turn to next path
-            self.robot.turnDeg(90)
+            self.robot.turn_deg(90)
 
         return possible_explore_paths
 
@@ -167,7 +192,7 @@ class Controller:
 
         # calculate start and end position
         start_position = self.last_position
-        end_position = self.odometry.get_position()
+        end_position = self.odometry.get_coords()
 
         if (start_position.x == end_position.x and start_position.y == end_position.y):
             path_status = "blocked"
@@ -178,13 +203,13 @@ class Controller:
         self.communication.path(start_position.x, start_position.y, start_position.direction, end_position.x,
                                 end_position.y, end_position.direction, path_status)
 
-    def target_reached(self):
+    def __target_reached(self):
         """
         Wird von der Odometrie aufgerufen, wenn das Ziel erreicht wurde
         """
         self.communication.target_reached("Target reached.")
 
-    def exploration_complete(self):
+    def __exploration_complete(self):
         """
         Wird von der Odometrie aufgerufen, wenn die Erkundung abgeschlossen ist
         """
@@ -197,7 +222,8 @@ class Controller:
         """
 
         # starte odometry
-        self.odometry.start((startX, startY), int(startOrientation))
+        self.odometry.set_coords((startX, startY))
+        self.odometry.set_dir(startOrientation)
 
         # update odometry inside planet
         self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
@@ -207,7 +233,7 @@ class Controller:
 
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
-        self.explore()
+        self.__explore()
 
     def receive_path_unveiled(self, startX, startY, startOrientation, endX, endY, endOrientation, pathStatus,
                               pathWeight):
@@ -217,8 +243,9 @@ class Controller:
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-unveiled/
         """
 
-        self.odometry.receive_path_unveiled(startX, startY, startOrientation, endX, endY, endOrientation, pathStatus,
-                                            pathWeight)
+        # TODO: check
+        self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
+        # self.odometry.receive_path_unveiled(startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight)
 
     def receive_path_select(self, startDirection):
         """
@@ -227,7 +254,7 @@ class Controller:
         """
 
         # update last position and path status
-        self.odometry.receive_path_select(startDirection)
+        self.odometry.set_dir(startDirection)
 
         # now we can finally drive to the next communication point
         self.robot.notify_at_communication_point()
@@ -248,14 +275,15 @@ class Controller:
 
         if path is None:
             # es gibt keinen shortest path, also erkunden wir weiter
-            self.explore()
+            self.__explore()
         else:
             # es gibt einen shortest path, liste von positionen mit richtung.
             # fahre zuerst zum ersten punkt, dann zum zweiten, dann zum dritten, ...
             for position in path:
-                self.robot.turnDeg(position[1] - last_position.direction)
+                self.robot.turn_deg(position[1] - last_position.direction)
                 self.robot.drive_until_communication_point()
-            self.target_reached("Target reached.")
+
+            self.__target_reached("Target reached.")
 
     def receive_done(self, message):
         """
@@ -266,10 +294,10 @@ class Controller:
         self.robot.__stop()
         self.communication.done()
 
-    def tuple_to_position(self, tuple):
+    def __tuple_to_position(self, tuple):
         x, y = tuple[0]
         direction = tuple[1]
         return Position(x, y, direction)
 
-    def position_to_tuple(self, position):
+    def __position_to_tuple(self, position):
         return ((position.x, position.y), int(position.direction))
