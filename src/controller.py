@@ -79,7 +79,7 @@ class Controller:
         # Bestätigung vom Typ done (3) und dem Ende der Erkundung.
         self.communication.set_callback('done', self.receive_done)
 
-    def receive_planet(self, _, startX, startY, startOrientation):
+    def receive_planet(self, planetName, startX, startY, startOrientation):
 
         # remember last position
         self.last_position = Position(startX, startY, startOrientation)
