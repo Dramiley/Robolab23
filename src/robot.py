@@ -114,13 +114,13 @@ class Robot:
         middle_greytone = self.middlegreytone
         integral = 0
         lerror = 0
-        tempo = 80
+        tempo = 120
         starttime = time.time()
 
         while self.color.name == 'grey':
             self.color.color_check()
             greytone = self.color.greytone
-            if time.time() - starttime >= 3:
+            if time.time() - starttime >= 1:
                 starttime = time.time()
                 if self.obj_detec.is_obstacle_ahead():
                     self.__obstacle_in_way()
@@ -134,7 +134,7 @@ class Robot:
                 # wenn genau zwischen den beiden Farben, setzt integral auf 0
                 integral = 0
             derivative = error - lerror
-            lenkfaktor = 60 * error + 10 * integral + 40 * derivative
+            lenkfaktor = 85 * error + 20 * integral + 55 * derivative
             lenkfaktor = lenkfaktor / 100
             power_left = tempo + lenkfaktor
             power_right = tempo - lenkfaktor
@@ -201,7 +201,6 @@ class Robot:
              print("4 for quit")
              print("5 for station_scan")
              print("6 for turn90")
-             print("7 for station_scan2")
              i = input()
              if i == "1":
                  self.__followline()
@@ -212,18 +211,16 @@ class Robot:
              elif i == "4":
                  break
              elif i == "5":
-                 t = int(input("Wie oft drehen?\n"))
-                 print(self.__station_scan(t))
+                  print(self.__station_scan())
              elif i == "6":
                  self.__turn90()
-             elif i == "7":
-                 print(self.__station_scan_alternative())
 
     def drive_until_communication_point(self):
         """
         Drives the robot to the next communication point
         """
-        self.__followline()
+        #self.__followline()
+        self.__run()
 
     def notify_at_communication_point(self):
         """
