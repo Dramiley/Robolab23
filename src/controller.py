@@ -2,12 +2,22 @@ import time
 
 from communication import Communication
 from communication_logger import CommunicationLogger
-from odometry import Odometry, Position
+from odometry import Odometry
 from robot import Robot
 from planet import Planet
 from webview import Webview
 
 from typing import List
+
+
+class Position:
+    x, y, direction = 0, 0, 0
+
+    def __init__(self, x, y, direction):
+        self.x = x
+        self.y = y
+        self.direction = direction
+
 
 class Controller:
     robot = None
@@ -63,19 +73,20 @@ class Controller:
         # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
         self.communication.ready()
 
-    def receive_planet(self, planetName, startX, startY, startOrientation):
+    def receive_planet(self, planetName: str, startX: int, startY: int, startOrientation: int):
 
         # remember last position
         self.last_position = Position(startX, startY, startOrientation)
 
         # setup planet
-        self.planet = Planet(planetName, startX, startY, startOrientation)
+        self.planet = Planet(planetName)
 
         # setup odometry
         self.odometry = Odometry(self.robot, (startX, startY), int(startOrientation))
 
         # aktuelle position um 180 grad gedreht als blockiert merken
-        self.planet.add_blocked_path((startX, startY), int(startOrientation) + 180)
+        # ->because we always start from a dead end
+        self.planet.add_path((startX, startY), (startX, startY), int(startOrientation) + 180)
 
         # los gehts
         self.explore()

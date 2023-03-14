@@ -8,6 +8,8 @@ TODO:
     - store computed shortest_paths in a variable
 TODO:
     - maybe don't stop djikstra() even if target node is found->maybe will need following nodes later on (store!)
+
+TODO: add support for blocked path (don't mark as unexplored when entered node which has an adjacent blocked path)
 """
 
 # Attention: Do not import the ev3dev.ev3 module in this file
@@ -383,17 +385,11 @@ class Planet:
             # remove as unexplored if all directions of node have been explored
             del self.unexplored[node_coords]
 
-    def add_blocked_path(self, param, param1):
-        """
-        Adds a blocked path to the map
-        """
-        pass
-
     def is_exploration_complete(self) -> bool:
         """
         Returns: True if all nodes have been explored, False otherwise
         @rtype: bool
         """
         # TODO: implement
-        return False
+        raise NotImplementedError("Doesn't know whether exploration is already complete")
 
