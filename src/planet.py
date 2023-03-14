@@ -389,7 +389,8 @@ class Planet:
         """
         Returns: True if all nodes have been explored, False otherwise
         @rtype: bool
-        """
-        # TODO: implement
-        raise NotImplementedError("Doesn't know whether exploration is already complete")
 
+        TODO: redundant, completeness can be checked by checking if get_next_exploration_path == None
+        """
+        is_complete = not self.unexplored
+        return is_complete
