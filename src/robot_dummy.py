@@ -104,7 +104,10 @@ class RobotDummy:
 
     def __init__(self):
 
-        stream = os.system("cd dummy; node server.js &")
+        try:
+            stream = os.system("cd dummy; node server.js &")
+        except Exception as e:
+            print("Server already on")
 
         # wait for user to press any input
         time.sleep(.7)
@@ -115,7 +118,11 @@ class RobotDummy:
         time.sleep(1)
 
         # stop webserver via node
-        stream = os.system("pkill node")
+        try:
+            stream = os.system("pkill node")
+        except Exception as e:
+            print("Server already off")
+
 
 
 if __name__ == "__main__":
