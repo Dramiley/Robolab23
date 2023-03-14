@@ -11,9 +11,16 @@ import os
 from typing import List
 from threading import Thread
 
-# read environment variables
-SIMULATOR = os.environ.get("SIMULATOR") == "True"
-DEBUG = os.environ.get("DEBUG") == "True"
+env = {"SIMULATOR": False}
+
+with open(".env") as f:
+    for line in f:
+        key, value = line.split("=")
+        value = value.replace("\n", "")
+        if value == "True" or value == "False":
+            env[key] = value == "True"
+        else:
+            env[key] = value
 
 
 class Position:
@@ -43,7 +50,7 @@ class Controller:
 
         self.communication.test_planet('Fassaden-M1')
 
-        if SIMULATOR:
+        if env["SIMULATOR"]:
             self.robot = RobotDummy()
         else:
             self.robot = Robot()
