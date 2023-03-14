@@ -20,7 +20,7 @@ class RobotDummy:
     with open('maps/Kepler-0815.json') as json_file:
         map = json.load(json_file)
 
-    def drive_until_start(self):
+    def drive_until_station(self):
         self.position = self.map['x'], self.map['y']
 
         # log
@@ -128,7 +128,7 @@ class RobotDummy:
 if __name__ == "__main__":
     # start robot
     r = RobotDummy()
-    r.drive_until_start()
+    r.drive_until_station()
     r.turn_deg(-90)
     r.drive_until_communication_point()
     r.turn_deg(-90)
