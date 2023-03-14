@@ -11,6 +11,9 @@ from controller_webview import Webview
 from typing import List
 from threading import Thread
 
+from config import Config
+
+
 class Position:
     x, y, direction = 0, 0, 0
 
@@ -39,7 +42,11 @@ class Controller:
         self.communication.test_planet('Fassaden-M1')
 
         # replace with robot.run_robot()
-        self.robot = RobotDummy()
+        if Config.useDummy:
+            print("Using dummy robot")
+            self.robot = RobotDummy()
+        else:
+            self.robot = Robot()
         self.robot.set_controller(self)
 
         # setup callbacks
