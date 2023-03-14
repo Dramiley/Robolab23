@@ -23,4 +23,4 @@ if __name__ == "__main__":
             raise Exception('Robot is missing function {}'.format(func))
 
     # try and run the main
-    # main.run()
+    main.run()
