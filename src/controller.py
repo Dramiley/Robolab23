@@ -1,3 +1,4 @@
+import sys
 import time
 import os
 
@@ -11,7 +12,7 @@ from planet import Planet, Direction
 from typing import List, Tuple
 from threading import Thread
 
-env = {"SIMULATOR": False, "DEBUG": False}
+env = {"SIMULATOR": False, "DEBUG": False, "GITLAB_RUNNER": False}
 
 if os.path.exists(".env"):
     with open(".env") as f:
@@ -22,6 +23,13 @@ if os.path.exists(".env"):
                 env[key] = value == "True"
             else:
                 env[key] = value
+
+# if script was called with a parameter, use it as the environment
+if len(sys.argv) > 1 and sys.argv[1] == "ci":
+    print("Running in CI mode")
+    env["GITLAB_RUNNER"] = True
+    env["SIMULATOR"] = True
+    env["DEBUG"] = True
 
 """
 TODO: self.odometry.stop()

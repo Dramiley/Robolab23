@@ -1,24 +1,13 @@
 #!/usr/bin/env python3
 import os
 import logging
+import sys
 
 import paho.mqtt.client as mqtt
 import uuid
 import signal
 
 from controller import Controller
-
-"""
-SETUP ENVIROMENT VARIABLES
-"""
-
-# read ".env" file
-if os.path.exists(".env"):
-    with open(".env") as f:
-        for line in f:
-            print(line)
-            key, value = line.split("=")
-            os.environ.setdefault(key, value.strip())
 
 
 """
