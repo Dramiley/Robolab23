@@ -84,7 +84,8 @@ class Controller:
 
         # all after this means program exited
 
-        # as long as the programm is not exited, wait
+        # as long as the programm is not exited, wait for callbacks
+        # but if we are in CI mode, exit right away since we tested everything
         if not env["GITLAB_RUNNER"]:
             while True:
                 time.sleep(1)
