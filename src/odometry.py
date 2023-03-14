@@ -40,7 +40,7 @@ class Odometry:
         WARNING: should only be called when following a line, so that rotations when exploring paths on a node don't get anything messed up
         """
         self.start_pos_coords = start_pos
-        self.current_dir = start_dir
+        self.get_current_dir = start_dir
         self.current_pos = (0, 0)  # position is tracked relative
 
         self.motor_pos_list = []
@@ -80,8 +80,8 @@ class Odometry:
         """
         Returns current orientation direction based on current_dir
         """
-        self.current_dir = self.current_dir % 360  # makes sure self.current_dir is positive
-        return ((self.current_dir + 45) // 90) * 90  # +45 makes sure that values nearer to 90 than 0 are rounded up
+        self.get_current_dir = self.get_current_dir % 360  # makes sure self.current_dir is positive
+        return ((self.get_current_dir + 45) // 90) * 90  # +45 makes sure that values nearer to 90 than 0 are rounded up
 
     def __calc_parameters(self):
         wheel_radius = 2.7  # in cm
@@ -121,14 +121,14 @@ class Odometry:
         # Calculate positions
 
         for angle, distance in zip(alpha, s):
-            dir_vector = (math.cos(self.current_dir), math.sin(self.current_dir))  # unit vector denoting the direction
+            dir_vector = (math.cos(self.get_current_dir), math.sin(self.get_current_dir))  # unit vector denoting the direction
 
             # get vector which points towards new point
             rotated_vector = self.__rotate_vector_by_deg(dir_vector, angle / 2)
             # calculate new position coordinates
             self.current_pos += distance * rotated_vector
             # update dir
-            self.current_dir += angle
+            self.get_current_dir += angle
 
     def __get_driven_distance(self, r: int, al: int) -> int:
         """

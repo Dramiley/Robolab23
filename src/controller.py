@@ -43,6 +43,20 @@ class Controller:
         # setup callbacks
         self.__init_callbacks()
 
+    def begin(self):
+        print("Controller started")
+
+        # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
+        # abgesetzt, Anfahrtsweg fahren
+        self.robot.drive_until_station()
+
+        # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
+        self.communication.ready()
+
+        # as long as the programm is not exited, wait
+        while True:
+            time.sleep(1)
+
     def __init_callbacks(self):
         # bei einer Antwort des Mutterschiffs mit dem Typ "planet" wird der Name des Planeten ausgegeben
         self.communication.set_callback('planet', self.receive_planet)
@@ -53,33 +67,22 @@ class Controller:
         # bei einer Antwort des Mutterschiffs mit dem Typ "path-unveiled" wird der Pfad ausgegeben
         self.communication.set_callback('pathUnveiled', self.receive_path_unveiled)
 
-        #  In einigen Fällen kann es vorkommen, dass dem Mutterschiff günstigere Routen oder Hindernisse bekannt sind. In diesem Fall weist das Mutterschiff den Roboter an, einen anderen Pfad zu befahren
+        # In einigen Fällen kann es vorkommen, dass dem Mutterschiff günstigere Routen oder Hindernisse bekannt sind.
+        # In diesem Fall weist das Mutterschiff den Roboter an, einen anderen Pfad zu befahren
         self.communication.set_callback('pathSelect', self.receive_path_select)
 
-        # Zusätzlich zu den Planetennachrichten empfängt der Roboter an Kommunikationspunkten auch Befehle vom Mutterschiff.
+        # Zusätzlich zu den Planetennachrichten empfängt der Roboter an Kommunikationspunkten auch Befehle vom
+        # Mutterschiff.
         self.communication.set_callback('target', self.receive_target)
 
-        # Wurde das Ziel tatsächlich erreicht bzw. die gesamte Karte aufgedeckt, antwortet der Server mit einer Bestätigung vom Typ done (3) und dem Ende der Erkundung.
+        # Wurde das Ziel tatsächlich erreicht bzw. die gesamte Karte aufgedeckt, antwortet der Server mit einer
+        # Bestätigung vom Typ done (3) und dem Ende der Erkundung.
         self.communication.set_callback('done', self.receive_done)
 
-    def begin(self):
-        print("Controller started")
-
-        # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation abgesetzt
-        # Anfahrtsweg fahren
-        self.robot.drive_until_start()
-
-        # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
-        self.communication.ready()
-
-        # as long as the programm is not exited, wait
-        while True:
-            time.sleep(1)
-
-    def receive_planet(self, planetName: str, startX: int, startY: int, startOrientation: int):
+    def receive_planet(self, _, startX, startY, startOrientation):
 
         # remember last position
-        self.last_position = Position(startX, startY, startOrientation)
+        self.last_position = Position(int(startX), int(startY), startOrientation)
 
         # setup planet
         self.planet = Planet()
@@ -102,7 +105,7 @@ class Controller:
             return
 
         # erstmal nach norden stellen
-        alte_richtung = self.odometry.current_dir
+        alte_richtung = self.odometry.get_current_dir()
         self.robot.turn_deg(-1 * alte_richtung)
 
         # in welche richtungen beginnen schwarze linien?
