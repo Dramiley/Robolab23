@@ -1,4 +1,5 @@
 import time
+import os
 
 from communication import Communication
 from communication_logger import CommunicationLogger
@@ -6,7 +7,6 @@ from odometry import Odometry
 from robot import Robot
 from robot_dummy import RobotDummy
 from planet import Planet, Direction
-from controller_webview import Webview
 
 from typing import List, Tuple
 from threading import Thread
@@ -26,6 +26,7 @@ if os.path.exists(".env"):
 """
 TODO: self.odometry.stop()
 """
+
 
 class Position:
     x, y, direction = 0, 0, 0
@@ -121,7 +122,7 @@ class Controller:
         # los gehts
         self.__explore()
 
-    def __select_path (self, possible_explore_paths: List[bool]):
+    def __select_path(self, possible_explore_paths: List[bool]):
         """
         Selects one of the possible path
         """
@@ -156,7 +157,7 @@ class Controller:
         for i in range(0, 3):
             if not possible_explore_paths[i]:
                 continue
-            explored_dir = (old_dir + i*90) % 90
+            explored_dir = (old_dir + i * 90) % 90
             is_blocked = self.planet.is_path_blocked((self.last_position.x, self.last_position.y), explored_dir)
             is_explored = self.planet.is_path_explored((self.last_position.x, self.last_position.y), explored_dir)
 
@@ -306,7 +307,8 @@ class Controller:
             if is_path_driven_complete:
                 self.__target_reached("Target reached.")
 
-    def drive_path(self, path: List[Tuple[Tuple[int, int], Direction]], start_pos: Tuple[int], start_dir: Direction) -> bool:
+    def drive_path(self, path: List[Tuple[Tuple[int, int], Direction]], start_pos: Tuple[int],
+                   start_dir: Direction) -> bool:
         """
         Performs all actions required to drive a given path
 
@@ -318,15 +320,15 @@ class Controller:
         """
         current_dir = start_dir
         for position in path:
-                # 1. turn to the dir we want to turn to
-                target_dir = position[1]
-                deg_to_turn = target_dir-current_dir
-                self.robot.turn_deg(target_dir - current_dir)
+            # 1. turn to the dir we want to turn to
+            target_dir = position[1]
+            deg_to_turn = target_dir - current_dir
+            self.robot.turn_deg(target_dir - current_dir)
 
-                # drive to the communication point
-                self.robot.notify_at_communication_point()
+            # drive to the communication point
+            self.robot.notify_at_communication_point()
 
-                # if mothership doesn't want us to take that path->compute a new one and restart this function (+RETURN FALSE!!!?)
+            # if mothership doesn't want us to take that path->compute a new one and restart this function (+RETURN FALSE!!!?)
         #
         return True
 
