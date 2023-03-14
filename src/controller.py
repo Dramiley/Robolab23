@@ -11,16 +11,17 @@ from controller_webview import Webview
 from typing import List, Tuple
 from threading import Thread
 
-env = {"SIMULATOR": False}
+env = {"SIMULATOR": False, "DEBUG": False}
 
-with open(".env") as f:
-    for line in f:
-        key, value = line.split("=")
-        value = value.replace("\n", "")
-        if value == "True" or value == "False":
-            env[key] = value == "True"
-        else:
-            env[key] = value
+if os.path.exists(".env"):
+    with open(".env") as f:
+        for line in f:
+            key, value = line.split("=")
+            value = value.replace("\n", "")
+            if value == "True" or value == "False":
+                env[key] = value == "True"
+            else:
+                env[key] = value
 
 """
 TODO: self.odometry.stop()
