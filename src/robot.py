@@ -96,35 +96,34 @@ class Robot:
         print("grey = " + str(middlegreytone))
         self.middlegreytone = middlegreytone
 
-    def __obstacle_in_way(self, middlegreytone):
+    def __obstacle_in_way(self):
         self.__stop()
         self.__move_time(500, -100)
         time.sleep(1)
         self.__speak('Meteroit spotted')
         self.__turn170()
-        self.__followline(middlegreytone)
+        self.__followline()
 
     def __followline(self):  # folgt der Linie
         # self.communication.test_planet("Gromit")
         self.color.color_check()  # checkt die Farbe
-        MIDDLEGREYTONE = self.middlegreytone
+        middle_greytone = self.middlegreytone
         integral = 0
         lerror = 0
         tempo = 80
         starttime = time.time()
-        self.motor_left.command = "run-forever"
-        self.motor_right.command = "run-forever"
+
         while self.color.name == 'grey':
             self.color.color_check()
             greytone = self.color.greytone
             if time.time() - starttime >= 3:
                 starttime = time.time()
                 if self.obj_detec.is_obstacle_ahead():
-                    self.__obstacle_in_way(MIDDLEGREYTONE)
-                    self.motor_left.command = "run-forever"
-                    self.motor_right.command = "run-forever"
+                    self.__obstacle_in_way()
+                    # self.motor_left.command = "run-forever"
+                    # self.motor_right.command = "run-forever"
             # MIDDLEGREYTONE = 200
-            error = greytone - MIDDLEGREYTONE
+            error = greytone - middle_greytone
             error = error / 2
             integral = integral + error
             if error < 10 and error > -10:
@@ -133,15 +132,23 @@ class Robot:
             derivative = error - lerror
             lenkfaktor = 60 * error + 10 * integral + 40 * derivative
             lenkfaktor = lenkfaktor / 100
-            power1 = tempo + lenkfaktor
-            power2 = tempo - lenkfaktor
-            self.motor_left.speed_sp = int(power1)
-            self.motor_left.command = "run-forever"
-            self.motor_right.speed_sp = int(power2)
-            self.motor_right.command = "run-forever"
+            power_left = tempo + lenkfaktor
+            power_right = tempo - lenkfaktor
+
+            self.__run_motors(power_left, power_right)
+
             lerror = error
             self.color.color_check()
         self.__stop()
+
+    def __run_motors(self, power_left: int, power_right: int):
+        """
+        Starts the motor
+        """
+        self.motor_left.speed_sp = int(power_left)
+        self.motor_left.command = "run-forever"
+        self.motor_right.speed_sp = int(power_right)
+        self.motor_right.command = "run-forever"
 
     def __station_scan(self, turns):
         self.__move_distance_straight(7)
@@ -171,27 +178,28 @@ class Robot:
 
     def __run(self):
         self.__calibrate()
-        while True:
-            print("1 for followline")
-            print("2 for station_scan")
-            print("3 for turn180")
-            print("4 for quit")
-            print("5 for station_scan")
-            print("6 for turn90")
-            i = input()
-            if i == "1":
-                self.__followline()
-            elif i == "2":
-                self.__station_scan()
-            elif i == "3":
-                self.__turn180()
-            elif i == "4":
-                sys.exit()
-            elif i == "5":
-                t = int(input("Wie oft drehen?\n"))
-                print(self.__station_scan(t))
-            elif i == "6":
-                self.__turn90()
+        self.__followline()
+        # while True:
+        #     print("1 for followline")
+        #     print("2 for station_scan")
+        #     print("3 for turn180")
+        #     print("4 for quit")
+        #     print("5 for station_scan")
+        #     print("6 for turn90")
+        #     i = input()
+        #     if i == "1":
+        #         self.__followline()
+        #     elif i == "2":
+        #         self.__station_scan()
+        #     elif i == "3":
+        #         self.__turn180()
+        #     elif i == "4":
+        #         sys.exit()
+        #     elif i == "5":
+        #         t = int(input("Wie oft drehen?\n"))
+        #         print(self.__station_scan(t))
+        #     elif i == "6":
+        #         self.__turn90()
 
     def drive_until_start(self):
         """
@@ -204,7 +212,6 @@ class Robot:
         Drives the robot to the next communication point
         """
         self.__followline()
-        pass
 
     def notify_at_communication_point(self):
         """
@@ -214,7 +221,7 @@ class Robot:
         self.controller.communication_point_reached()
         pass
 
-    def turnDeg(self, deg):
+    def turn_deg(self, deg):
         """
         Turns the robot by param degrees
         """

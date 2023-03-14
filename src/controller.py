@@ -7,6 +7,7 @@ from robot import Robot
 from planet import Planet
 from webview import Webview
 
+from typing import List
 
 class Controller:
     robot = None
@@ -32,8 +33,6 @@ class Controller:
 
         # setup callbacks
         self.init_callbacks()
-
-        time.sleep(1)
 
     def init_callbacks(self):
         # bei einer Antwort des Mutterschiffs mit dem Typ "planet" wird der Name des Planeten ausgegeben
@@ -124,13 +123,13 @@ class Controller:
                     self.communication.path_select(self.last_position.x, self.last_position.y, i * 90)
                     break
 
-    def get_possible_explore_paths(self) -> [bool, bool, bool, bool]:
+    def get_possible_explore_paths(self) -> List[bool]:
         """
         Explores all paths from the current node
         @return: list of directions to nodes that have not been explored yet
         true if path exists, false otherwise
         """
-        possible_explore_paths: [bool, bool, bool, bool] = [False, False, False, False]
+        possible_explore_paths: List[bool] = [False, False, False, False]
 
         # check all paths
         for i in range(0, 3):
