@@ -75,6 +75,21 @@ class Communication:
 
         self.__dict__[attr] = value
 
+    def __publish(self, topic, payload, qos=2):
+
+        """
+        Publishes a message to the given topic while replacing all None values with null
+        :param topic: String
+        :param payload: String
+        :return: void
+        """
+
+        # in the payload, replace all None values with the string "None"
+        payload = json.loads(json.dumps(payload).replace('None', 'null'))
+
+        # publish the message
+        self.client.publish(topic, payload=payload, qos=2)
+
     def on_message(self, client, data, message):
         """
         Handles the callback if any message arrived
@@ -85,7 +100,12 @@ class Communication:
         """
         payload = ""
         try:
-            payload = json.loads(message.payload.decode('utf-8'))
+            if message.payload is not None:
+                self.logger.info(message.payload.decode('utf-8'))
+                payload = json.loads(message.payload.decode('utf-8'))
+                self.logger.success('payload valid')
+            else:
+                self.logger.error('no payload')
         except:
             print("json.loads failed")
 
@@ -141,7 +161,7 @@ class Communication:
 
         # send message
         self.check_syntax(topic, payload)
-        self.client.publish('planet/{}/{}'.format(self.planet_name, self.group_id), payload=payload, qos=2)
+        self.__publish('planet/{}/{}'.format(self.planet_name, self.group_id), payload=payload, qos=2)
 
     def send_explorer_message(self, topic, payload):
         """
@@ -153,7 +173,7 @@ class Communication:
 
         # send message
         self.check_syntax(topic, payload)
-        self.client.publish('explorer/{}'.format(self.group_id), payload=payload, qos=2)
+        self.__publish('explorer/{}'.format(self.group_id), payload=payload, qos=2)
 
     def send_message(self, topic, message):
         self.send_explorer_message(topic, message)
@@ -234,7 +254,7 @@ class Communication:
         return True
 
     def check_syntax(self, topic, payload):
-        self.client.publish('comtest/{}'.format(self.group_id), payload=payload, qos=2)
+        self.__publish('comtest/{}'.format(self.group_id), payload=payload, qos=2)
 
     def done(self):
         print("Disconnecting from broker")
