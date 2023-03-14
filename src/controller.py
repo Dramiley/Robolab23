@@ -48,7 +48,7 @@ class Controller:
 
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
-        self.robot.drive_until_station()
+        self.robot.drive_until_communication_point()
 
         # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
         self.communication.ready()
