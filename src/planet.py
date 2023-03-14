@@ -415,5 +415,6 @@ class Planet:
 
         TODO: redundant, completeness can be checked by checking if get_next_exploration_path == None
         """
+        return False
         is_complete = not self.unexplored
         return is_complete

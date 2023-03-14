@@ -110,6 +110,7 @@ class Controller:
 
         # wenn es nichts mehr zu erkunden gibt, dann ist die erkundung beendet
         if self.planet.is_exploration_complete():
+            print("Exploration complete")
             self.__exploration_complete()
             return
 
