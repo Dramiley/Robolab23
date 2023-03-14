@@ -6,7 +6,7 @@ from odometry import Odometry
 from robot import Robot
 from robot_dummy import RobotDummy
 from planet import Planet
-from webview import Webview
+from controller_webview import Webview
 
 from typing import List
 
