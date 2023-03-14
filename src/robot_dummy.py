@@ -130,11 +130,14 @@ class RobotDummy(Robot):
 
         print("Using dummy robot ...")
 
+
+"""
     def someFunctionThatDoesntExistOnTheRealRobot(self, hi):
         # does things
         b = 3
         print(b)
         pass
+"""
 
 
 def __del__(self):
