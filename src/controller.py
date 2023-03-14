@@ -85,8 +85,9 @@ class Controller:
         # all after this means program exited
 
         # as long as the programm is not exited, wait
-        while True:
-            time.sleep(1)
+        if not env["GITLAB_RUNNER"]:
+            while True:
+                time.sleep(1)
 
     def __init_callbacks(self):
         # bei einer Antwort des Mutterschiffs mit dem Typ "planet" wird der Name des Planeten ausgegeben
