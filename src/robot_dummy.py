@@ -10,8 +10,11 @@ The path is read from a json file.
 # start webserver via node
 import os
 
+
 class DummyMotor:
     count_per_rot = 100
+    position = 0
+
 
 class RobotDummy:
     controller = None
@@ -26,15 +29,6 @@ class RobotDummy:
         map = json.load(json_file)
         position = map['x'], map['y']
         orientation = map['orientation']
-
-
-    """
-    def drive_until_station(self):
-        self.position = self.map['x'], self.map['y']
-
-        # log
-        self.log("Start at: " + str(self.position) + " | Orientation: " + str(self.orientation))
-    """
 
     def drive_until_communication_point(self):
         # can we drive into our current orientation?
@@ -138,8 +132,7 @@ class RobotDummy:
         """
 
 
-
-
+"""
 if __name__ == "__main__":
     # start robot
     r = RobotDummy()
@@ -207,7 +200,6 @@ if __name__ == "__main__":
     r.turn_deg(-90)
     r.drive_until_communication_point()
 
-    """
     r.drive_until_communication_point()
     r.turn_deg(90)
     r.drive_until_communication_point()
@@ -230,4 +222,5 @@ if __name__ == "__main__":
     r.drive_until_communication_point()
     r.drive_until_communication_point()
     r.drive_until_communication_point()
-    """
+    
+"""
