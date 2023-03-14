@@ -10,21 +10,31 @@ The path is read from a json file.
 # start webserver via node
 import os
 
+class DummyMotor:
+    count_per_rot = 100
 
 class RobotDummy:
     controller = None
     orientation = 0
     position = (0, 0)
 
+    motor_left = DummyMotor()
+    motor_right = DummyMotor()
+
     # read map from file
     with open('maps/Kepler-0815.json') as json_file:
         map = json.load(json_file)
+        position = map['x'], map['y']
+        orientation = map['orientation']
 
+
+    """
     def drive_until_station(self):
         self.position = self.map['x'], self.map['y']
 
         # log
         self.log("Start at: " + str(self.position) + " | Orientation: " + str(self.orientation))
+    """
 
     def drive_until_communication_point(self):
         # can we drive into our current orientation?
@@ -104,6 +114,8 @@ class RobotDummy:
 
     def __init__(self):
 
+        return
+
         try:
             stream = os.system("cd dummy; node server.js &")
         except Exception as e:
@@ -128,7 +140,6 @@ class RobotDummy:
 if __name__ == "__main__":
     # start robot
     r = RobotDummy()
-    r.drive_until_station()
     r.turn_deg(-90)
     r.drive_until_communication_point()
     r.turn_deg(-90)

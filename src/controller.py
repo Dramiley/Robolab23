@@ -88,8 +88,8 @@ class Controller:
 
         # setup odometry
         self.odometry = Odometry(self.robot)
-        self.odometry.set_pos((startX, startY))
-        self.odometry.set_coords(startOrientation)
+        self.odometry.set_coords((startX, startY))
+        self.odometry.set_dir(startOrientation)
 
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
@@ -108,11 +108,11 @@ class Controller:
 
         # wenn es nichts mehr zu erkunden gibt, dann ist die erkundung beendet
         if self.planet.is_exploration_complete():
-            self.__exploration_complete("alles erkundet.")
+            self.__exploration_complete()
             return
 
         # erstmal nach norden stellen
-        alte_richtung = self.odometry.current_dir
+        alte_richtung = self.odometry.get_dir()
         # TODO: change->calc dir to turn to into
         self.robot.turn_deg(-1 * alte_richtung)
 
@@ -254,7 +254,7 @@ class Controller:
     def queue_received_target(self, x, y):
         self.__receive_target_queue.append((x, y))
 
-    def __flush_received_target_queue(self, x, y):
+    def __flush_received_target_queue(self):
         for (x, y) in self.__receive_target_queue:
             self.__receive_target(x, y)
         self.__receive_target_queue = []
