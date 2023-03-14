@@ -13,8 +13,8 @@
         data() {
             return {
                 pos: {
-                    x: 6,
-                    y: 4,
+                    x: 5,
+                    y: -1,
                     rotation: 0
                 }
             }
@@ -24,7 +24,7 @@
                 return (this.pos.y * -132) + 635
             },
             left() {
-                return (this.pos.x * 67) + 5
+                return ((this.pos.x - 3) * 135) + 5
             },
             rotation() {
                 return this.pos.orientation
@@ -40,7 +40,6 @@
             }
         },
         mounted() {
-            return
             this.refreshPosition()
             setInterval(this.refreshPosition, 200)
         }
