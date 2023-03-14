@@ -87,7 +87,7 @@ class Odometry:
     def set_dir(self, dir: Direction):
         self.current_dir = dir
 
-    def set_pos(self, coords: Tuple[int, int]):
+    def set_coords(self, coords: Tuple[int, int]):
         self.start_pos_coords = coords
 
     def __calc_parameters(self):

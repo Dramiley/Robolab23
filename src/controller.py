@@ -92,8 +92,8 @@ class Controller:
 
         # setup odometry
         self.odometry = Odometry(self.robot)
-        self.odometry.set_pos((startX, startY))
-        self.odometry.set_coords(startOrientation)
+        self.odometry.set_coords((startX, startY))
+        self.odometry.set_dir(startOrientation)
 
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
