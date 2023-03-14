@@ -27,8 +27,6 @@ def run():
     # Your script isn't able to close the client after crashing.
     global client
 
-    raise Exception("This is a dummy script. Please implement your own code.")
-
     client_id = '046-' + str(uuid.uuid4())  # Replace YOURGROUPID with your group ID
     client = mqtt.Client(client_id=client_id,  # Unique Client-ID to recognize our program
                          clean_session=True,  # We want a clean session after disconnect or abort/crash
