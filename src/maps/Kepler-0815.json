@@ -22,19 +22,30 @@
               "y": 2,
               "orientation": 0,
               "paths": [
+                null,
+                null,
                 {
                   "color": "red",
                   "x": 314,
-                  "y": 2,
-                  "orientation": 0,
+                  "y": 1,
+                  "orientation": 180,
                   "paths": [
-                    null,
-                    null,
                     {
                       "x": 314,
                       "y": 2,
                       "orientation": 180
                     },
+                    {
+                      "x": 315,
+                      "y": 1,
+                      "orientation": 90
+                    },
+                    {
+                      "x": 312,
+                      "y": 0,
+                      "orientation": 180
+                    },
+                    null,
                     {
                       "color": "blue",
                       "x": 312,
@@ -42,9 +53,9 @@
                       "orientation": 180,
                       "paths": [
                         {
-                          "x": 312,
-                          "y": 1,
-                          "orientation": 0
+                          "x": 314,
+                          "y": 2,
+                          "orientation": 90
                         },
                         null,
                         null,
@@ -86,16 +97,16 @@
                                     null,
                                     null,
                                     {
-                                      "x": 311,
+                                      "x": 310,
                                       "y": 2,
                                       "orientation": 270
                                     }
                                   ]
                                 },
                                 {
-                                  "x": 310,
-                                  "y": 2,
-                                  "orientation": 180
+                                  "x": 311,
+                                  "y": 0,
+                                  "orientation": 90
                                 },
                                 null
                               ]
@@ -105,12 +116,6 @@
                       ]
                     }
                   ]
-                },
-                null,
-                {
-                  "x": 314,
-                  "y": 2,
-                  "orientation": 180
                 },
                 null
               ]
