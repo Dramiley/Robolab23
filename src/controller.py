@@ -6,12 +6,14 @@ from odometry import Odometry
 from robot import Robot
 from robot_dummy import RobotDummy
 from planet import Planet
-from controller_webview import Webview
+import os
 
 from typing import List
 from threading import Thread
 
-from config import Config
+# read environment variables
+SIMULATOR = os.environ.get("SIMULATOR") == "True"
+DEBUG = os.environ.get("DEBUG") == "True"
 
 
 class Position:
@@ -41,9 +43,7 @@ class Controller:
 
         self.communication.test_planet('Fassaden-M1')
 
-        # replace with robot.run_robot()
-        if Config.useDummy:
-            print("Using dummy robot")
+        if SIMULATOR:
             self.robot = RobotDummy()
         else:
             self.robot = Robot()
