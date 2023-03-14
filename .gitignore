@@ -28,6 +28,12 @@ Icon
 # Thumbnails
 ._*
 
+# ignore all .vscode files
+.vscode/*
+src/.vscode/*
+src/dummy/position.json
+src/.env
+
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
 .fseventsd
@@ -246,7 +252,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+src/.env
 .venv
 env/
 venv/

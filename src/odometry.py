@@ -31,23 +31,26 @@ class Odometry:
         self.motor_pos_list = [
             [start_pos_left, start_pos_right]]  # list of 2-element lists [[motor_pos1, motor_pos2], [.,.], ...]
 
+        # odometry should be running only when told so
+        self.running = False
         self.__calc_parameters()
 
-    async def start(self, start_pos: Tuple[int, int] = (0, 0), start_dir: int = Direction.NORTH):
+    def start(self):
         """
         Starts the odometry tracking.
 
         WARNING: should only be called when following a line, so that rotations when exploring paths on a node don't get anything messed up
+
+        NOTE: Make sure to run this function in a separate thread!
         """
-        self.start_pos_coords = start_pos
-        self.current_dir = start_dir
+
         self.current_pos = (0, 0)  # position is tracked relative
 
         self.motor_pos_list = []
 
         while self.running:
             self.__track_motor_pos()
-            await time.sleep(self.tracking_interval)
+            time.sleep(self.tracking_interval)
 
     def stop(self):
         """
@@ -57,7 +60,7 @@ class Odometry:
         self.running = False
         self.__calculate()
 
-    def get_current_coords(self) -> Tuple[int, int]:
+    def get_coords(self) -> Tuple[int, int]:
         """
         Returns current coords based on self.current_pos by rounding cm to coordinates (nearest multiple of 50cm)
         """
@@ -76,12 +79,18 @@ class Odometry:
 
         return (new_coords_x, new_coords_y)
 
-    def get_current_dir(self) -> int:
+    def get_dir(self) -> int:
         """
         Returns current orientation direction based on current_dir
         """
         self.current_dir = self.current_dir % 360  # makes sure self.current_dir is positive
         return ((self.current_dir + 45) // 90) * 90  # +45 makes sure that values nearer to 90 than 0 are rounded up
+
+    def set_dir(self, dir: Direction):
+        self.current_dir = dir
+
+    def set_coords(self, coords: Tuple[int, int]):
+        self.start_pos_coords = coords
 
     def __calc_parameters(self):
         wheel_radius = 2.7  # in cm

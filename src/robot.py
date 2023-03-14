@@ -219,18 +219,11 @@ class Robot:
              elif i == "7":
                  print(self.__station_scan_alternative())
 
-    def drive_until_start(self):
-        """
-        Drives the robot until it reaches the start node
-        """
-        self.__run()
-
     def drive_until_communication_point(self):
         """
         Drives the robot to the next communication point
         """
         self.__followline()
-        pass
 
     def notify_at_communication_point(self):
         """
@@ -238,7 +231,6 @@ class Robot:
         """
         self.__followline()
         self.controller.communication_point_reached()
-        pass
 
     def turn_deg(self, deg):
         """
