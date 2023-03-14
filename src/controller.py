@@ -63,19 +63,20 @@ class Controller:
         # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
         self.communication.ready()
 
-    def receive_planet(self, planetName, startX, startY, startOrientation):
+    def receive_planet(self, planetName: str, startX: int, startY: int, startOrientation: int):
 
         # remember last position
         self.last_position = Position(startX, startY, startOrientation)
 
         # setup planet
-        self.planet = Planet(planetName, startX, startY, startOrientation)
+        self.planet = Planet(planetName)
 
         # setup odometry
         self.odometry = Odometry(self.robot, (startX, startY), int(startOrientation))
 
         # aktuelle position um 180 grad gedreht als blockiert merken
-        self.planet.add_blocked_path((startX, startY), int(startOrientation) + 180)
+        # ->because we always start from a dead end
+        self.planet.add_path((startX, startY), (startX, startY),int(startOrientation) + 180)
 
         # los gehts
         self.explore()

@@ -119,6 +119,11 @@ class Planet:
                  weight: int):
         """
         Adds new path to self.paths AND updates self.unexplored
+
+        NOTE: loops are handled as blocked paths and blocked paths as loops
+            - reasoning: we don't need to drive loops neither
+                1. for finding a target (can only increase path weight)
+                2. nor for exploration (since we have already explored the path if it is added)
         """
         start_coords = start[0]
         start_entry_dir = start[1]
@@ -337,6 +342,17 @@ class Planet:
 
         return False
 
+    def is_path_blocked(self, node: Tuple[int, int], dir: Direction) -> bool:
+        """
+        Returns whether a path is blocked
+
+        WARNING: Make sure the passed path is already explored! (using is_path_explored())
+        """
+        paths_parameters = self.paths[node][dir]
+        # end_node is first argument of (entry_node, entry_dir, weight)
+        end_node = paths_parameters[0]
+        return  end_node
+
     def add_unexplored_path(self, node: Tuple[int, int], dir: Direction):
         """
         Tracks unexplored path (node, direction)
@@ -383,17 +399,11 @@ class Planet:
             # remove as unexplored if all directions of node have been explored
             del self.unexplored[node_coords]
 
-    def add_blocked_path(self, param, param1):
-        """
-        Adds a blocked path to the map
-        """
-        pass
-
     def is_exploration_complete(self) -> bool:
         """
         Returns: True if all nodes have been explored, False otherwise
         @rtype: bool
         """
         # TODO: implement
-        return False
+        raise NotImplementedError("Doesn't know whether exploration is already complete")
 
