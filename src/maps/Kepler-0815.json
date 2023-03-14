@@ -134,9 +134,9 @@
                   "orientation": 180,
                   "paths": [
                     {
-                      "x": 317,
-                      "y": 0,
-                      "orientation": 0
+                      "x": 315,
+                      "y": 1,
+                      "orientation": 270
                     },
                     null,
                     {
@@ -147,9 +147,9 @@
                       "paths": [
                         null,
                         {
-                          "x": 313,
-                          "y": -1,
-                          "orientation": 90
+                          "x": 317,
+                          "y": 0,
+                          "orientation": 0
                         },
                         null,
                         {
@@ -206,7 +206,11 @@
         }
       ]
     },
-    null,
+    {
+      "x": 313,
+      "y": -1,
+      "orientation": 90
+    },
     {
       "x": 312,
       "y": -1,

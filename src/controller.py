@@ -4,6 +4,7 @@ from communication import Communication
 from communication_logger import CommunicationLogger
 from odometry import Odometry, Position
 from robot import Robot
+from robot_dummy import RobotDummy
 from planet import Planet
 from webview import Webview
 
@@ -27,7 +28,7 @@ class Controller:
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
         # replace with robot.run_robot()
-        self.robot = Robot()
+        self.robot = RobotDummy()
         self.robot.set_controller(self)
 
         # setup callbacks
