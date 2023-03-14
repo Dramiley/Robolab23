@@ -11,7 +11,7 @@
         {
           "x": 5,
           "y": 2,
-          "direction": 0,
+          "orientation": 0,
           "paths": [
             null,
             {
@@ -98,7 +98,7 @@
         {
           "x": 6,
           "y": 0,
-          "direction": 180,
+          "orientation": 180,
           "paths": [
             {
               "x": 5,
@@ -113,7 +113,7 @@
         {
           "x": 5,
           "y": 0,
-          "direction": 180
+          "orientation": 180
         },
         {
           "x": 4,
