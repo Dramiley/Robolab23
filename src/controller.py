@@ -83,7 +83,6 @@ class Controller:
 
         # remember last position
         self.last_position = Position(startX, startY, startOrientation)
-
         # setup planet
         self.planet = Planet()
 
