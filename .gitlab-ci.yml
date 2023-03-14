@@ -29,6 +29,7 @@ before_script:
 
 test:
   script:
+    - cd src
     - python3 src/selfcheck.py
 
 
