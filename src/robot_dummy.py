@@ -92,7 +92,7 @@ class RobotDummy:
         with open('dummy/position.json', 'w') as outfile:
             json.dump({'x': self.position[0], 'y': self.position[1], 'orientation': self.orientation}, outfile)
 
-        # time.sleep(.3)
+        time.sleep(1)
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates
@@ -114,8 +114,7 @@ class RobotDummy:
 
     def __init__(self):
 
-        return
-
+        """
         try:
             stream = os.system("cd dummy; node server.js &")
         except Exception as e:
@@ -123,9 +122,11 @@ class RobotDummy:
 
         # wait for user to press any input
         time.sleep(.7)
+        """
 
     def __del__(self):
 
+        """
         # wait for user to press any input
         time.sleep(1)
 
@@ -134,6 +135,8 @@ class RobotDummy:
             stream = os.system("pkill node")
         except Exception as e:
             print("Server already off")
+        """
+
 
 
 
