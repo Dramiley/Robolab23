@@ -9,10 +9,10 @@ app.get('/history', (req, res) => {
 });
 app.get('/planet', (req, res) => {
     // read file ../planets/current_planet.json into var
-    let planetName = fs.readFileSync('../planets/current_planet.json', 'utf8')
+    let name = fs.readFileSync('./planets/current_planet.txt', 'utf8')
 
     // read file ../planets/{planetName}.def.json into var
-    let def = fs.readFileSync('../planets/' + planetName + '.def.json', 'utf8')
+    let def = JSON.parse(fs.readFileSync('./planets/' + name + '.def.json', 'utf8'))
 
     // output them
     res.send({def, name});
@@ -22,5 +22,5 @@ app.get('/planet', (req, res) => {
 app.use(express.static('./static'));
 
 app.listen(port, () => {
-    console.log(`App listening at http://localhost:${port}`)
+    console.log(`Simulator started at http://localhost:${port}`)
 })
