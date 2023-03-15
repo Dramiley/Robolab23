@@ -285,7 +285,7 @@ class Communication:
             # send message
             print("waiting 3s before faking server response")
 
-            time.sleep(1)  # TODO: change to 3s
+            time.sleep(3)  # TODO: change to 3s
 
             print("waited 3s before faking server response")
 
