@@ -1,25 +1,54 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 <div id="site">
-    <div id="app">
-        <img id="map" src="Fassaden-M1.png">
-        <img id="robot" src="robot.png"
-             :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
+    <div id="app-wrapper">
+        <div id="app">
+            <img id="map" src="Fassaden-M1.png">
+            <img id="robot" src="robot.png"
+                 :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
 
-        <div id="info">
-            Current position: {{ pos.x }}, {{ pos.y }}, {{ pos.orientation }}°
+            <div id="info" class="pos">
+                <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
+                    <path fill="currentColor"
+                          d="M12 14q-.825 0-1.412-.588Q10 12.825 10 12t.588-1.413Q11.175 10 12 10t1.413.587Q14 11.175 14 12q0 .825-.587 1.412Q12.825 14 12 14Zm0-6q-.425 0-.712-.287Q11 7.425 11 7V4q0-.425.288-.713Q11.575 3 12 3t.713.287Q13 3.575 13 4v3q0 .425-.287.713Q12.425 8 12 8Zm0 13q-.425 0-.712-.288Q11 20.425 11 20v-3q0-.425.288-.712Q11.575 16 12 16t.713.288Q13 16.575 13 17v3q0 .425-.287.712Q12.425 21 12 21Zm5-8q-.425 0-.712-.288Q16 12.425 16 12t.288-.713Q16.575 11 17 11h3q.425 0 .712.287q.288.288.288.713t-.288.712Q20.425 13 20 13ZM4 13q-.425 0-.712-.288Q3 12.425 3 12t.288-.713Q3.575 11 4 11h3q.425 0 .713.287Q8 11.575 8 12t-.287.712Q7.425 13 7 13Z"/>
+                </svg>
+                X: {{ pos.x }} Y: {{ pos.y }}
+                <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                       stroke-width="1.5">
+                        <path d="M10.586 10.586L16.95 7.05l-3.536 6.364L7.05 16.95l3.536-6.364Z"/>
+                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12s4.477 10 10 10Z"/>
+                    </g>
+                </svg>
+                {{ pos.orientation }}°
+            </div>
         </div>
     </div>
     <div id="history">
-        <div class="list-header">History
+        <div class="list-header">
+            <h2>History</h2>
             <div class="list-slider">
-                <input name="slider" type="range" min="0" :max="history.length - 1" v-model="historyIndex" step="1">
+                <input name="slider" @click="pause=true" type="range" min="0" :max="history.length - 1"
+                       v-model="historyIndex" step="1">
             </div>
+            Pause <input type="checkbox" v-model="pause">
         </div>
         <div class="scrollable-list">
-            Historie:
-            <li v-for="(entry, index) in history" :class="{active: historyIndex == index}">
-                {{ entry.x }}, {{ entry.y }}, {{ entry.orientation }}°
+            <li class="pos" v-for="(pos, index) in history" :class="{active: historyIndex == index}"
+                @click="historyIndex = index">
+                <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
+                    <path fill="currentColor"
+                          d="M12 14q-.825 0-1.412-.588Q10 12.825 10 12t.588-1.413Q11.175 10 12 10t1.413.587Q14 11.175 14 12q0 .825-.587 1.412Q12.825 14 12 14Zm0-6q-.425 0-.712-.287Q11 7.425 11 7V4q0-.425.288-.713Q11.575 3 12 3t.713.287Q13 3.575 13 4v3q0 .425-.287.713Q12.425 8 12 8Zm0 13q-.425 0-.712-.288Q11 20.425 11 20v-3q0-.425.288-.712Q11.575 16 12 16t.713.288Q13 16.575 13 17v3q0 .425-.287.712Q12.425 21 12 21Zm5-8q-.425 0-.712-.288Q16 12.425 16 12t.288-.713Q16.575 11 17 11h3q.425 0 .712.287q.288.288.288.713t-.288.712Q20.425 13 20 13ZM4 13q-.425 0-.712-.288Q3 12.425 3 12t.288-.713Q3.575 11 4 11h3q.425 0 .713.287Q8 11.575 8 12t-.287.712Q7.425 13 7 13Z"/>
+                </svg>
+                X: {{ pos.x }} Y: {{ pos.y }}
+                <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                       stroke-width="1.5">
+                        <path d="M10.586 10.586L16.95 7.05l-3.536 6.364L7.05 16.95l3.536-6.364Z"/>
+                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12s4.477 10 10 10Z"/>
+                    </g>
+                </svg>
+                {{ pos.orientation }}°
             </li>
         </div>
     </div>
@@ -31,7 +60,8 @@
     createApp({
         data() {
             return {
-                posSingle: {
+                pause: false,
+                startPos: {
                     x: 5,
                     y: -1,
                     rotation: 0
@@ -52,30 +82,27 @@
             },
             pos() {
                 if (this.history.length === 0)
-                    return this.posSingle
+                    return this.startPos
                 return this.history[this.historyIndex]
             }
         },
         methods: {
-            refreshPosition() {
-                fetch('/position')
-                    .then(response => response.json())
-                    .then(data => {
-                        this.pos = data
-                    })
-            },
             refreshHistory() {
                 fetch('/history')
                     .then(response => response.json())
                     .then(data => {
+
+                        // if length hasnt changed, dont update
+                        if (data.length === this.history.length)
+                            return
+
                         this.history = data
+                        if (!this.pause)
+                            this.historyIndex = data.length - 1
                     })
             }
         },
         mounted() {
-            this.refreshPosition()
-            setInterval(this.refreshPosition, 200)
-
             this.refreshHistory()
             setInterval(this.refreshHistory, 500)
         }
@@ -83,12 +110,43 @@
 </script>
 
 <style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+    }
+
+    #site {
+        display: flex;
+        flex-direction: row;
+        height: 100vh;
+        width: 100vw;
+        background: blueviolet;
+    }
 
     #history {
-        background: aquamarine;
-        height: 100px;
+        background: #e2e2e2;
         display: flex;
+        flex-direction: column;
         overflow: auto;
+        flex: 30;
+    }
+
+    #app-wrapper {
+        flex: 80;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+        background: #b1b1b1;
+    }
+
+    .list-header {
+        padding: 5px 10px;
+        background: #f6f6f6;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
     }
 
     #history li.active {
@@ -98,10 +156,10 @@
     #app {
         position: relative;
         height: 800px;
+        background: green;
     }
 
     #app #map {
-        position: absolute;
         height: 100%;
     }
 
@@ -118,9 +176,37 @@
         position: absolute;
         bottom: 0;
         left: 0;
-        padding: 10px;
-        background: rgba(0, 0, 0, 0.5);
         color: white;
+        background: #8e8e8e;
+    }
+
+    .pos {
+        padding: 5px 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .scrollable-list {
+        overflow: auto;
+        flex: 1;
+    }
+
+    .scrollable-list li {
+        list-style: none;
+    }
+
+    .scrollable-list li {
+        border-top: 1px solid #0002;
+    }
+
+    .scrollable-list li:hover {
+        cursor: pointer;
+        background: #0001;
+    }
+
+    .scrollable-list li.active {
+        background: #0002;
     }
 
 </style>
