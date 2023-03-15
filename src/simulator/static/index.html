@@ -226,8 +226,10 @@
             setPlanet() {
                 fetch('/planet?name=' + this.name, {
                     method: 'POST'
+                }).then(() => {
+                    this.refreshPlanet()
+                    this.pause = false
                 })
-                this.pause = false
             },
             refreshPlanets() {
                 fetch('/planets')
