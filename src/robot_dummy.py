@@ -97,18 +97,24 @@ class RobotDummy(Robot):
 
     def __log(self, message=""):
         # print to console
-        print("I think I am now at position " + str(self.__position) + " and my orientation is " + str(self.__orientation))
+        print("I think I am now at position " + str(self.__position) + " and my orientation is " + str(
+            self.__orientation))
         print(message)
 
         # update visualisation
         self.__update_visualisation()
 
     def __update_visualisation(self):
+
+        time.sleep(1)
+
         # write to file
         with open('dummy/position.json', 'w') as outfile:
             json.dump({'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation}, outfile)
 
-        time.sleep(.1)
+        # append to history file
+        with open('dummy/history.json', 'a') as outfile:
+            json.dump({'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation}, outfile)
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates
@@ -129,6 +135,10 @@ class RobotDummy(Robot):
                 return result
 
     def __init__(self):
+        # clean history file
+        open('dummy/history.json', 'w').close()
+
+        # inform user
         print("Using dummy robot ...")
         print("I think I am at position " + str(self.__position) + " and my orientation is " + str(self.__orientation))
 
