@@ -52,3 +52,6 @@ class CommunicationLogger:
         print(message)
         print("<==")
         print(self.bcolors.ENDC)
+
+    def call(self, class_name, method_name):
+        dummy_log('call', {'class': class_name, 'method': method_name})
