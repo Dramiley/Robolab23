@@ -151,7 +151,7 @@ class Robot:
                 integral = 0 
                 
             derivative = error - lerror
-            lenkfaktor = 170 * error + 10 * integral + 110 * derivative
+            lenkfaktor = 160 * error + 10 * integral + 110 * derivative
             lenkfaktor = lenkfaktor / 100
             power_left = tempo + lenkfaktor
             power_right = tempo - lenkfaktor
