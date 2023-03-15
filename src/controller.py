@@ -132,7 +132,9 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        self.communication.test_planet('Fassaden-M1')
+        # load test planet name from maps/current_planet.txt
+        with open('maps/current_planet.txt') as f:
+            self.communication.test_planet(f.read().replace("\n", ""))
 
         # for our Simulator
         if env["SIMULATOR"]:
