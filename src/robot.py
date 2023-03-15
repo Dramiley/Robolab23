@@ -199,7 +199,6 @@ class Robot:
 
     def __run(self):
         self.__calibrate()
-<<<<<<< HEAD
         while True:
              print("1 for followline")
              print("2 for station_center")
@@ -220,7 +219,6 @@ class Robot:
                   print(self.__station_scan())
              elif i == "6":
                  self.__turn90()
-=======
         # while True:
         #      print("1 for followline")
         #      print("2 for station_center")
@@ -245,19 +243,15 @@ class Robot:
         #          self.__turn90()
         #      elif i == "7":
         #          print(self.__station_scan_alternative())
->>>>>>> master
 
     def drive_until_communication_point(self):
         """
         Drives the robot to the next communication point
         """
-<<<<<<< HEAD
         #self.__followline()
         self.__run()
-=======
         self.path_was_blocked = False # reset
         self.__followline()
->>>>>>> master
 
     def turn_deg(self, deg):
         """
