@@ -284,12 +284,12 @@ class Controller:
         print("Init position: " + str(startX) + " " + str(startY) + " " + str(startOrientation))
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
-        self.__handle_received_path(startX, startY, Direction(startOrientation))
+        self.__handle_received_planet(startX, startY, Direction(startOrientation))
 
         # los gehts
         self.run()
 
-    def __handle_received_path(self, startX: int, startY: int, startOrientation: Direction):
+    def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
         # startOrientation is the dir the robot is pointing towards after entering the node
         came_from_dir: Direction = Direction((startOrientation + 180) % 360)
@@ -332,7 +332,8 @@ class Controller:
         :return: void
         """
 
-        self.communication.communication.logger.debug("unexplored: "+str(self.planet.unexplored))
+        self.communication.communication.logger.debug("paths: " + str(self.planet.paths))
+        self.communication.communication.logger.debug("unexplored: " + str(self.planet.unexplored))
 
         if (self.last_position is None):
             self.logger.debug("last_position is None")
