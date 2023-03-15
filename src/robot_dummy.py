@@ -4,14 +4,6 @@ import time
 
 from robot import Robot
 
-"""
-This is a dummy class for the robot.
-The path is read from a json file.
-"""
-
-# start webserver via node
-import os
-
 
 class DummyMotor:
     count_per_rot = 100
@@ -19,6 +11,12 @@ class DummyMotor:
 
 
 class RobotDummy(Robot):
+
+    """
+    This class is a dummy for the robot.
+    It is used to test the code without the robot.
+    """
+
     controller = None
     __orientation = 0
     __position = (0, 0)
@@ -124,42 +122,12 @@ class RobotDummy(Robot):
                 return result
 
     def __init__(self):
-        """
-        try:
-            stream = os.system("cd dummy; node server.js &")
-        except Exception as e:
-            print("Server already on")
-
-        # wait for user to press any input
-        time.sleep(.7)
-        """
-
         print("Using dummy robot ...")
-
-
-"""
-    def someFunctionThatDoesntExistOnTheRealRobot(self, hi):
-        # does things
-        b = 3
-        print(b)
-        pass
-"""
 
 
 def __del__(self):
     # wait for user to press any input
     time.sleep(1)
-
-    """
-    # stop webserver via node
-    try:
-        stream = os.system("pkill node")
-    except Exception as e:
-        print("Server already off")
-    """
-
-
-# def is_
 
 
 if __name__ == "__main__":
@@ -190,92 +158,3 @@ if __name__ == "__main__":
     r.turn_deg(-90)
     r.drive_until_communication_point()
     r.drive_until_communication_point()
-"""
-    # start robot
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-
-"""
