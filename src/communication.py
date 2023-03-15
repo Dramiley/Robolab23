@@ -4,6 +4,8 @@
 import json
 import os
 import ssl
+import threading
+import time
 
 # import communication_facade
 from communication_facade import CommunicationFacade
@@ -269,3 +271,30 @@ class Communication:
 
     def set_controller(self, controller):
         self.controller = controller
+
+    received_since_last_path_select = 0
+
+    def prepare_fallback_path_select_message(self, startDirection):
+
+        # have a async function
+        def async_fake():
+
+            # reset counter
+            received_since_last_path_select = 0
+
+            # send message
+            print("waiting 3s before faking server response")
+            time.sleep(3)
+
+            # checking if there was a path select message in the meantime
+            if received_since_last_path_select > 0:
+                print("received a path select message in the meantime, not sending fake server response")
+                return
+            else:
+                print("sending fake server response")
+                self.callback('pathSelect', {'startDirection': startDirection})
+
+        # start async function
+        thread = threading.Thread(target=async_fake)
+        thread.start()
+        print("started async function, now continuing")

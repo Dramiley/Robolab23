@@ -43,6 +43,7 @@ class CommunicationFacade:
         :param pathStatus: The path status
         :return: void
         """
+
         self.communication.send_planet_message('path', '''{
           "from": "client",
           "type": "path",
@@ -65,6 +66,7 @@ class CommunicationFacade:
         :param startDirection: The start direction
         :return: void
         """
+
         self.communication.send_planet_message('pathSelect', '''{
           "from": "client",
           "type": "pathSelect",
@@ -74,6 +76,8 @@ class CommunicationFacade:
             "startDirection": %s
           }
         }''' % (startX, startY, startDirection))
+
+        self.communication.prepare_fallback_path_select_message(startDirection)
 
     def path_unveiled(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         """
@@ -117,7 +121,7 @@ class CommunicationFacade:
           }
         }''' % message)
 
-    def exploration_completed(self, message: str="Take me home pleeaaasse :'("):
+    def exploration_completed(self, message: str = "Take me home pleeaaasse :'("):
         """
         Sends a explorationCompleted message to the server
         :param message: The message
