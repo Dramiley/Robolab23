@@ -135,6 +135,9 @@ class Robot:
     def __followline(self):
         # folgt der Linie
         # self.communication.test_planet("Gromit")
+        # reset was_path_blocked
+        self.was_path_blocked = False
+
         self.color.color_check()  # checkt die Farbe
         middle_greytone = self.middlegreytone
         integral = 0
@@ -280,4 +283,3 @@ class Robot:
         self.motor_left.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=133)
         self.motor_right.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=-133)
         time.sleep(ROT_TIME_FACTOR * 10**-3 * deg)
-        2
