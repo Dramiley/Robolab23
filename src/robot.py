@@ -100,7 +100,7 @@ class Robot:
         self.color.color_check()
         black = self.color.greytone
         print("black = " + str(black))
-        middlegreytone = ((white + black) / 2) + 55
+        middlegreytone = ((white + black) / 2) + 50
         print("grey = " + str(middlegreytone))
         self.middlegreytone = middlegreytone
 
@@ -141,7 +141,7 @@ class Robot:
                 # wenn genau zwischen den beiden Farben, setzt integral auf 0
                 integral = 0
             derivative = error - lerror
-            lenkfaktor = 85 * error + 20 * integral + 55 * derivative
+            lenkfaktor = 90 * error + 10 * integral + 60 * derivative
             lenkfaktor = lenkfaktor / 100
             power_left = tempo + lenkfaktor
             power_right = tempo - lenkfaktor
