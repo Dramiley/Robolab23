@@ -197,7 +197,8 @@ class Controller:
 
         if next_dir == None:
             # planet has been explored completely->there is nothing to explore anymore
-            self.logger.debug("I have explored everything and as this method is only called of there was no target I'm finished:)")
+            self.logger.debug(
+                "I have explored everything and as this method is only called of there was no target I'm finished:)")
             self.communication.exploration_completed()
             return
 
@@ -258,7 +259,7 @@ class Controller:
         TODO: don't scan nodes which are already explored completely
         """
         start_dir = self.last_position.direction  # the direction we came from
-        current_dir = (start_dir+180) % 360 # sensor is no on opposite path since we drove forward
+        current_dir = (start_dir + 180) % 360  # sensor is no on opposite path since we drove forward
         self.last_position.direction = current_dir
 
         print("Started scan from {start_dir}, set scan dir to {current_dir} due to driving forward.")
@@ -271,9 +272,11 @@ class Controller:
             possible_path = self.robot.station_scan()
 
             if possible_path:
-                self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), current_dir)
+                try:
+                    self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), current_dir)
+                except Exception as e:
+                    print("Error while adding path to planet: {e}")
             self.logger.debug(f"Checking {current_dir}")
-        self.logger.debug("Checked {current_dir}, there was a path?: {possible_path}")
 
     def communication_point_reached(self):
         """

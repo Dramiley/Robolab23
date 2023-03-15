@@ -36,8 +36,6 @@ class RobotDummy(Robot):
         # can we drive into our current orientation?
         index_of_current_orientation = self.__orientation // 90
 
-        print("Current orientation: " + str(index_of_current_orientation))
-
         # this is where we are
         path = self.__path_by_coordinates(self.__position, self.__map)
 
