@@ -82,6 +82,12 @@ class RobotDummy(Robot):
         # log
         self.__log("Turning " + str(deg) + "° | Orientation: " + str(self.__orientation))
 
+    def station_scan(self) -> bool:
+        # 1. rotate 90deg
+        self.turn_deg(90)
+        # 2. scan if there is something
+        return self.__has_path_ahead()
+
     def set_controller(self, controller):
         self.controller = controller
 
@@ -116,12 +122,6 @@ class RobotDummy(Robot):
             result = self.__path_by_coordinates(coordinates, p)
             if result is not None:
                 return result
-
-    def station_scan(self) -> bool:
-        # 1. rotate 90deg
-        self.turn_deg(90)
-        # 2. scan if there is something
-        return self.__has_path_ahead()
 
     def __init__(self):
         """
