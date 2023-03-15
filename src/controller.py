@@ -247,11 +247,8 @@ class Controller:
         for i in range(1, 3):  # 1 because there must be a path on the one we came from
             # check if there is a black line beginning
             # turn to next path
-            self.robot.turn_deg(90)
-            # update current orientation
-            current_dir = (current_dir + 90) % 360
-            # check whether there is a path
-            possible_path = self.robot.has_path_ahead()
+            # TODO
+            # self.robot.turn_deg(90) muss weg da has_path_ahead das schon macht
 
             if possible_path:
                 self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), current_dir)

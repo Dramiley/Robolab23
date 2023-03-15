@@ -249,6 +249,7 @@ class Robot:
         Drives the robot to the next communication point
         """
         #self.__followline()
+        #self.__station_center()
         self.__run()
         self.path_was_blocked = False # reset
         self.__followline()
@@ -257,8 +258,8 @@ class Robot:
         """
         Turns the robot by param degrees
         """
-        self.motor_left.run_timed(time_sp=1250, speed_sp=133)
-        self.motor_right.run_timed(time_sp=1250, speed_sp=-133)
+        self.motor_left.run_timed(time_sp=13.5*deg, speed_sp=133)
+        self.motor_right.run_timed(time_sp=13.5*deg, speed_sp=-133)
         time.sleep(1.25 / 90 * (deg % 360))
         self.stop()
 
@@ -266,4 +267,5 @@ class Robot:
         """
         Returns true if the robot has a path ahead
         """
+        self.__station_scan()
         raise NotImplementedError("That's bad news man")
