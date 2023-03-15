@@ -68,6 +68,9 @@ class RobotDummy(Robot):
         # log
         self.__log("Position: " + str(self.__position) + " | Orientation: " + str(self.__orientation))
 
+        # tell the controller that we reached the communication point
+        self.controller.communication_point_reached()
+
     def turn_deg(self, deg):
         # runde auf 90°
         deg = round(deg / 90) * 90
@@ -92,6 +95,7 @@ class RobotDummy(Robot):
 
     def __log(self, message=""):
         # print to console
+        print("I think I am now at position " + str(self.__position) + " and my orientation is " + str(self.__orientation))
         print(message)
 
         # update visualisation
@@ -124,6 +128,7 @@ class RobotDummy(Robot):
 
     def __init__(self):
         print("Using dummy robot ...")
+        print("I think I am at position " + str(self.__position) + " and my orientation is " + str(self.__orientation))
 
 
 def __del__(self):

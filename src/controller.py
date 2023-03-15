@@ -124,7 +124,10 @@ class Controller:
 
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
-        self.robot.drive_until_communication_point()
+        if not env["SIMULATOR"]:
+            self.robot.drive_until_communication_point()
+        else:
+            print("Simulator: skipping drive_until_communication_point(), because we're already at a communication point")
 
         # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
         self.communication.ready()
@@ -246,6 +249,7 @@ class Controller:
         self.odometry.set_coords((startX, startY))
         self.odometry.set_dir(startOrientation)
 
+        print("Init position: " + str(startX) + " " + str(startY) + " " + str(startOrientation) )
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
         self.__handle_received_path(startX, startY, Direction(startOrientation))

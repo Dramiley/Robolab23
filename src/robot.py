@@ -252,6 +252,9 @@ class Robot:
         # center on station
         self.__station_center()
 
+        # tell the controller that we reached the communication point
+        self.controller.communication_point_reached()
+
     def turn_deg(self, deg):
         """
         Turns the robot by param degrees
