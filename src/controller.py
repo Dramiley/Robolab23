@@ -33,13 +33,9 @@ import json
 import time
 import os
 import sys
-import math
-import pdb
 import logging
-from datetime import datetime
 
-from typing import List, Tuple
-from threading import Thread
+from lockfile import LockFile
 
 # DONT CHANGE ANYTHING HERE, ONLY IN .env
 # Bitte nicht hierdrinne verändern, sondern in der src/.env setzen.
@@ -72,19 +68,20 @@ def dummy_log(log_type, log_dict):
     if not env["SIMULATOR"]:
         return
 
-    print("Received message of type " + log_type + " with payload " + str(log_dict))
+    # set payload type
+    log_dict["type"] = log_type
 
     # append to history file (which contains an array of positions)
+    lock = LockFile("simulator/history.json.lock")
+    with lock:
+        time.sleep(0.001)
+
+    lock.acquire()
     with open('simulator/history.json', 'r+') as outfile:
         try:
             data = json.load(outfile)
         except:
             data = []
-
-        # set payload type
-        log_dict["type"] = log_type
-        log_dict["timestamp"] = time.time()
-        log_dict["time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # append to array
         data.append(log_dict)
@@ -92,6 +89,7 @@ def dummy_log(log_type, log_dict):
         # write to file
         outfile.seek(0)
         json.dump(data, outfile)
+    lock.release()
 
 
 class Position:
