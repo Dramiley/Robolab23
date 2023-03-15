@@ -175,10 +175,12 @@
         },
         computed: {
             top() {
-                return (this.pos.y * -132) + 635
+                return (this.pos.y + this.def.top.offsetPos) * this.def.top.factor + this.def.top.offsetPx
+                // return (this.pos.y * -132) + 635
             },
             left() {
-                return ((this.pos.x - 3) * 135) + 5
+                return (this.pos.x + this.def.left.offsetPos) * this.def.left.factor + this.def.left.offsetPx
+                // return ((this.pos.x - 3) * 135) + 5
             },
             rotation() {
                 return this.pos.orientation
