@@ -161,7 +161,7 @@ class Controller:
         selected_dir_next = 0
         self.logger.debug("Selecting the next dir to take...")
         if self.target_pos != None:
-            self.logger.deubg(f"I have to drive to target at {self.target_pos}")
+            self.logger.debug(f"I have to drive to target at {self.target_pos}")
             # we have a given target we need to drive to
             last_pos = (self.last_position.x, self.last_position.y)
             shortest_path = self.planet.get_shortest_path(last_pos, self.target)  # =List[Tuple[pos, dir]]
@@ -197,7 +197,7 @@ class Controller:
 
         if next_dir == None:
             # planet has been explored completely->there is nothing to explore anymore
-            self.logger.deubg("I have explored everything and as this method is only called of there was no target I'm finished:)")
+            self.logger.debug("I have explored everything and as this method is only called of there was no target I'm finished:)")
             self.communication.exploration_completed()
             return
 
@@ -272,8 +272,8 @@ class Controller:
 
             if possible_path:
                 self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), current_dir)
-            print("Checking {current_dir}")
-        pdb.set_trace()
+            self.logger.debug(f"Checking {current_dir}")
+        self.logger.debug("Checked {current_dir}, there was a path?: {possible_path}")
 
     def communication_point_reached(self):
         """
