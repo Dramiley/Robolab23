@@ -102,7 +102,7 @@ class Robot:
         self.color.color_check()
         black = self.color.greytone
         print("black = " + str(black))
-        middlegreytone = ((white + black) / 2) + 50
+        middlegreytone = ((white + black) / 2) + 10 #20 #50
         print("grey = " + str(middlegreytone))
         self.middlegreytone = middlegreytone
 
@@ -124,7 +124,7 @@ class Robot:
         middle_greytone = self.middlegreytone
         integral = 0
         lerror = 0
-        tempo = 150
+        tempo = 200
         starttime = time.time()
 
         while self.color.name == 'grey':
@@ -143,8 +143,9 @@ class Robot:
             if error < 10 and error > -10:
                 # wenn genau zwischen den beiden Farben, setzt integral auf 0
                 integral = 0 
+                
             derivative = error - lerror
-            lenkfaktor = 110 * error + 15 * integral + 75 * derivative
+            lenkfaktor = 170 * error + 10 * integral + 110 * derivative
             lenkfaktor = lenkfaktor / 100
             power_left = tempo + lenkfaktor
             power_right = tempo - lenkfaktor
@@ -210,6 +211,7 @@ class Robot:
              print("4 for quit")
              print("5 for station_scan")
              print("6 for turn90")
+             print("7 for turn_deg")
              i = input()
              if i == "1":
                  self.__followline()
@@ -226,7 +228,7 @@ class Robot:
              elif i == "7":
                  print('Um wie viel Grad drehen?')
                  t = int(input())
-                 self.turn_deg()
+                 self.turn_deg(t)
         # while True:
         #      print("1 for followline")
         #      print("2 for station_center")
@@ -266,10 +268,10 @@ class Robot:
         """
         Turns the robot by param degrees
         """
-        self.motor_left.run_timed(time_sp=13.5*deg, speed_sp=133)
-        self.motor_right.run_timed(time_sp=13.5*deg, speed_sp=-133)
-        time.sleep(1.25 / 90 * (deg % 360))
-        self.stop()
+        self.motor_left.run_timed(time_sp=13.88*deg, speed_sp=133)
+        self.motor_right.run_timed(time_sp=13.88*deg, speed_sp=-133)
+        time.sleep(0.01388 * deg)
+        2
 
     def has_path_ahead(self):
         """
