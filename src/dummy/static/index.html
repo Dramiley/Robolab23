@@ -28,14 +28,26 @@
         <div class="list-header">
             <h2>History</h2>
             <div class="list-slider">
+                <!--
                 <input name="slider" @click="pause=true" type="range" min="0" :max="history.length - 1"
+                       class="form-range"
                        v-model="historyIndex" step="1">
+                       -->
+                <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio1"
+                           :checked="pause">
+                    <label class="btn btn-outline-primary" for="btnradio1" @click="pause=true">Pause</label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2"
+                           :checked="!pause">
+                    <label class="btn btn-outline-primary" for="btnradio2" @click="pause=false">Live</label>
+                </div>
+
             </div>
-            Pause <input type="checkbox" v-model="pause">
         </div>
         <div class="scrollable-list">
             <li class="pos" v-for="(pos, index) in history" :class="{active: historyIndex == index}"
-                @click="historyIndex = index">
+                @click="historyIndex = index; pause = true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
                     <path fill="currentColor"
                           d="M12 14q-.825 0-1.412-.588Q10 12.825 10 12t.588-1.413Q11.175 10 12 10t1.413.587Q14 11.175 14 12q0 .825-.587 1.412Q12.825 14 12 14Zm0-6q-.425 0-.712-.287Q11 7.425 11 7V4q0-.425.288-.713Q11.575 3 12 3t.713.287Q13 3.575 13 4v3q0 .425-.287.713Q12.425 8 12 8Zm0 13q-.425 0-.712-.288Q11 20.425 11 20v-3q0-.425.288-.712Q11.575 16 12 16t.713.288Q13 16.575 13 17v3q0 .425-.287.712Q12.425 21 12 21Zm5-8q-.425 0-.712-.288Q16 12.425 16 12t.288-.713Q16.575 11 17 11h3q.425 0 .712.287q.288.288.288.713t-.288.712Q20.425 13 20 13ZM4 13q-.425 0-.712-.288Q3 12.425 3 12t.288-.713Q3.575 11 4 11h3q.425 0 .713.287Q8 11.575 8 12t-.287.712Q7.425 13 7 13Z"/>
@@ -90,7 +102,10 @@
             refreshHistory() {
                 fetch('/history')
                     .then(response => response.json())
-                    .then(data => {
+                    .then(rawData => {
+
+                        // filter only type = pos
+                        const data = rawData.filter(item => item.type === 'position')
 
                         // if length hasnt changed, dont update
                         if (data.length === this.history.length)
@@ -125,7 +140,7 @@
     }
 
     #history {
-        background: #e2e2e2;
+        background: #f6f6f6;
         display: flex;
         flex-direction: column;
         overflow: auto;
@@ -141,22 +156,32 @@
     }
 
     .list-header {
-        padding: 5px 10px;
-        background: #f6f6f6;
+        padding: 15px 10px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .list-header h2 {
+        margin: 0;
+        padding: 0 10px;
+    }
+
+    .list-slider {
         display: flex;
         align-items: center;
         gap: 10px;
-        justify-content: center;
+        padding: 5px 12px;
     }
 
     #history li.active {
-        font-weight: bold;
     }
 
     #app {
         position: relative;
         height: 800px;
-        background: green;
+        background: white;
     }
 
     #app #map {
@@ -206,7 +231,10 @@
     }
 
     .scrollable-list li.active {
-        background: #0002;
+        background: #0d6efd;
+        color: white;
     }
 
 </style>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">

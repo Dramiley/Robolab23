@@ -29,7 +29,7 @@ TODO: register unexplored dirs (when robot turns around on a node) on __get_unex
 TODO: add odometry into robot's movement??
 TODO: update dir of self.last_position everytime we tell the robot to rotate
 """
-
+import json
 import time
 import os
 import sys
@@ -413,3 +413,23 @@ class Controller:
         print("Message: " + message)
         self.robot.__stop()
         self.communication.done()
+
+    def dummy_log(self, log_type, log_dict):
+        print("Received message of type " + log_type + " with payload " + str(log_dict))
+
+        # append to history file (which contains an array of positions)
+        with open('dummy/history.json', 'r+') as outfile:
+            try:
+                data = json.load(outfile)
+            except:
+                data = []
+
+            # set payload type
+            log_dict["type"] = log_type
+
+            # append to array
+            data.append(log_dict)
+
+            # write to file
+            outfile.seek(0)
+            json.dump(data, outfile)
