@@ -270,6 +270,7 @@ class Controller:
         """
 
         # remember last position
+        print("settings last position to " + str(startX) + " " + str(startY) + " " + str(startOrientation))
         self.last_position = Position(startX, startY, startOrientation)
 
         # setup planet
@@ -330,6 +331,11 @@ class Controller:
         Mithilfe der Odometrie schätzt er dabei seine neue Position ab.
         :return: void
         """
+
+        if (self.last_position is None):
+            self.logger.debug("last_position is None")
+            return
+
         self.logger.debug("---Robo entered a communication point---")
         # calculate start and end position
         start_position = self.last_position
