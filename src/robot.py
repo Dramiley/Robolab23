@@ -24,6 +24,9 @@ class Robot:
     middlegreytone = 200
     path_was_blocked = False # stores whether last path driven was blocked or not->set when obstacle is detected
 
+    motor_left = None
+    motor_right = None
+
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
 
         self.motor_left = ev3.LargeMotor(left_port)

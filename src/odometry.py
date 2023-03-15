@@ -116,8 +116,8 @@ class Odometry:
         """
         Tracks motor positions of the motors in a list of tuples
         """
-        motor_pos_left = self.robot.motor_left.position
-        motor_pos_right = self.robot.motor_right.position
+        motor_pos_left = self.robot.motor_left.__position
+        motor_pos_right = self.robot.motor_right.__position
         self.motor_pos_list.append([motor_pos_left, motor_pos_right])
 
     def __calculate(self):
