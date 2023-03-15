@@ -247,7 +247,7 @@ class Controller:
         # ->because we always start from a dead end
 
         # startOrientation is the dir the robot is pointing towards after entering the node
-        came_from_dir = (startOrientation+180) % 360
+        came_from_dir = (startOrientation + 180) % 360
         # mark start path as blocked (is always a dead end)
         self.planet.add_path(((startX, startY), came_from_dir), ((startX, startY), came_from_dir), -1)
 
@@ -265,7 +265,6 @@ class Controller:
         """
         start_dir = self.last_position.direction  # the direction we came from
 
-
         print(f"Started scan from {start_dir}, set scan dir to {self.last_position.direction} due to driving forward.")
         # check all paths
         for i in range(0, 4):  # 1 because there must be a path on the one we came from
@@ -277,7 +276,8 @@ class Controller:
 
             if possible_path:
                 try:
-                    self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), self.last_position.direction)
+                    self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y),
+                                                             self.last_position.direction)
                 except Exception as e:
                     print(f"Error while adding path to planet: {e}")
             self.logger.debug(f"Checking {self.last_position.direction}")
@@ -398,11 +398,3 @@ class Controller:
         print("Message: " + message)
         self.robot.__stop()
         self.communication.done()
-
-    def __tuple_to_position(self, tuple):
-        x, y = tuple[0]
-        direction = tuple[1]
-        return Position(x, y, direction)
-
-    def __position_to_tuple(self, position):
-        return ((position.x, position.y), int(position.direction))
