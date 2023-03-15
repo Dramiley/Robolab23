@@ -75,7 +75,7 @@ def dummy_log(log_type, log_dict):
     print("Received message of type " + log_type + " with payload " + str(log_dict))
 
     # append to history file (which contains an array of positions)
-    with open('dummy/history.json', 'r+') as outfile:
+    with open('simulator/history.json', 'r+') as outfile:
         try:
             data = json.load(outfile)
         except:
@@ -132,8 +132,8 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        # load test planet name from maps/current_planet.txt
-        with open('maps/current_planet.txt') as f:
+        # load test planet name from planets/current_planet.txt
+        with open('simulator/planets/current_planet.txt') as f:
             self.communication.test_planet(f.read().replace("\n", ""))
 
         # for our Simulator

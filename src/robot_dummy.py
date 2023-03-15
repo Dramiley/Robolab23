@@ -1,3 +1,4 @@
+import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import time
@@ -13,7 +14,7 @@ class DummyMotor:
 
 class RobotDummy(Robot):
     """
-    This class is a dummy for the robot.
+    This class is a simulator for the robot.
     It is used to test the code without the robot.
     """
 
@@ -27,10 +28,18 @@ class RobotDummy(Robot):
     was_path_blocked = False
 
     # read map from file
-    with open('maps/Fassaden-M1.json') as __json_file:
-        __map = json.load(__json_file)
-        __position = __map['x'], __map['y']
-        __orientation = __map['orientation']
+    # read map name from planets/current_map.txt
+    with open('simulator/planets/current_planet.txt') as __file:
+        __file_name = 'simulator/planets/' + __file.read().strip() + '.json'
+
+        # if file exists, read it
+        if os.path.isfile(__file_name):
+            with open(__file_name) as __json_file:
+                __map = json.load(__json_file)
+                __position = __map['x'], __map['y']
+                __orientation = __map['orientation']
+        else:
+            raise Exception("Map file " + __file_name + " does not exist")
 
     def __has_path_ahead(self):
         # can we drive into our current orientation?
@@ -131,10 +140,10 @@ class RobotDummy(Robot):
 
     def __init__(self):
         # clean history file
-        open('dummy/history.json', 'w').close()
+        open('simulator/history.json', 'w').close()
 
         # inform user
-        print("Using dummy robot ...")
+        print("Using simulator robot ...")
         print("I think I am at position " + str(self.__position) + " and my orientation is " + str(self.__orientation))
 
 

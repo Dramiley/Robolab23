@@ -9,8 +9,6 @@ import signal
 
 from controller import Controller
 
-from test_odometry import test_odo
-
 """
 SETUP COMMUNICATION
 """

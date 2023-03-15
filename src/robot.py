@@ -235,7 +235,6 @@ class Robot:
     def begin(self):
         self.__calibrate()
         self.__followline()
-
         # self.__menu()
 
     def __menu(self):
