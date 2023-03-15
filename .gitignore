@@ -31,7 +31,7 @@ Icon
 # ignore all .vscode files
 .vscode/*
 src/.vscode/*
-src/dummy/history.json
+src/simulator/history.json
 src/.env
 
 # Files that might appear in the root of a volume

@@ -26,7 +26,7 @@ The simulator also provides an optional web interface to view the positioning of
 Setup the web interface by running the following commands:
 
 ```
-cd src/dummy
+cd src/simulator
 npm install
 node server.js
 ```
