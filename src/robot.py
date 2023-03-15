@@ -261,7 +261,7 @@ class Robot:
         time.sleep(1.25 / 90 * (deg % 360))
         self.stop()
 
-    def has_path_ahead(self):
+    def __has_path_ahead(self):
         """
         Returns true if the robot has a path ahead
         """
