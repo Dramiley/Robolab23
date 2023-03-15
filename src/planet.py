@@ -326,7 +326,7 @@ class Planet:
             ->adds path to self.unexplored if it is not explored
         """
         if dir in self.paths[node].keys():
-            # there is something registered for this dir
+            # there is already a path registered for this dir
             return
 
         if node not in self.unexplored.keys():
@@ -367,7 +367,7 @@ class Planet:
     def __mark_dir_explored(self, node_coords: Tuple[int, int], dir: Direction):
         """
         Unmarks dir of node_coords as not being unexplored anymore
-        ->WARNING: make sure node_coords is unexplored before passing it to this function!
+        ->WARNING: make sure node_coords is unexplored in dir before passing it to this function!
         """
 
         self.unexplored[node_coords].remove(dir)
@@ -384,6 +384,8 @@ class Planet:
         TODO: redundant, completeness can be checked by checking if get_next_exploration_path == None
         """
         # TODO: remove
-        return False
+        # return False
+
+        # we are complete if there are no unexplored nodes
         is_complete = not self.unexplored
         return is_complete
