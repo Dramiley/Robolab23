@@ -1,3 +1,4 @@
+import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import time
@@ -27,10 +28,18 @@ class RobotDummy(Robot):
     was_path_blocked = False
 
     # read map from file
-    with open('maps/Fassaden-M1.json') as __json_file:
-        __map = json.load(__json_file)
-        __position = __map['x'], __map['y']
-        __orientation = __map['orientation']
+    # read map name from maps/current_map.txt
+    with open('maps/current_planet.txt') as __file:
+        __file_name = 'maps/' + __file.read().strip() + '.json'
+
+        # if file exists, read it
+        if os.path.isfile(__file_name):
+            with open(__file_name) as __json_file:
+                __map = json.load(__json_file)
+                __position = __map['x'], __map['y']
+                __orientation = __map['orientation']
+        else:
+            raise Exception("Map file not found")
 
     def __has_path_ahead(self):
         # can we drive into our current orientation?
