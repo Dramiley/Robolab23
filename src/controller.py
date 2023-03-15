@@ -246,7 +246,10 @@ class Controller:
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
 
-        self.planet.add_path(((startX, startY), startOrientation), ((startX, startY), startOrientation), startOrientation + 180)
+        # startOrientation is the dir the robot is pointing towards after entering the node
+        came_from_dir = (startOrientation+180) % 360
+        # mark start path as blocked (is always a dead end)
+        self.planet.add_path(((startX, startY), came_from_dir), ((startX, startY), came_from_dir), -1)
 
         # los gehts
         self.run()
@@ -257,27 +260,27 @@ class Controller:
 
         Registers unexplored paths in planet
 
+        WARNING: make sure self.last_position.direction is updated before calling this func!
         TODO: don't scan nodes which are already explored completely
         """
         start_dir = self.last_position.direction  # the direction we came from
-        current_dir = (start_dir + 180) % 360  # sensor is no on opposite path since we drove forward
-        self.last_position.direction = current_dir
 
-        print("Started scan from {start_dir}, set scan dir to {current_dir} due to driving forward.")
+
+        print(f"Started scan from {start_dir}, set scan dir to {self.last_position.direction} due to driving forward.")
         # check all paths
-        for i in range(0, 3):  # 1 because there must be a path on the one we came from
+        for i in range(0, 4):  # 1 because there must be a path on the one we came from
             # TODO: 2nd rotation scans the path we came from (not needed!)
             # update current orientation by 90deg
-            current_dir = (current_dir + 90) % 360
+            self.last_position.direction = (self.last_position.direction + 90) % 360
             # check whether there is a path
             possible_path = self.robot.station_scan()
 
             if possible_path:
                 try:
-                    self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), current_dir)
+                    self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), self.last_position.direction)
                 except Exception as e:
                     print(f"Error while adding path to planet: {e}")
-            self.logger.debug(f"Checking {current_dir}")
+            self.logger.debug(f"Checking {self.last_position.direction}")
 
     def communication_point_reached(self):
         """

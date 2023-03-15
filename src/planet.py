@@ -99,16 +99,17 @@ class Planet:
         target_coords = target[0]
         target_entry_dir = target[1]
 
+        if not (target_coords in self.paths.keys()):
+            # if no path is yet known for target_coords
+            # since we need to add path to both start and target (paths are bidirectional)
+            self.paths[target_coords] = {}
+
         if not (start_coords in self.paths.keys()):
             # if no path is yet known for start_coords
             self.paths[start_coords] = {}
-
-        if not (target_coords in self.paths.keys()):
-            # if no path is yet known for target_coords
-            self.paths[target_coords] = {}
-
-        if start_entry_dir in self.paths[start_coords]:
+        elif start_entry_dir in self.paths[start_coords]:
             # path is already registered -> same for target_coords
+            # should also be registered for target_coords then
             return
 
         self.add_new_path(start, target, weight)
@@ -320,7 +321,7 @@ class Planet:
         Tracks unexplored path (node, direction)
             ->adds path to self.unexplored if it is not explored
         """
-        if self.paths[node][dir] != None:
+        if dir in self.paths[node].keys():
             # there is something registered for this dir
             return
 
