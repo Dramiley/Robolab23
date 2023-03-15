@@ -161,7 +161,7 @@ class Controller:
         selected_dir_next = 0
         self.logger.debug("Selecting the next dir to take...")
         if self.target_pos != None:
-            self.logger.deubg(f"I have to drive to target at {self.target_pos}")
+            self.logger.debug(f"I have to drive to target at {self.target_pos}")
             # we have a given target we need to drive to
             last_pos = (self.last_position.x, self.last_position.y)
             shortest_path = self.planet.get_shortest_path(last_pos, self.target)  # =List[Tuple[pos, dir]]
@@ -197,8 +197,7 @@ class Controller:
 
         if next_dir == None:
             # planet has been explored completely->there is nothing to explore anymore
-            self.logger.deubg(
-                "I have explored everything and as this method is only called of there was no target I'm finished:)")
+            self.logger.debug("I have explored everything and as this method is only called of there was no target I'm finished:)")
             self.communication.exploration_completed()
             return
 
@@ -258,8 +257,11 @@ class Controller:
 
         TODO: don't scan nodes which are already explored completely
         """
-        current_dir = self.last_position.direction  # the direction we came from
+        start_dir = self.last_position.direction  # the direction we came from
+        current_dir = (start_dir+180) % 360 # sensor is no on opposite path since we drove forward
+        self.last_position.direction = current_dir
 
+        print("Started scan from {start_dir}, set scan dir to {current_dir} due to driving forward.")
         # check all paths
         for i in range(0, 3):  # 1 because there must be a path on the one we came from
             # TODO: 2nd rotation scans the path we came from (not needed!)
@@ -268,11 +270,10 @@ class Controller:
             # check whether there is a path
             possible_path = self.robot.station_scan()
 
-            print("Checking path in dir %d: %s" % (current_dir, possible_path))
             if possible_path:
-                print("Found path in dir %d" % current_dir)
                 self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), current_dir)
-        pdb.set_trace()
+            self.logger.debug(f"Checking {current_dir}")
+        self.logger.debug("Checked {current_dir}, there was a path?: {possible_path}")
 
     def communication_point_reached(self):
         """
