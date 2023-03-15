@@ -223,6 +223,12 @@
                     })
                     .catch(e => console.error(e))
             },
+            setPlanet() {
+                fetch('/planet?name=' + this.name, {
+                    method: 'POST'
+                })
+                this.pause = false
+            },
             refreshPlanets() {
                 fetch('/planets')
                     .then(response => response.json())
