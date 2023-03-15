@@ -62,23 +62,26 @@ class RobotDummy(Robot):
 
         # this is where we are
         path = self.__path_by_coordinates(self.__position, self.__map)
-
-        # output the path we are going to take
         new_path = path['paths'][index_of_current_orientation]
 
         # check if our path is valid
         print("Taking new path: " + str(new_path))
         if new_path is None:
-            raise Exception("Invalid path")
-        elif new_path == -1 or new_path == -2:
-            raise Exception("Path is not an object")
+            raise Exception("This map has no path in current orientation")
 
-        # update position
-        self.__orientation = new_path['orientation']
-        self.__position = new_path['x'], new_path['y']
+        if "blocked" in new_path:
+            was_path_blocked = True
+            self.__orientation += 180
+        else:
+            was_path_blocked = False
+
+            # update position
+            self.__orientation = new_path['orientation']
+            self.__position = new_path['x'], new_path['y']
 
         # log
-        self.__log("Position: " + str(self.__position) + " | Orientation: " + str(self.__orientation))
+        self.__log("Pos: " + str(self.__position) + " | " + str(self.__orientation) + "° | Path blocked: " + str(
+            was_path_blocked))
 
         # tell the controller that we reached the communication point
         self.controller.communication_point_reached()
