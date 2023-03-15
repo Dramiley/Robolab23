@@ -381,6 +381,7 @@ class Controller:
 
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
+        self.run()
 
     def receive_path_unveiled(self, startX, startY, startOrientation, endX, endY, endOrientation, pathStatus,
                               pathWeight):
