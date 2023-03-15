@@ -290,7 +290,7 @@ class Controller:
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
         # startOrientation is the dir the robot is pointing towards after entering the node
-        came_from_dir: Direction = Direction((startOrientation + 180) % 360)
+        came_from_dir = Direction((startOrientation + 180) % 360)
         # mark start path as blocked (is always a dead end)
         self.planet.add_path(((startX, startY), came_from_dir), ((startX, startY), came_from_dir), -1)
 
@@ -361,14 +361,14 @@ class Controller:
 
     def __target_reached(self):
         """
-        Wird von der Odometrie aufgerufen, wenn das Ziel erreicht wurde
+        Wird aufgerufen, wenn das Ziel erreicht wurde
         """
         self.logger.info("I have reached my target!!!")
         self.communication.target_reached("Target reached.")
 
     def __exploration_complete(self):
         """
-        Wird von der Odometrie aufgerufen, wenn die Erkundung abgeschlossen ist
+        Wird aufgerufen, wenn die Erkundung abgeschlossen ist
         """
         self.communication.exploration_completed("Exploration completed.")
 
@@ -386,7 +386,8 @@ class Controller:
         self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
         # update last position and path status
-        self.last_position = Position(endX, endY, endDirection)
+        current_dir = (endDirection + 180) % 360 # we now look at to the opposite direction than we entered the node
+        self.last_position = Position(endX, endY, current_dir)
 
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
@@ -436,7 +437,7 @@ class Controller:
         current_dir = self.last_position.direction
         logging.debug(f"Rotating: From {current_dir} to {target_dir}")
         # TODO: robot currently would rotate 270° instead of -90°->unefficient!!!!
-        deg_to_rotate = current_dir - target_dir
+        deg_to_rotate = target_dir - current_dir
         self.robot.turn_deg(deg_to_rotate)
 
     def receive_done(self, message):
