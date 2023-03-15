@@ -74,7 +74,7 @@
             -->
 
         </div>
-        <div class="scrollable-list" v-if="history.length">
+        <div class="scrollable-list" v-if="history.length" ref="scrollableList">
             <template v-for="(entry) in historyFiltered">
                 <li :class="{pos:true, active: historySelected == entry._index, [entry.type]: true }"
                     @click="selectEntry(entry._index)">
@@ -250,6 +250,10 @@
                             while (this.history[this.historySelected].type !== 'position') {
                                 this.historySelected--
                             }
+
+                            // scroll down to that element
+                            var container = this.$refs.scrollableList;
+                            container.scrollTop = container.scrollHeight + 120;
                         }
 
                     })
@@ -376,6 +380,7 @@
     .scrollable-list {
         overflow: auto;
         flex: 1;
+        scroll-behavior: smooth;
     }
 
     .scrollable-list li {
