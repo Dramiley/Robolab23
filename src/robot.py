@@ -22,7 +22,7 @@ class Robot:
     color: ms.ColorDetector = None
     obj_detec: ms.ObjectDetector = None
     middlegreytone = 200
-    path_was_blocked = False # stores whether last path driven was blocked or not->set when obstacle is detected
+    was_path_blocked = False # stores whether last path driven was blocked or not->set when obstacle is detected
 
     motor_left = None
     motor_right = None
@@ -116,7 +116,7 @@ class Robot:
         time.sleep(1)
         self.__speak('Meteroit spotted')
 
-        self.path_was_blocked = True
+        self.was_path_blocked = True
 
         self.__turn170()
         self.__followline()
@@ -247,7 +247,7 @@ class Robot:
         """
         Drives the robot to the next communication point
         """
-        self.path_was_blocked = False # reset
+        self.was_path_blocked = False # reset
         self.__followline()
         # center on station
         self.__station_center()
