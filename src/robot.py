@@ -177,12 +177,12 @@ class Robot:
         Center the robot on the station
         """
 
-        self.motor_left.run_timed(time_sp=500, speed_sp=60)
-        time.sleep(0.5)
+        self.motor_left.run_timed(time_sp=700, speed_sp=60)
+        time.sleep(0.7)
         self.motor_left.run_timed(time_sp=312, speed_sp=65)
         self.motor_right.run_timed(time_sp=312, speed_sp=-65)
         time.sleep(0.5)
-        self.__move_distance_straight(4)
+        self.__move_distance_straight(3)
         time.sleep(1)
 
 
@@ -199,12 +199,8 @@ class Robot:
             # rotating until not on path anymore
             self.__drive(131, -131)
             self.color.color_check()
-
         self.__stop()
-        self.__ScanTurn()
-        while self.color.subname != 'black' and time.time() - starttime <= 2:
-            self.color.color_check()
-        self.__stop()
+        self.__scan_turn()
         if self.color.subname == 'black':
             return True
         else:
@@ -279,10 +275,10 @@ class Robot:
         #self.__followline()
         #self.__station_center()
         self.__run()
-        self.was_path_blocked = False # reset
-        self.__followline()
+        #self.was_path_blocked = False # reset
+        #self.__followline()
         # center on station
-        self.__station_center()
+        #self.__station_center()
 
         # tell the controller that we reached the communication point
         self.controller.communication_point_reached()
