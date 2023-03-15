@@ -66,7 +66,7 @@ class Planet:
         self.paths = {}
         self.nodes = []
 
-        self.unexplored = {}  # dict keeping track of unexplored paths of the form node: Set[Direction] which are the unexplored directions
+        self.unexplored = {}  # dict keeping track of unexplored paths of the format node: Set[Direction] which are the unexplored directions
         self.computations_uptodate = False
 
     def __is_node_known(self, node: Tuple[int, int]) -> bool:
@@ -127,7 +127,7 @@ class Planet:
         self.paths[start_coords][start_entry_dir] = (target_coords, target_entry_dir, weight)
         self.paths[target_coords][target_entry_dir] = (start_coords, start_entry_dir, weight)
 
-        if target_coords in self.unexplored:
+        if target_coords in self.unexplored.keys() and target_entry_dir in self.unexplored[target_coords]:
             self.__mark_dir_explored(target_coords, target_entry_dir)
 
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
