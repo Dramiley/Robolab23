@@ -22,7 +22,7 @@ class Robot:
     color: ms.ColorDetector = None
     obj_detec: ms.ObjectDetector = None
     middlegreytone = 200
-    path_was_blocked = False # stores whether last path driven was blocked or not->set when obstacle is detected
+    was_path_blocked = False # stores whether last path driven was blocked or not->set when obstacle is detected
 
     motor_left = None
     motor_right = None
@@ -80,8 +80,14 @@ class Robot:
         time.sleep(1.5)
 
     def __scan_turn(self):
+        starttime = time.time()
         self.motor_left.run_timed(time_sp=1250, speed_sp=131)
         self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
+
+        while self.color.subname != 'black' and time.time() - starttime <= 2:
+            self.color.color_check()
+        self.__stop()
+
 
     def __speak(self, text):
         try:
@@ -112,7 +118,7 @@ class Robot:
         time.sleep(1)
         self.__speak('Meteroit spotted')
 
-        self.path_was_blocked = True
+        self.was_path_blocked = True
 
         self.__turn170()
         self.__followline()
@@ -167,6 +173,10 @@ class Robot:
         self.motor_right.command = "run-forever"
 
     def __station_center(self):
+        """
+        Center the robot on the station
+        """
+
         self.motor_left.run_timed(time_sp=500, speed_sp=60)
         time.sleep(0.5)
         self.motor_left.run_timed(time_sp=312, speed_sp=65)
@@ -176,22 +186,31 @@ class Robot:
         time.sleep(1)
 
 
-    def station_scan(self):
+    def station_scan(self) -> bool:
+        """
+        1. rotate 90deg
+        2. scan if there is something
+
+        Returns:
+            True if there was black line
+        """
         self.color.color_check()
         while self.color.subname != 'white':
+            # rotating until not on path anymore
             self.__drive(131, -131)
             self.color.color_check()
+
         self.__stop()
-        starttime = time.time()
-        self.__scan_turn()
+        self.__ScanTurn()
         while self.color.subname != 'black' and time.time() - starttime <= 2:
             self.color.color_check()
+        self.__stop()
         if self.color.subname == 'black':
             return True
         else:
             return False
 
-    def __move_distance_straight(self, d_cm):
+    def __move_distance_straight(self, d_cm: int):
         """
         Moves the robot d_cm [cm] on a straight line#
         """
@@ -260,8 +279,13 @@ class Robot:
         #self.__followline()
         #self.__station_center()
         self.__run()
-        self.path_was_blocked = False # reset
+        self.was_path_blocked = False # reset
         self.__followline()
+        # center on station
+        self.__station_center()
+
+        # tell the controller that we reached the communication point
+        self.controller.communication_point_reached()
 
     def turn_deg(self, deg):
         """
@@ -272,9 +296,9 @@ class Robot:
         time.sleep(0.01388 * deg)
         2
 
-    def has_path_ahead(self):
+    def __has_path_ahead(self):
         """
         Returns true if the robot has a path ahead
         """
-        self.__station_scan()
-        raise NotImplementedError("That's bad news man")
+        # TODO: think about replacing station_scan with this method
+        # raise NotImplementedError("That's bad news man")

@@ -4,6 +4,10 @@
     <img id="map" src="Fassaden-M1.png">
     <img id="robot" src="robot.png"
          :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
+
+    <div id="info">
+        Current position: {{ pos.x }}, {{ pos.y }}, {{ pos.orientation }}°
+    </div>
 </div>
 
 <script>
@@ -64,5 +68,14 @@
         left: 50px;
         z-index: 99;
         transition: .25s;
+    }
+
+    #app #info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
     }
 </style>

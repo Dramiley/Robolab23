@@ -4,14 +4,6 @@ import time
 
 from robot import Robot
 
-"""
-This is a dummy class for the robot.
-The path is read from a json file.
-"""
-
-# start webserver via node
-import os
-
 
 class DummyMotor:
     count_per_rot = 100
@@ -19,6 +11,11 @@ class DummyMotor:
 
 
 class RobotDummy(Robot):
+    """
+    This class is a dummy for the robot.
+    It is used to test the code without the robot.
+    """
+
     controller = None
     __orientation = 0
     __position = (0, 0)
@@ -26,13 +23,15 @@ class RobotDummy(Robot):
     motor_left = DummyMotor()
     motor_right = DummyMotor()
 
+    was_path_blocked = False
+
     # read map from file
     with open('maps/Fassaden-M1.json') as __json_file:
         __map = json.load(__json_file)
         __position = __map['x'], __map['y']
         __orientation = __map['orientation']
 
-    def has_path_ahead(self):
+    def __has_path_ahead(self):
         # can we drive into our current orientation?
         index_of_current_orientation = self.__orientation // 90
 
@@ -43,9 +42,11 @@ class RobotDummy(Robot):
         new_path = path['paths'][index_of_current_orientation]
 
         # check if our path is valid
-        return new_path is None
+        return new_path is not None
 
     def drive_until_communication_point(self):
+        print("Driving until communication point...")
+
         # can we drive into our current orientation?
         index_of_current_orientation = self.__orientation // 90
 
@@ -69,6 +70,9 @@ class RobotDummy(Robot):
         # log
         self.__log("Position: " + str(self.__position) + " | Orientation: " + str(self.__orientation))
 
+        # tell the controller that we reached the communication point
+        self.controller.communication_point_reached()
+
     def turn_deg(self, deg):
         # runde auf 90°
         deg = round(deg / 90) * 90
@@ -82,11 +86,18 @@ class RobotDummy(Robot):
         # log
         self.__log("Turning " + str(deg) + "° | Orientation: " + str(self.__orientation))
 
+    def station_scan(self) -> bool:
+        # 1. rotate 90deg
+        self.turn_deg(90)
+        # 2. scan if there is something
+        return self.__has_path_ahead()
+
     def set_controller(self, controller):
         self.controller = controller
 
     def __log(self, message=""):
         # print to console
+        print("I think I am now at position " + str(self.__position) + " and my orientation is " + str(self.__orientation))
         print(message)
 
         # update visualisation
@@ -97,7 +108,7 @@ class RobotDummy(Robot):
         with open('dummy/position.json', 'w') as outfile:
             json.dump({'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation}, outfile)
 
-        time.sleep(.5)
+        time.sleep(.1)
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates
@@ -118,42 +129,13 @@ class RobotDummy(Robot):
                 return result
 
     def __init__(self):
-        """
-        try:
-            stream = os.system("cd dummy; node server.js &")
-        except Exception as e:
-            print("Server already on")
-
-        # wait for user to press any input
-        time.sleep(.7)
-        """
-
         print("Using dummy robot ...")
-
-
-"""
-    def someFunctionThatDoesntExistOnTheRealRobot(self, hi):
-        # does things
-        b = 3
-        print(b)
-        pass
-"""
+        print("I think I am at position " + str(self.__position) + " and my orientation is " + str(self.__orientation))
 
 
 def __del__(self):
     # wait for user to press any input
     time.sleep(1)
-
-    """
-    # stop webserver via node
-    try:
-        stream = os.system("pkill node")
-    except Exception as e:
-        print("Server already off")
-    """
-
-
-# def is_
 
 
 if __name__ == "__main__":
@@ -184,92 +166,3 @@ if __name__ == "__main__":
     r.turn_deg(-90)
     r.drive_until_communication_point()
     r.drive_until_communication_point()
-"""
-    # start robot
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-
-"""

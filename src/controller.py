@@ -34,6 +34,8 @@ import time
 import os
 import sys
 import math
+import pdb
+import logging
 
 from communication import Communication
 from communication_logger import CommunicationLogger
@@ -48,7 +50,7 @@ from threading import Thread
 # DONT CHANGE ANYTHING HERE, ONLY IN .env
 # Bitte nicht hierdrinne verändern, sondern in der src/.env setzen.
 # siehe https://se-gitlab.inf.tu-dresden.de/robolab-spring/ws2022/group-046/-/blob/master/README.md#example-for-development-purposes
-env = {"SIMULATOR": False, "DEBUG": False, "GITLAB_RUNNER": False}
+env = {"SIMULATOR": False, "DEBUG": False, "GITLAB_RUNNER": False, "ODOMETRY": True}
 
 if os.path.exists(".env"):
     with open(".env") as f:
@@ -86,7 +88,7 @@ class Controller:
     communication = None
     odometry = None
     planet = None
-    last_position = Position(0, 0, 0)  # updated by received msg from mothership or rotations by rob
+    last_position = None
 
     given_new_target = False  # tracks whether we have a target to drive to by the mothership
     target_pos = None
@@ -114,12 +116,19 @@ class Controller:
         # setup callbacks
         self.__init_callbacks()
 
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+
     def begin(self):
         print("Controller started")
 
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
-        self.robot.drive_until_communication_point()
+        if not env["SIMULATOR"]:
+            self.robot.drive_until_communication_point()
+        else:
+            print(
+                "Simulator: skipping drive_until_communication_point(), because we're already at a communication point")
 
         # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
         self.communication.ready()
@@ -149,10 +158,15 @@ class Controller:
             2. contact station and tell chosen next path
             3. drive the path we are told by the mothership
         """
+        self.logger.debug("Entering run")
+
+        # let robot check paths on the node he is on and register it in planet.unexplored
         self.__check_explorable_paths()
 
-        selected_dir_next = 0
+        next_dir = None
+        self.logger.debug("Selecting the next dir to take...")
         if self.target_pos != None:
+            self.logger.debug(f"I have to drive to target at {self.target_pos}")
             # we have a given target we need to drive to
             last_pos = (self.last_position.x, self.last_position.y)
             shortest_path = self.planet.get_shortest_path(last_pos, self.target)  # =List[Tuple[pos, dir]]
@@ -160,31 +174,42 @@ class Controller:
             if shortest_path == []:
                 # we are already at target
                 # TODO: check whether programs really ends here (see https://robolab.inf.tu-dresden.de/spring/task/communication/msg-complete/)
+                self.logger.debug("We are already at the target")
                 self.__target_reached()
             elif shortest_path == None:
                 # target is unreachable
                 # TODO: what if we had a target and received an unreachable one->we don't have any target anymore, right?
-                target = None
+                self.logger.debug(f"The given target at {self.target_pos} is unreachable.")
+                self.target_pos = None
                 next_dir = self.__explore()
             else:
                 next_dir = shortest_path[0][1]
+                self.logger.debug(f"Continuing driving towards target at {self.target_pos} in dir {next_dir}")
         else:
+            self.logger.debug("No target to drive to-continuing exploration")
             next_dir = self.__explore()
 
+        self.logger.debug(f"I decided to drive into dir {next_dir}")
+        print("Next dir: " + str(next_dir))
+        print("Last pos: " + str(self.last_position.x) + " " + str(self.last_position.y))
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
 
-    def __explore(self) -> Direction:
+    def __explore(self) -> Direction or None:
         """
         Let the robo have some fun and explore the planet on it's own
         """
-        next_dir = self.planet.get_next_exploration_dir()
+        self.logger.debug("---Entering __explore")
+        next_dir = self.planet.get_next_exploration_dir((self.last_position.x, self.last_position.y))
 
-        if next_dir == None:
+        if next_dir is None:
             # planet has been explored completely->there is nothing to explore anymore
+            self.logger.debug(
+                "I have explored everything and as this method is only called of there was no target I'm finished:)")
             self.communication.exploration_completed()
-            return
+            return None
 
+        self.logger.debug(f"Decide to continue exploration in dir {next_dir}")
         return next_dir
 
     def __init_callbacks(self):
@@ -209,7 +234,7 @@ class Controller:
         # Bestätigung vom Typ done (3) und dem Ende der Erkundung.
         self.communication.set_callback('done', self.receive_done)
 
-    def receive_planet(self, planetName, startX, startY, startOrientation):
+    def receive_planet(self, planetName: str, startX: int, startY: int, startOrientation: Direction):
         """
         Called when we have received the planet from the mothership (only once!)
         """
@@ -225,12 +250,20 @@ class Controller:
         self.odometry.set_coords((startX, startY))
         self.odometry.set_dir(startOrientation)
 
+        print("Init position: " + str(startX) + " " + str(startY) + " " + str(startOrientation))
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
-        self.planet.add_path((startX, startY), (startX, startY), int(startOrientation) + 180)
+        self.__handle_received_path(startX, startY, Direction(startOrientation))
 
         # los gehts
         self.run()
+
+    def __handle_received_path(self, startX: int, startY: int, startOrientation: Direction):
+
+        # startOrientation is the dir the robot is pointing towards after entering the node
+        came_from_dir: Direction = Direction((startOrientation + 180) % 360)
+        # mark start path as blocked (is always a dead end)
+        self.planet.add_path(((startX, startY), came_from_dir), ((startX, startY), came_from_dir), -1)
 
     def __check_explorable_paths(self):
         """
@@ -238,20 +271,27 @@ class Controller:
 
         Registers unexplored paths in planet
 
+        WARNING: make sure self.last_position.direction is updated before calling this func!
         TODO: don't scan nodes which are already explored completely
         """
         start_dir = self.last_position.direction  # the direction we came from
-        current_dir = start_dir
 
+        print(f"Started scan from {start_dir}, set scan dir to {self.last_position.direction} due to driving forward.")
         # check all paths
-        for i in range(1, 3):  # 1 because there must be a path on the one we came from
-            # check if there is a black line beginning
-            # turn to next path
-            # TODO
-            # self.robot.turn_deg(90) muss weg da has_path_ahead das schon macht
+        for i in range(0, 4):  # 1 because there must be a path on the one we came from
+            # TODO: 2nd rotation scans the path we came from (not needed!)
+            # update current orientation by 90deg
+            self.last_position.direction = (self.last_position.direction + 90) % 360
+            # check whether there is a path
+            possible_path = self.robot.station_scan()
 
             if possible_path:
-                self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), current_dir)
+                try:
+                    self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y),
+                                                             self.last_position.direction)
+                except Exception as e:
+                    print(f"Error while adding path to planet: {e}")
+            self.logger.debug(f"Checking {self.last_position.direction}")
 
     def communication_point_reached(self):
         """
@@ -260,13 +300,18 @@ class Controller:
         Mithilfe der Odometrie schätzt er dabei seine neue Position ab.
         :return: void
         """
-        # only track when following a line
-        self.odometry.stop()
+        self.logger.debug("---Robo entered a communication point---")
         # calculate start and end position
         start_position = self.last_position
-        end_position = self.odometry.get_coords()
+
+        if env["ODOMETRY"]:
+            self.odometry.stop()
+            end_position = self.odometry.get_coords()
+        else:
+            end_position = self.last_position
 
         is_path_blocked = self.robot.was_path_blocked
+        self.logger.debug(f"The driven path was blocked?: {is_path_blocked}")
 
         if is_path_blocked:
             path_status = "blocked"
@@ -281,6 +326,7 @@ class Controller:
         """
         Wird von der Odometrie aufgerufen, wenn das Ziel erreicht wurde
         """
+        self.logger.info("I have reached my target!!!")
         self.communication.target_reached("Target reached.")
 
     def __exploration_complete(self):
@@ -289,7 +335,7 @@ class Controller:
         """
         self.communication.exploration_completed("Exploration completed.")
 
-    def receive_path(self, startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight):
+    def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         """
         Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
@@ -297,17 +343,16 @@ class Controller:
 
         # init odometry
         self.odometry.set_coords((startX, startY))
-        self.odometry.set_dir(startOrientation)
+        self.odometry.set_dir(startDirection)
 
         # update odometry inside planet
-        self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
+        self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
         # update last position and path status
-        self.last_position = Position(endX, endY, endOrientation)
+        self.last_position = Position(endX, endY, endDirection)
 
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
-        # TODO: drive into received direction!
 
     def receive_path_unveiled(self, startX, startY, startOrientation, endX, endY, endOrientation, pathStatus,
                               pathWeight):
@@ -335,7 +380,8 @@ class Controller:
         self.__rotate_robo_in_dir(startDirection)
 
         # now we can finally drive to the next communication point
-        self.odometry.start()
+        if env["ODOMETRY"]:
+            self.odometry.start()
         self.robot.drive_until_communication_point()
 
     def receive_target(self, x, y):
@@ -345,10 +391,6 @@ class Controller:
         Falls das Ziel ausserhalb der erkundbaren Karte liegt, kann bereits nach erfolgreicher Planetenerkundung eine Erfolgsmeldung an das Mutterschiff gesendet werden.
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-target/
         """
-
-        # get last position
-        last_position = self.last_position
-
         # store received info
         self.target = (x, y)
 
@@ -358,6 +400,7 @@ class Controller:
         """
         # TODO: make sure robot.turn_deg deals appropriately with neg. values
         current_dir = self.last_position.direction
+        logging.debug(f"Rotating: From {current_dir} to {target_dir}")
         # TODO: robot currently would rotate 270° instead of -90°->unefficient!!!!
         deg_to_rotate = current_dir - target_dir
         self.robot.turn_deg(deg_to_rotate)
@@ -370,11 +413,3 @@ class Controller:
         print("Message: " + message)
         self.robot.__stop()
         self.communication.done()
-
-    def __tuple_to_position(self, tuple):
-        x, y = tuple[0]
-        direction = tuple[1]
-        return Position(x, y, direction)
-
-    def __position_to_tuple(self, position):
-        return ((position.x, position.y), int(position.direction))

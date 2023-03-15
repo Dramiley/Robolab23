@@ -4,6 +4,8 @@
 import json
 import os
 import ssl
+import threading
+import time
 
 # import communication_facade
 from communication_facade import CommunicationFacade
@@ -41,6 +43,7 @@ class Communication:
         """
 
         # save client
+        self.controller = None
         self.client = mqtt_client
 
         # configure client
@@ -122,7 +125,7 @@ class Communication:
         # if "from" is debug and the message type is syntax, check if the syntax is correct
         if 'from' in payload and payload['from'] == "debug" and payload['type'] == "syntax":
             if payload['payload']['message'] == 'Incorrect':
-                self.logger.info("Syntax check errors: " + str(payload['payload']['errors']))
+                self.logger.info("Syntax check errors: " + str(str(payload['payload']['errors'])))
             return
 
         # log message
@@ -143,10 +146,7 @@ class Communication:
 
         # check if message type has a callback registered and call it
         if payload['type'] in self.callbacks:
-            try:
-                self.callback(payload['type'], payload['payload'])
-            except:
-                self.logger.error('Callback for message type ' + payload['type'] + ' failed')
+            self.callback(payload['type'], payload['payload'])
         else:
             self.logger.error('No callback for message type ' + payload['type'] + ' registered')
 
@@ -224,7 +224,9 @@ class Communication:
         if len(self.callbacks[message_type].__code__.co_varnames) == len(payload) or \
                 len(self.callbacks[message_type].__code__.co_varnames) == len(payload) + 1:
             self.logger.success('Calling callback for message type ' + message_type)
-            self.logger.debug('Payload: ' + str(payload))
+            self.logger.debug('with payload: ' + str(payload))
+            self.logger.debug('Required arguments: ' + str(self.callbacks[message_type].__code__.co_varnames))
+            self.logger.debug('Provided arguments: ' + str(payload))
             self.callbacks[message_type](**payload)
         else:
             self.logger.error('Callback function signature for "' + message_type + '" does not match payload '
@@ -266,3 +268,39 @@ class Communication:
         print("Disconnecting from broker")
         self.client.disconnect()
         self.client.loop_stop()
+
+    def set_controller(self, controller):
+        self.controller = controller
+
+    received_since_last_path_select = 0
+
+    def prepare_fallback_path_select_message(self, startDirection):
+
+        # have a async function
+        def async_fake(a):
+
+            # reset counter
+            received_since_last_path_select = 0
+
+            # send message
+            print("waiting 3s before faking server response")
+
+            time.sleep(1) # TODO: change to 3s
+
+            print("waited 3s before faking server response")
+
+            # checking if there was a path select message in the meantime
+            if received_since_last_path_select > 0:
+                print("received a path select message in the meantime, not sending fake server response")
+                return
+            else:
+                print("var "+str(a))
+                print("sending fake server response")
+                self.callback('pathSelect', {'startDirection': startDirection})
+                print(str(startDirection) + " " + str(type(startDirection)))
+
+        # start async function
+        the_controller = self.controller
+        thread = threading.Thread(target=async_fake, args=(3,))
+        thread.start()
+        print("started async function, now continuing")

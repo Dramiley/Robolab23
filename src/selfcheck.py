@@ -8,6 +8,7 @@ from robot_dummy import RobotDummy
 # add system tests here
 if __name__ == "__main__":
 
+    print("Running system tests...")
     # test if the public functions of robot and robot_dummy are the same
     for func in dir(Robot):
         if func.startswith('_'):

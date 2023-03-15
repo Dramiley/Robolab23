@@ -5,9 +5,7 @@ TODO:
 TODO: Refactoring
     - replace Tuple[int, int] with alias type, see https://stackoverflow.com/a/33045252/20675205
 TODO:
-    - store computed shortest_paths in a variable
-TODO:
-    - maybe don't stop djikstra() even if target node is found->maybe will need following nodes later on (store!)
+    - make sure blocked paths don't get confused with loops
 
 TODO: add support for blocked path (don't mark as unexplored when entered node which has an adjacent blocked path)
 """
@@ -21,7 +19,9 @@ import logging
 import sys
 import pdb
 import operator
+
 sys.path.insert(0, 'planet')
+
 
 @unique
 class Direction(IntEnum):
@@ -40,6 +40,7 @@ Value:  -1 if blocked path
         >0 for all other paths
         never 0
 """
+
 
 class Planet:
     """
@@ -65,7 +66,7 @@ class Planet:
         self.paths = {}
         self.nodes = []
 
-        self.unexplored = {} # dict keeping track of unexplored paths of the form node: Set[Direction] which are the unexplored directions
+        self.unexplored = {}  # dict keeping track of unexplored paths of the form node: Set[Direction] which are the unexplored directions
         self.computations_uptodate = False
 
     def __is_node_known(self, node: Tuple[int, int]) -> bool:
@@ -98,22 +99,23 @@ class Planet:
         target_coords = target[0]
         target_entry_dir = target[1]
 
+        if not (target_coords in self.paths.keys()):
+            # if no path is yet known for target_coords
+            # since we need to add path to both start and target (paths are bidirectional)
+            self.paths[target_coords] = {}
+
         if not (start_coords in self.paths.keys()):
             # if no path is yet known for start_coords
             self.paths[start_coords] = {}
-
-        if not (target_coords in self.paths.keys()):
-            # if no path is yet known for target_coords
-            self.paths[target_coords] = {}
-
-        if start_entry_dir in self.paths[start_coords]:
+        elif start_entry_dir in self.paths[start_coords]:
             # path is already registered -> same for target_coords
+            # should also be registered for target_coords then
             return
 
         self.add_new_path(start, target, weight)
 
     def add_new_path(self, start: Tuple[Tuple[int, int], Direction], target: Tuple[Tuple[int, int], Direction],
-                 weight: int):
+                     weight: int):
         """
         Adds new path to self.paths AND updates self.unexplored
         """
@@ -158,12 +160,12 @@ class Planet:
 
         WARNINGS: make sure that path is explored (calling is_path_explored() )
         """
-        the_blocked_path = self.paths[start][start_dir] # format (node, dir, weight)
+        the_blocked_path = self.paths[start][start_dir]  # format (node, dir, weight)
         end_dir = the_blocked_path[1]
 
         # for debugging
         if the_blocked_path[0] == end:
-            #it should node==target
+            # it should node==target
             raise AssertionError("Somehow path points to another target node than the one given")
 
         # make path blocked for start
@@ -175,7 +177,7 @@ class Planet:
             weight0: int,
             unvisited: List[Tuple[int, int]],
             shortest_paths: Dict[int, Tuple[int, int]]
-        ) -> Dict[Tuple[int, int] ,Tuple[int, Tuple[int, int]]]:
+    ) -> Dict[Tuple[int, int], Tuple[int, Tuple[int, int]]]:
         """
         Expands node given by its coordinates and returns neighbor paths as list of (node, weight, parent)
 
@@ -184,13 +186,16 @@ class Planet:
             weight0: weight which was necessary to get to that node
             unvisited: list of unvisited nodes
         """
-        outgoing_paths = self.paths[node] # outgoing_paths is of form {Direction: (coords, dir, weight)}
-        marked = {} # dict with keys=nodes, values=(weight, parent_node)
+        print(f'Expanding node {node}')
+        outgoing_paths = self.paths[node]  # outgoing_paths is of form {Direction: (coords, dir, weight)}
+        # outgoing_paths = self.paths[node[0]][node[1]]  # outgoing_paths is of form (coords, dir, weight)
+        marked = {}  # dict with keys=nodes, values=(weight, parent_node)
         logging.debug(f'Expanding node {node}')
         # pdb.set_trace()
         for (coords, _, weight) in outgoing_paths.values():
-            new_weight = weight+weight0
+            new_weight = weight + weight0
             if coords in unvisited:
+                # TODO: check that this ensures that blocked path (with weight -1!!!) are not added to shortest path
                 marked[coords] = (new_weight, node)
             else:
                 # check whether this path is shorter
@@ -202,9 +207,9 @@ class Planet:
         return marked
 
     def __djikstra_reconstruct_shortest_path(self,
-            shortest_paths: Dict[Tuple[int, int], Tuple[int, Tuple[int, int]]],
-            start: Tuple[int, int], target: Tuple[int, int]
-        ) -> Tuple[List[Tuple[Tuple[int, int], Direction]], int]:
+                                             shortest_paths: Dict[Tuple[int, int], Tuple[int, Tuple[int, int]]],
+                                             start: Tuple[int, int], target: Tuple[int, int]
+                                             ) -> Tuple[List[Tuple[Tuple[int, int], Direction]], int]:
         """
         Returns path as list of nodes based on given shortest_paths and its weight
 
@@ -226,10 +231,11 @@ class Planet:
                 if connected_node == end_node:
                     dir = d
             list.append((current_node, dir))
-        list.reverse() # bc appeding started from target towards start
+        list.reverse()  # bc appeding started from target towards start
         return (list, weight)
 
-    def __djikstra(self, start_coords: Tuple[int, int], target_coords: Tuple[int, int]) -> Optional[Tuple[List[Tuple[int, int]], int]]:
+    def __djikstra(self, start_coords: Tuple[int, int], target_coords: Tuple[int, int]) -> Optional[
+        Tuple[List[Tuple[int, int]], int]]:
         """
         1. choose node1 with minimal weight out of marked nodes
         2. if this node is target->finished else continue
@@ -252,9 +258,9 @@ class Planet:
             return []
 
         # init data structures
-        unvisited = set(self.paths.keys()) # set of unvivisted nodes
-        marked = {start_coords: (0, None)} # dict with keys=nodes, values=(weight, parent_node)
-        shortest_paths = {start_coords: (0, None)} # dict with key=nodes, values=(weight, parent_node)
+        unvisited = set(self.paths.keys())  # set of unvivisted nodes
+        marked = {start_coords: (0, None)}  # dict with keys=nodes, values=(weight, parent_node)
+        shortest_paths = {start_coords: (0, None)}  # dict with key=nodes, values=(weight, parent_node)
 
         # actual algorithm
         next_node = start_coords
@@ -263,12 +269,14 @@ class Planet:
             shortest_paths[next_node] = marked[next_node]
             marked.pop(next_node)
 
+            # expand node
+            print(f'Expanding node {next_node} with weight {weight0}')
             new_marked_nodes = self.__expand_node(next_node, weight0, unvisited, shortest_paths)
             unvisited.remove(next_node)
 
             # TODO: Problem; start_coords ist in markeds
             marked.update(new_marked_nodes)
-            sorted_marked = sorted(marked.items(), key=lambda x: x[1][0]) # x=[(start_coords,(weight, target_coords))]
+            sorted_marked = sorted(marked.items(), key=lambda x: x[1][0])  # x=[(start_coords,(weight, target_coords))]
             # logging.debug(f"Sorted marked: {sorted_marked}")
             next_path = sorted_marked[0]
             (next_node, (weight0, _)) = next_path
@@ -281,8 +289,8 @@ class Planet:
 
         return None
 
-
-    def get_shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[List[Tuple[Tuple[int, int], Direction]]]:
+    def get_shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[
+        List[Tuple[Tuple[int, int], Direction]]]:
         """
         Returns a shortest path between two nodes
 
@@ -317,15 +325,16 @@ class Planet:
         Tracks unexplored path (node, direction)
             ->adds path to self.unexplored if it is not explored
         """
-        if self.paths[node][dir] != None:
+        if dir in self.paths[node].keys():
+            # there is something registered for this dir
             return
 
-        if node not in self.unexplored:
-            self.unexplored[node] = ()
+        if node not in self.unexplored.keys():
+            self.unexplored[node] = set()
 
         self.unexplored[node].add(dir)
 
-    def get_next_exploration_dir(self, current_node: Tuple[int, int]=(0, 0)) -> Direction:
+    def get_next_exploration_dir(self, current_node: Tuple[int, int]) -> Direction or None:
         """
 
         Continue exploring planet by going to the nextnearest node which has an unexplored dir
@@ -348,8 +357,9 @@ class Planet:
 
         # distances are a list of the form [(Path, weight)]
         distances = [self.__djikstra(current_node, target) for target in self.unexplored]
-        next_path = distances.index(min(distances.values(), key=operator.itemgetter(1))) # itemgetter gets 2nd elem (weight)
-        next_path_without_weight = next_path[0] # format: List[Tuple[node, Direction]]
+        next_path = distances.index(
+            min(distances.values(), key=operator.itemgetter(1)))  # itemgetter gets 2nd elem (weight)
+        next_path_without_weight = next_path[0]  # format: List[Tuple[node, Direction]]
         # TODO: check that next_dir really accesses the direction-element!
         next_dir = next_path_without_weight[0][1]
         return next_dir
