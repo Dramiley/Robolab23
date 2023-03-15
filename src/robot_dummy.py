@@ -30,7 +30,7 @@ class RobotDummy(Robot):
     # read map from file
     # read map name from planets/current_map.txt
     with open('simulator/planets/current_planet.txt') as __file:
-        __file_name = 'planets/' + __file.read().strip() + '.json'
+        __file_name = 'simulator/planets/' + __file.read().strip() + '.json'
 
         # if file exists, read it
         if os.path.isfile(__file_name):
@@ -39,7 +39,7 @@ class RobotDummy(Robot):
                 __position = __map['x'], __map['y']
                 __orientation = __map['orientation']
         else:
-            raise Exception("Map file not found")
+            raise Exception("Map file " + __file_name + " does not exist")
 
     def __has_path_ahead(self):
         # can we drive into our current orientation?
