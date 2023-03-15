@@ -332,6 +332,8 @@ class Controller:
         :return: void
         """
 
+        self.communication.communication.logger.debug("unexplored: "+str(self.planet.unexplored))
+
         if (self.last_position is None):
             self.logger.debug("last_position is None")
             return

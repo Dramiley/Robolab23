@@ -5,12 +5,12 @@
     "factor": -16.5
   },
   "top": {
-    "offsetPos": -421,
+    "offsetPos": -420,
     "offsetPx": 640,
-    "factor": -265
+    "factor": -132
   },
   "startPosition": {
-    "x": 68,
+    "x": 86,
     "y": 420,
     "orientation": 0
   }
