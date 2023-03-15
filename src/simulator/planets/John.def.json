@@ -1,8 +1,8 @@
 {
   "left": {
-    "offsetPos": -86,
+    "offsetPos": -68,
     "offsetPx": 108,
-    "factor": -16.5
+    "factor": 132
   },
   "top": {
     "offsetPos": -420,
@@ -10,7 +10,7 @@
     "factor": -132
   },
   "startPosition": {
-    "x": 86,
+    "x": 68,
     "y": 420,
     "orientation": 0
   }
