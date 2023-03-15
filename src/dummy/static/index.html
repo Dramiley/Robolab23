@@ -1,12 +1,27 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-<div id="app">
-    <img id="map" src="Fassaden-M1.png">
-    <img id="robot" src="robot.png"
-         :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
+<div id="site">
+    <div id="app">
+        <img id="map" src="Fassaden-M1.png">
+        <img id="robot" src="robot.png"
+             :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
 
-    <div id="info">
-        Current position: {{ pos.x }}, {{ pos.y }}, {{ pos.orientation }}°
+        <div id="info">
+            Current position: {{ pos.x }}, {{ pos.y }}, {{ pos.orientation }}°
+        </div>
+    </div>
+    <div id="history">
+        <div class="list-header">History
+            <div class="list-slider">
+                <input name="slider" type="range" min="0" :max="history.length - 1" v-model="historyIndex" step="1">
+            </div>
+        </div>
+        <div class="scrollable-list">
+            Historie:
+            <li v-for="(entry, index) in history" :class="{active: historyIndex == index}">
+                {{ entry.x }}, {{ entry.y }}, {{ entry.orientation }}°
+            </li>
+        </div>
     </div>
 </div>
 
@@ -16,11 +31,13 @@
     createApp({
         data() {
             return {
-                pos: {
+                posSingle: {
                     x: 5,
                     y: -1,
                     rotation: 0
-                }
+                },
+                history: [],
+                historyIndex: 0
             }
         },
         computed: {
@@ -32,6 +49,11 @@
             },
             rotation() {
                 return this.pos.orientation
+            },
+            pos() {
+                if (this.history.length === 0)
+                    return this.posSingle
+                return this.history[this.historyIndex]
             }
         },
         methods: {
@@ -41,16 +63,38 @@
                     .then(data => {
                         this.pos = data
                     })
+            },
+            refreshHistory() {
+                fetch('/history')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.history = data
+                    })
             }
         },
         mounted() {
             this.refreshPosition()
             setInterval(this.refreshPosition, 200)
+
+            this.refreshHistory()
+            setInterval(this.refreshHistory, 500)
         }
-    }).mount('#app')
+    }).mount('#site')
 </script>
 
 <style>
+
+    #history {
+        background: aquamarine;
+        height: 100px;
+        display: flex;
+        overflow: auto;
+    }
+
+    #history li.active {
+        font-weight: bold;
+    }
+
     #app {
         position: relative;
         height: 800px;
@@ -78,4 +122,5 @@
         background: rgba(0, 0, 0, 0.5);
         color: white;
     }
+
 </style>

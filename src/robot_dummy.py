@@ -112,9 +112,17 @@ class RobotDummy(Robot):
         with open('dummy/position.json', 'w') as outfile:
             json.dump({'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation}, outfile)
 
-        # append to history file
-        with open('dummy/history.json', 'a') as outfile:
-            json.dump({'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation}, outfile)
+        # append to history file (which contains an array of positions)
+        with open('dummy/history.json', 'r+') as outfile:
+            try:
+                data = json.load(outfile)
+            except:
+                data = []
+
+            data.append({'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation})
+
+            outfile.seek(0)
+            json.dump(data, outfile)
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates
