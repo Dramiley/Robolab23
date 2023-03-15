@@ -29,6 +29,8 @@ class Robot:
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
 
+
+        import odometry
         self.motor_left = ev3.LargeMotor(left_port)
         self.motor_right = ev3.LargeMotor(right_port)
         self.current_dir = start_dir  # keeps track of robot's direction
@@ -115,13 +117,14 @@ class Robot:
         self.__turn170()
         self.__followline()
 
-    def __followline(self):  # folgt der Linie
+    def __followline(self):
+        # folgt der Linie
         # self.communication.test_planet("Gromit")
         self.color.color_check()  # checkt die Farbe
         middle_greytone = self.middlegreytone
         integral = 0
         lerror = 0
-        tempo = 120
+        tempo = 150
         starttime = time.time()
 
         while self.color.name == 'grey':
@@ -139,9 +142,9 @@ class Robot:
             integral = integral + error
             if error < 10 and error > -10:
                 # wenn genau zwischen den beiden Farben, setzt integral auf 0
-                integral = 0
+                integral = 0 
             derivative = error - lerror
-            lenkfaktor = 90 * error + 10 * integral + 60 * derivative
+            lenkfaktor = 110 * error + 15 * integral + 75 * derivative
             lenkfaktor = lenkfaktor / 100
             power_left = tempo + lenkfaktor
             power_right = tempo - lenkfaktor
@@ -156,6 +159,7 @@ class Robot:
         """
         Starts the motor
         """
+
         self.motor_left.speed_sp = int(power_left)
         self.motor_left.command = "run-forever"
         self.motor_right.speed_sp = int(power_right)
@@ -219,6 +223,10 @@ class Robot:
                   print(self.__station_scan())
              elif i == "6":
                  self.__turn90()
+             elif i == "7":
+                 print('Um wie viel Grad drehen?')
+                 t = int(input())
+                 self.turn_deg()
         # while True:
         #      print("1 for followline")
         #      print("2 for station_center")
