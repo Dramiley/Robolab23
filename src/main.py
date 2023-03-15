@@ -9,6 +9,7 @@ import signal
 
 from controller import Controller
 
+from test_odometry import test_odo
 
 """
 SETUP COMMUNICATION
@@ -46,8 +47,9 @@ def run():
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    controller = Controller(client)
-    controller.begin()
+    # controller = Controller(client)
+    # controller.begin()
+    test_odo()
 
 
 # DO NOT EDIT

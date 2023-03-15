@@ -29,9 +29,11 @@ class Robot:
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
 
+
         import odometry
         self.motor_left = ev3.LargeMotor(left_port)
         self.motor_right = ev3.LargeMotor(right_port)
+        self.motor_pos_list = []
         self.current_dir = start_dir  # keeps track of robot's direction
 
         try:
@@ -47,6 +49,16 @@ class Robot:
         except Exception as e:
             print("Could not initialize object detector sensors wrapper")
             print(e)
+
+    def __track_motor_pos(self):
+        """
+        Tracks motor positions of the motors in a list of tuples
+        """
+        motor_pos_left = self.robot.motor_left.position
+        motor_pos_right = self.robot.motor_right.position
+        print(motor_pos_left, motor_pos_right)
+        self.motor_pos_list.append([motor_pos_left, motor_pos_right])
+        self.logger.info(f"Tracked motor_pos_values: {motor_pos_left}, {motor_pos_right}")
 
     def __move_time(self, t, s):  # Rückwärts bewegen
         self.motor_left.run_timed(time_sp=t, speed_sp=s)
@@ -67,16 +79,6 @@ class Robot:
         self.motor_left.run_timed(time_sp=2500, speed_sp=120)
         self.motor_right.run_timed(time_sp=2500, speed_sp=-120)
         time.sleep(2.5)
-
-    def __turn180(self):  # 180 Grad drehen
-        self.motor_left.run_timed(time_sp=2500, speed_sp=131)
-        self.motor_right.run_timed(time_sp=2500, speed_sp=-131)
-        time.sleep(2.5)
-
-    def __turn90(self):
-        self.motor_left.run_timed(time_sp=1250, speed_sp=131)
-        self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
-        time.sleep(1.5)
 
     def __scan_turn(self):
         starttime = time.time()
@@ -148,6 +150,8 @@ class Robot:
                 # wenn genau zwischen den beiden Farben, setzt integral auf 0
                 integral = 0
 
+                integral = 0
+
             derivative = error - lerror
             lenkfaktor = 170 * error + 10 * integral + 110 * derivative
             lenkfaktor = lenkfaktor / 100
@@ -155,6 +159,7 @@ class Robot:
             power_right = tempo - lenkfaktor
 
             self.__run_motors(power_left, power_right)
+            self.__track_motor_pos()
 
             lerror = error
             self.color.color_check()
@@ -213,6 +218,10 @@ class Robot:
     def set_controller(self, controller):
         self.controller = controller
 
+    def __begin(self):
+        self.__calibrate()
+        self.__followline()
+
     def __skip_calibrate(self):
         self.middlegreytone = 175
         self.black = 35
@@ -255,7 +264,7 @@ class Robot:
         Drives the robot to the next communication point
         """
         self.__followline()
-
+        self.__station_center()
         # tell the controller that we reached the communication point
         self.controller.communication_point_reached()
 

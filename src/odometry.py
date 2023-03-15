@@ -127,16 +127,6 @@ class Odometry:
         self.distance_per_tick = wheel_circumference / tacho_c_per_rot_r
         self.logger.info(f"Distance per tick is {self.distance_per_tick}")
 
-    def __track_motor_pos(self):
-        """
-        Tracks motor positions of the motors in a list of tuples
-        """
-        motor_pos_left = self.robot.motor_left.position
-        motor_pos_right = self.robot.motor_right.position
-        print(motor_pos_left, motor_pos_right)
-        self.motor_pos_list.append([motor_pos_left, motor_pos_right])
-        self.logger.info(f"Tracked motor_pos_values: {motor_pos_left}, {motor_pos_right}")
-
     def __calculate(self):
         """
         Calculates all required values based on tracked pos_values
