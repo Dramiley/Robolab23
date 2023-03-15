@@ -5,9 +5,7 @@ TODO:
 TODO: Refactoring
     - replace Tuple[int, int] with alias type, see https://stackoverflow.com/a/33045252/20675205
 TODO:
-    - store computed shortest_paths in a variable
-TODO:
-    - maybe don't stop djikstra() even if target node is found->maybe will need following nodes later on (store!)
+    - make sure blocked paths don't get confused with loops
 
 TODO: add support for blocked path (don't mark as unexplored when entered node which has an adjacent blocked path)
 """
@@ -189,8 +187,9 @@ class Planet:
         logging.debug(f'Expanding node {node}')
         # pdb.set_trace()
         for (coords, _, weight) in outgoing_paths.values():
-            new_weight = weight+weight0
+            new_weight = weight + weight0
             if coords in unvisited:
+                # TODO: check that this ensures that blocked path (with weight -1!!!) are not added to shortest path
                 marked[coords] = (new_weight, node)
             else:
                 # check whether this path is shorter

@@ -122,7 +122,7 @@ class Communication:
         # if "from" is debug and the message type is syntax, check if the syntax is correct
         if 'from' in payload and payload['from'] == "debug" and payload['type'] == "syntax":
             if payload['payload']['message'] == 'Incorrect':
-                self.logger.info("Syntax check errors: " + str(payload['payload']['errors']))
+                self.logger.info("Syntax check errors: " + str( str(payload['payload']['errors'])))
             return
 
         # log message

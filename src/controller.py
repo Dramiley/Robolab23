@@ -34,6 +34,8 @@ import time
 import os
 import sys
 import math
+import pdb
+import logging
 
 from communication import Communication
 from communication_logger import CommunicationLogger
@@ -241,20 +243,23 @@ class Controller:
         TODO: don't scan nodes which are already explored completely
         """
         start_dir = self.last_position.direction  # the direction we came from
-        current_dir = start_dir
+        current_dir = (start_dir+180) % 360 # sensor is no on opposite path since we drove forward
+        self.last_position.direction = current_dir
 
+        logging.debug(f("Started scan from {start_dir}, set scan dir to {current_dir} due to driving forward."))
         # check all paths
-        for i in range(1, 3):  # 1 because there must be a path on the one we came from
-            # check if there is a black line beginning
-            # turn to next path
-            self.robot.turn_deg(90)
-            # update current orientation
+        for i in range(0, 3):  # 1 because there must be a path on the one we came from
+            # TODO: 2nd rotation scans the path we came from (not needed!)
+
+            # update current orientation by 90deg
             current_dir = (current_dir + 90) % 360
             # check whether there is a path
-            possible_path = self.robot.has_path_ahead()
+            possible_path = self.robot.station_scan()
 
             if possible_path:
                 self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), current_dir)
+            logging.debug(f"Checking {current_dir}")
+        pdb.set_trace()
 
     def communication_point_reached(self):
         """
