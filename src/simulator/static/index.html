@@ -35,15 +35,26 @@
                                   d="M5 20h14c.55 0 1 .45 1 1s-.45 1-1 1H5c-.55 0-1-.45-1-1s.45-1 1-1zM5 2h14c.55 0 1 .45 1 1s-.45 1-1 1H5c-.55 0-1-.45-1-1s.45-1 1-1zm8 7h1.79c.45 0 .67-.54.35-.85l-2.79-2.79c-.2-.2-.51-.2-.71 0L8.85 8.15a.5.5 0 0 0 .36.85H11v6H9.21c-.45 0-.67.54-.35.85l2.79 2.79c.2.2.51.2.71 0l2.79-2.79a.5.5 0 0 0-.35-.85H13V9z"/>
                         </svg>
                     </div>
-                    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1"
-                               :checked="pause">
-                        <label class="btn btn-outline-primary" for="btnradio1" @click="pause=true">Pause</label>
-
-                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2"
-                               :checked="!pause">
-                        <label class="btn btn-outline-primary" for="btnradio2" @click="pause=false">Live</label>
+                    <div :class="{btn:true, 'btn-outline-primary':!filterPositions,'btn-primary':filterPositions}"
+                         @click="filterPositions=!filterPositions">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                  d="M3 9a1 1 0 0 0 1-1V5a1 1 0 0 1 1-1h3a1 1 0 0 0 0-2H5a3 3 0 0 0-3 3v3a1 1 0 0 0 1 1Zm5 11H5a1 1 0 0 1-1-1v-3a1 1 0 0 0-2 0v3a3 3 0 0 0 3 3h3a1 1 0 0 0 0-2Zm9-7a1 1 0 0 0 0-2h-1.14A4 4 0 0 0 13 8.14V7a1 1 0 0 0-2 0v1.14A4 4 0 0 0 8.14 11H7a1 1 0 0 0 0 2h1.14A4 4 0 0 0 11 15.86V17a1 1 0 0 0 2 0v-1.14A4 4 0 0 0 15.86 13Zm-5 1a2 2 0 1 1 2-2a2 2 0 0 1-2 2Zm9 1a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 0 0 2h3a3 3 0 0 0 3-3v-3a1 1 0 0 0-1-1ZM19 2h-3a1 1 0 0 0 0 2h3a1 1 0 0 1 1 1v3a1 1 0 0 0 2 0V5a3 3 0 0 0-3-3Z"/>
+                        </svg>
                     </div>
+
+                    <div :class="{btn:true, 'btn-outline-primary':pause,'btn-primary':!pause}" @click="pause=!pause">
+                        <svg v-if="!pause" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                             viewBox="0 0 1024 1024">
+                            <path fill="currentColor"
+                                  d="M304 176h80v672h-80zm408 0h-64c-4.4 0-8 3.6-8 8v656c0 4.4 3.6 8 8 8h64c4.4 0 8-3.6 8-8V184c0-4.4-3.6-8-8-8z"/>
+                        </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                  d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.69L9.54 5.98A.998.998 0 0 0 8 6.82z"/>
+                        </svg>
+                    </div>
+
                 </div>
             </div>
 
@@ -64,10 +75,9 @@
 
         </div>
         <div class="scrollable-list" v-if="history.length">
-            <template v-for="(entry, index) in history">
-                <li :class="{pos:true, active: historySelected == index, [entry.type]: true }"
-                    @click="selectEntry(index)">
-
+            <template v-for="(entry) in historyFiltered">
+                <li :class="{pos:true, active: historySelected == entry._index, [entry.type]: true }"
+                    @click="selectEntry(entry._index)">
                     <template v-if="entry.type == 'position'">
                         <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
                             <path fill="currentColor"
@@ -159,6 +169,7 @@
                     'warning': 'Warnung',
                     'info': 'Info',
                 },
+                filterPositions: false,
                 filterString: 'en',
                 filterColors: {
                     'error': true,
@@ -186,12 +197,15 @@
                 return this.pos.orientation
             },
             pos() {
-                console.log(this.historySelected, this.history.length)
                 return this.history[this.historySelected] ?? this.startPosition
             },
             startPosition() {
                 return this.def.startPosition
+            },
+            historyFiltered() {
+                return this.history.filter(entry => !this.filterPositions || entry.type === 'position')
             }
+
         },
         methods: {
             refreshPlanet() {
@@ -218,6 +232,7 @@
 
                         // history
                         this.history = history.map((entry, index) => {
+                            entry._index = index
                             entry.collapsed = earlierHistory[index]?.collapsed ?? true
                             if (entry.type === 'communication.log' && entry.message.startsWith('{')) {
                                 try {
@@ -250,7 +265,6 @@
             },
             selectEntry: function (index) {
                 this.pause = true
-                console.log(index)
 
                 if (this.history[index].type === 'position') {
                     this.historySelected = index
