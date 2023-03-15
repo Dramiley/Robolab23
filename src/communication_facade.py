@@ -139,3 +139,11 @@ class CommunicationFacade:
         :return: void
         """
         self.communication.set_callback(message_type, callback)
+
+    def set_controller(self, controller):
+        """
+        Sets the controller
+        :param controller: The controller
+        :return: void
+        """
+        self.communication.set_controller(controller)

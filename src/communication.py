@@ -41,6 +41,7 @@ class Communication:
         """
 
         # save client
+        self.controller = None
         self.client = mqtt_client
 
         # configure client
@@ -122,7 +123,7 @@ class Communication:
         # if "from" is debug and the message type is syntax, check if the syntax is correct
         if 'from' in payload and payload['from'] == "debug" and payload['type'] == "syntax":
             if payload['payload']['message'] == 'Incorrect':
-                self.logger.info("Syntax check errors: " + str( str(payload['payload']['errors'])))
+                self.logger.info("Syntax check errors: " + str(str(payload['payload']['errors'])))
             return
 
         # log message
@@ -145,8 +146,9 @@ class Communication:
         if payload['type'] in self.callbacks:
             try:
                 self.callback(payload['type'], payload['payload'])
-            except:
+            except Exception as e:
                 self.logger.error('Callback for message type ' + payload['type'] + ' failed')
+                self.logger.error(e)
         else:
             self.logger.error('No callback for message type ' + payload['type'] + ' registered')
 
@@ -224,7 +226,9 @@ class Communication:
         if len(self.callbacks[message_type].__code__.co_varnames) == len(payload) or \
                 len(self.callbacks[message_type].__code__.co_varnames) == len(payload) + 1:
             self.logger.success('Calling callback for message type ' + message_type)
-            self.logger.debug('Payload: ' + str(payload))
+            self.logger.debug('with payload: ' + str(payload))
+            self.logger.debug('Required arguments: ' + str(self.callbacks[message_type].__code__.co_varnames))
+            self.logger.debug('Provided arguments: ' + str(payload))
             self.callbacks[message_type](**payload)
         else:
             self.logger.error('Callback function signature for "' + message_type + '" does not match payload '
@@ -266,3 +270,6 @@ class Communication:
         print("Disconnecting from broker")
         self.client.disconnect()
         self.client.loop_stop()
+
+    def set_controller(self, controller):
+        self.controller = controller

@@ -190,6 +190,8 @@ class Controller:
         return next_dir
 
     def __init_callbacks(self):
+        self.communication.set_controller(self)
+
         # bei einer Antwort des Mutterschiffs mit dem Typ "planet" wird der Name des Planeten ausgegeben
         self.communication.set_callback('planet', self.receive_planet)
 
@@ -215,6 +217,8 @@ class Controller:
         """
         Called when we have received the planet from the mothership (only once!)
         """
+
+        print("Planet: " + planetName)
 
         # remember last position
         self.last_position = Position(startX, startY, startOrientation)
@@ -243,10 +247,10 @@ class Controller:
         TODO: don't scan nodes which are already explored completely
         """
         start_dir = self.last_position.direction  # the direction we came from
-        current_dir = (start_dir+180) % 360 # sensor is no on opposite path since we drove forward
+        current_dir = (start_dir + 180) % 360  # sensor is no on opposite path since we drove forward
         self.last_position.direction = current_dir
 
-        logging.debug(f("Started scan from {start_dir}, set scan dir to {current_dir} due to driving forward."))
+        print("Started scan from {start_dir}, set scan dir to {current_dir} due to driving forward.")
         # check all paths
         for i in range(0, 3):  # 1 because there must be a path on the one we came from
             # TODO: 2nd rotation scans the path we came from (not needed!)
@@ -258,7 +262,7 @@ class Controller:
 
             if possible_path:
                 self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), current_dir)
-            logging.debug(f"Checking {current_dir}")
+            print("Checking {current_dir}")
         pdb.set_trace()
 
     def communication_point_reached(self):
