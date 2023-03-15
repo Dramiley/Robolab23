@@ -245,14 +245,17 @@ class Controller:
 
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
+        self.__handle_received_path(startX, startY, startOrientation)
+
+        # los gehts
+        self.run()
+
+    def __handle_received_path(self,  startX: int, startY: int, startOrientation: Direction):
 
         # startOrientation is the dir the robot is pointing towards after entering the node
         came_from_dir = (startOrientation + 180) % 360
         # mark start path as blocked (is always a dead end)
         self.planet.add_path(((startX, startY), came_from_dir), ((startX, startY), came_from_dir), -1)
-
-        # los gehts
-        self.run()
 
     def __check_explorable_paths(self):
         """
