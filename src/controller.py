@@ -227,7 +227,7 @@ class Controller:
         # Bestätigung vom Typ done (3) und dem Ende der Erkundung.
         self.communication.set_callback('done', self.receive_done)
 
-    def receive_planet(self, planetName, startX, startY, startOrientation):
+    def receive_planet(self, planetName: str, startX: int, startY: int, startOrientation: Direction):
         """
         Called when we have received the planet from the mothership (only once!)
         """
@@ -245,7 +245,8 @@ class Controller:
 
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
-        self.planet.add_path((startX, startY), (startX, startY), int(startOrientation) + 180)
+
+        self.planet.add_path(((startX, startY), startOrientation), ((startX, startY), startOrientation), startOrientation + 180)
 
         # los gehts
         self.run()
@@ -275,7 +276,7 @@ class Controller:
                 try:
                     self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), current_dir)
                 except Exception as e:
-                    print("Error while adding path to planet: {e}")
+                    print(f"Error while adding path to planet: {e}")
             self.logger.debug(f"Checking {current_dir}")
 
     def communication_point_reached(self):

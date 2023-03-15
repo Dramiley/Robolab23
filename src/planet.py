@@ -321,10 +321,10 @@ class Planet:
             ->adds path to self.unexplored if it is not explored
         """
         if self.paths[node][dir] != None:
+            # there is something registered for this dir
             return
 
-        if node not in self.unexplored:
-            # remove node from unexplored
+        if node not in self.unexplored.keys():
             self.unexplored[node] = set()
 
         self.unexplored[node].add(dir)
