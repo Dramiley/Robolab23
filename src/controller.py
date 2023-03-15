@@ -251,7 +251,7 @@ class Controller:
             # update current orientation
             current_dir = (current_dir + 90) % 360
             # check whether there is a path
-            possible_path = self.robot.has_path_ahead()
+            possible_path = self.robot.__has_path_ahead()
 
             if possible_path:
                 self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), current_dir)
