@@ -1,6 +1,8 @@
 # !/usr/bin/env python3
 import math
 import time
+import logging
+import pdb
 from threading import Thread
 from typing import Tuple, List
 from communication_facade import CommunicationFacade
@@ -27,13 +29,14 @@ class Odometry:
         self.robot = robot
 
         self.tracking_interval = track_interval
-        start_pos_left = self.robot.motor_left
-        start_pos_right = self.robot.motor_right
-        self.motor_pos_list = [
-            [start_pos_left, start_pos_right]]  # list of 2-element lists [[motor_pos1, motor_pos2], [.,.], ...]
 
         # odometry should be running only when told so
         self.running = False
+
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        self.tracking_thread = None
+
         self.__calc_parameters()
 
     def start(self):
@@ -44,21 +47,29 @@ class Odometry:
 
         NOTE: Make sure to run this function in a separate thread!
         """
-
+        self.running = True
         self.current_pos = (0, 0)  # position is tracked relative
 
         self.motor_pos_list = []
+        # store inital motor pos
+        self.__track_motor_pos()
 
-        tracking_thread = Thread(target=self.__track)
-        tracking_thread.run()
+        # taken from https://www.geeksforgeeks.org/python-different-ways-to-kill-a-thread/
+        self.tracking_thread = Thread(target=self.__track, args=(lambda: self.running, ))
+        self.logger.info(f"---Started tracking---")
+        self.tracking_thread.start()
 
 
-    def __track(self):
+    def __track(self, running):
         """
         Does the actual tracking of the motor pos
         """
-        while self.running:
+        while True:
             self.__track_motor_pos()
+            print("Tracking")
+            if running():
+                break
+
             time.sleep(self.tracking_interval)
 
 
@@ -69,6 +80,8 @@ class Odometry:
         """
         # TODO: could get rid of self.running by stopping the thread
         self.running = False
+        # wait for thread to detect change of self.runnings
+        self.tracking_thread.join()
         self.__calculate()
 
     def get_coords(self) -> Tuple[int, int]:
@@ -109,16 +122,20 @@ class Odometry:
 
         # TODO: do count_per_rot have the same value for both motors?
         tacho_c_per_rot_r = self.robot.motor_left.count_per_rot
+        self.logger.info(f"Tacho_c_per_rot_r is {tacho_c_per_rot_r}, should be 360?")
         # TODO: is distance_per_tick given somewhere??
         self.distance_per_tick = wheel_circumference / tacho_c_per_rot_r
+        self.logger.info(f"Distance per tick is {self.distance_per_tick}")
 
     def __track_motor_pos(self):
         """
         Tracks motor positions of the motors in a list of tuples
         """
-        motor_pos_left = self.robot.motor_left.__position
-        motor_pos_right = self.robot.motor_right.__position
+        motor_pos_left = self.robot.motor_left.position
+        motor_pos_right = self.robot.motor_right.position
+        print(motor_pos_left, motor_pos_right)
         self.motor_pos_list.append([motor_pos_left, motor_pos_right])
+        self.logger.info(f"Tracked motor_pos_values: {motor_pos_left}, {motor_pos_right}")
 
     def __calculate(self):
         """
@@ -127,7 +144,8 @@ class Odometry:
         Note: list comprehension idea taken from https://stackoverflow.com/a/5314307/20675205
         """
         #  get diffs to calculate from
-        diffs = [[n_l - f_l, n_r - f_r] for [f_l, f_r], [n_l, n_r] in zip(list, list[1:])]
+        track_list = self.motor_pos_list
+        diffs = [[n_l - f_l, n_r - f_r] for [f_l, f_r], [n_l, n_r] in zip(track_list, track_list[1:])]
 
         # based on diffs and distance_per_tick d_r and d_l can be calculated
         distances = [[l * self.distance_per_tick, r * self.distance_per_tick] for [l, r] in diffs]
@@ -146,9 +164,13 @@ class Odometry:
             # get vector which points towards new point
             rotated_vector = self.__rotate_vector_by_deg(dir_vector, angle / 2)
             # calculate new position coordinates
-            self.current_pos += distance * rotated_vector
+            new_pos_x = (distance * rotated_vector[0]) + self.current_pos[0]
+            new_pos_y = (distance * rotated_vector[1]) + self.current_pos[1]
+            self.current_pos = (new_pos_x, new_pos_y)
             # update dir
             self.current_dir += angle
+
+        pdb.set_trace()
 
     def __get_driven_distance(self, r: int, al: int) -> int:
         """
