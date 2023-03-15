@@ -3,6 +3,11 @@ const app = express()
 const port = 3000
 const fs = require('fs');
 
+const http = require('http');
+const server = http.createServer(app);
+const {Server} = require("socket.io");
+const io = new Server(server);
+
 let available_planets = fs.readdirSync('./planets').filter(f => f.endsWith('.def.json')).map(f => f.replace('.def.json', ''))
 
 app.get('/history', (req, res) => {
@@ -41,6 +46,12 @@ app.post('/planet', (req, res) => {
 
 app.use(express.static('./static'));
 
-app.listen(port, () => {
+
+server.listen(port, () => {
     console.log(`Simulator started at http://localhost:${port}`)
-})
+});
+
+// every time the history file changes, send the new data to all clients
+fs.watchFile('./history.json', {interval: 100}, (curr, prev) => {
+    io.emit('history', true); //fs.readFileSync('./history.json', 'utf8')
+});

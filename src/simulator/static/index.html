@@ -1,4 +1,5 @@
 <script src="vue.js"></script>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 
 <div id="site">
     <div id="app-wrapper">
@@ -154,6 +155,8 @@
 </div>
 
 <script>
+    const socket = io();
+
     const {createApp} = Vue
 
     createApp({
@@ -227,45 +230,47 @@
                         this.planets = planets
                     })
             },
+            processHistory(history) {
+                // at the beginning, insert the start position
+                history.unshift({
+                    type: 'position',
+                    ...this.startPosition
+                })
+
+                let earlierHistory = this.history
+
+                // history
+                this.history = history.map((entry, index) => {
+                    entry._index = index
+                    entry.collapsed = earlierHistory[index]?.collapsed ?? true
+                    if (entry.type === 'communication.log' && entry.message.startsWith('{')) {
+                        try {
+                            entry.json = JSON.parse(entry.message)
+                        } catch (e) {
+                            console.error(e)
+                        }
+                    }
+                    return entry
+                })
+
+                if (!this.pause) {
+                    // go the the last position in the history with type position
+                    this.historySelected = this.history.length - 1
+                    while (this.history[this.historySelected].type !== 'position') {
+                        this.historySelected--
+                    }
+
+                    // scroll down to that element
+                    var container = this.$refs.scrollableList;
+                    container.scrollTop = container.scrollHeight + 120;
+                }
+
+            },
             refreshHistory() {
                 fetch('/history')
                     .then(response => response.json())
                     .then(history => {
-
-                        // at the beginning, insert the start position
-                        history.unshift({
-                            type: 'position',
-                            ...this.startPosition
-                        })
-
-                        let earlierHistory = this.history
-
-                        // history
-                        this.history = history.map((entry, index) => {
-                            entry._index = index
-                            entry.collapsed = earlierHistory[index]?.collapsed ?? true
-                            if (entry.type === 'communication.log' && entry.message.startsWith('{')) {
-                                try {
-                                    entry.json = JSON.parse(entry.message)
-                                } catch (e) {
-                                    console.error(e)
-                                }
-                            }
-                            return entry
-                        })
-
-                        if (!this.pause) {
-                            // go the the last position in the history with type position
-                            this.historySelected = this.history.length - 1
-                            while (this.history[this.historySelected].type !== 'position') {
-                                this.historySelected--
-                            }
-
-                            // scroll down to that element
-                            var container = this.$refs.scrollableList;
-                            container.scrollTop = container.scrollHeight + 120;
-                        }
-
+                        this.processHistory(history)
                     })
             },
             toggleCollapsed() {
@@ -294,7 +299,11 @@
             this.refreshPlanets()
             this.refreshPlanet()
             this.refreshHistory()
-            setInterval(this.refreshHistory, 500)
+
+            socket.on('history', (history) => {
+                this.refreshHistory(history)
+            });
+
         }
     }).mount('#site')
 </script>
