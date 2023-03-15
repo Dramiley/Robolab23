@@ -30,8 +30,6 @@ class Robot:
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
 
-
-        import odometry
         self.motor_left = ev3.LargeMotor(left_port)
         self.motor_right = ev3.LargeMotor(right_port)
         self.motor_pos_list = []
@@ -241,7 +239,6 @@ class Robot:
     def begin(self):
         self.__skip_calibrate()
         self.__followline()
-
         # self.__menu()
 
     def __menu(self):
