@@ -341,7 +341,7 @@ class Controller:
         start_position = self.last_position
 
         if env["ODOMETRY"]:
-            self.odometry.stop()
+            self.odometry.calculate(self.robot.motor_pos_list)
             end_position = self.odometry.get_coords()
         else:
             end_position = self.last_position
@@ -401,7 +401,6 @@ class Controller:
 
         # TODO: check
         self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
-        # self.odometry.receive_path_unveiled(startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight)
 
     def receive_path_select(self, startDirection: Direction):
         """
@@ -416,9 +415,6 @@ class Controller:
 
         self.__rotate_robo_in_dir(startDirection)
 
-        # now we can finally drive to the next communication point
-        if env["ODOMETRY"]:
-            self.odometry.start()
         self.robot.drive_until_communication_point()
 
     def receive_target(self, x, y):

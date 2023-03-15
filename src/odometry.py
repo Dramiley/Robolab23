@@ -39,51 +39,6 @@ class Odometry:
 
         self.__calc_parameters()
 
-    def start(self):
-        """
-        Starts the odometry tracking.
-
-        WARNING: should only be called when following a line, so that rotations when exploring paths on a node don't get anything messed up
-
-        NOTE: Make sure to run this function in a separate thread!
-        """
-        self.running = True
-        self.current_pos = (0, 0)  # position is tracked relative
-
-        self.motor_pos_list = []
-        # store inital motor pos
-        self.__track_motor_pos()
-
-        # taken from https://www.geeksforgeeks.org/python-different-ways-to-kill-a-thread/
-        self.tracking_thread = Thread(target=self.__track, args=(lambda: self.running, ))
-        self.logger.info(f"---Started tracking---")
-        self.tracking_thread.start()
-
-
-    def __track(self, running):
-        """
-        Does the actual tracking of the motor pos
-        """
-        while True:
-            self.__track_motor_pos()
-            print("Tracking")
-            if running():
-                break
-
-            time.sleep(self.tracking_interval)
-
-
-    def stop(self):
-        """
-        Stops the odometry tracking and computes result
-        ->WARNING: Call only when on a station
-        """
-        # TODO: could get rid of self.running by stopping the thread
-        self.running = False
-        # wait for thread to detect change of self.runnings
-        self.tracking_thread.join()
-        self.__calculate()
-
     def get_coords(self) -> Tuple[int, int]:
         """
         Returns current coords based on self.current_pos by rounding cm to coordinates (nearest multiple of 50cm)
@@ -127,14 +82,13 @@ class Odometry:
         self.distance_per_tick = wheel_circumference / tacho_c_per_rot_r
         self.logger.info(f"Distance per tick is {self.distance_per_tick}")
 
-    def __calculate(self):
+    def calculate(self, track_list: List[Tuple[int, int]]):
         """
         Calculates all required values based on tracked pos_values
 
         Note: list comprehension idea taken from https://stackoverflow.com/a/5314307/20675205
         """
         #  get diffs to calculate from
-        track_list = self.motor_pos_list
         diffs = [[n_l - f_l, n_r - f_r] for [f_l, f_r], [n_l, n_r] in zip(track_list, track_list[1:])]
 
         # based on diffs and distance_per_tick d_r and d_l can be calculated
@@ -160,7 +114,9 @@ class Odometry:
             # update dir
             self.current_dir += angle
 
-        pdb.set_trace()
+        self.logger.debug(f"Calculated current dir {self.current_dir}")
+        self.logger.debug(f"Calculated new pos {self.current_pos}")
+        # pdb.set_trace()
 
     def __get_driven_distance(self, r: int, al: int) -> int:
         """

@@ -47,9 +47,9 @@ def run():
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
 
-    # controller = Controller(client)
-    # controller.begin()
-    test_odo()
+    controller = Controller(client)
+    controller.begin()
+    # test_odo()
 
 
 # DO NOT EDIT

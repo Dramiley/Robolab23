@@ -1,6 +1,7 @@
 import ev3dev.ev3 as ev3
 import time
 import sys
+import logging
 import measurements as ms
 from typing import List
 
@@ -50,15 +51,23 @@ class Robot:
             print("Could not initialize object detector sensors wrapper")
             print(e)
 
+        self.logger = logging.getLogger()
+        self.logger.setLevel(logging.DEBUG)
+
     def __track_motor_pos(self):
         """
         Tracks motor positions of the motors in a list of tuples
         """
-        motor_pos_left = self.robot.motor_left.position
-        motor_pos_right = self.robot.motor_right.position
+        motor_pos_left = self.motor_left.position
+        motor_pos_right = self.motor_right.position
         print(motor_pos_left, motor_pos_right)
         self.motor_pos_list.append([motor_pos_left, motor_pos_right])
         self.logger.info(f"Tracked motor_pos_values: {motor_pos_left}, {motor_pos_right}")
+
+    def __reset_motor_pos_list(self):
+        motor_left_pos0 = self.motor_left.position
+        motor_right_pos0 = self.motor_right.position
+        self.motor_pos_list = [(motor_left_pos0, motor_right_pos0)]
 
     def __move_time(self, t, s):  # Rückwärts bewegen
         self.motor_left.run_timed(time_sp=t, speed_sp=s)
@@ -132,6 +141,8 @@ class Robot:
         lerror = 0
         tempo = 200
         starttime = time.time()
+
+        self.__reset_motor_pos_list()
 
         while self.color.name == 'grey':
             self.color.color_check()
