@@ -186,7 +186,9 @@ class Planet:
             weight0: weight which was necessary to get to that node
             unvisited: list of unvisited nodes
         """
+        print(f'Expanding node {node}')
         outgoing_paths = self.paths[node]  # outgoing_paths is of form {Direction: (coords, dir, weight)}
+        # outgoing_paths = self.paths[node[0]][node[1]]  # outgoing_paths is of form (coords, dir, weight)
         marked = {}  # dict with keys=nodes, values=(weight, parent_node)
         logging.debug(f'Expanding node {node}')
         # pdb.set_trace()
@@ -267,6 +269,8 @@ class Planet:
             shortest_paths[next_node] = marked[next_node]
             marked.pop(next_node)
 
+            # expand node
+            print(f'Expanding node {next_node} with weight {weight0}')
             new_marked_nodes = self.__expand_node(next_node, weight0, unvisited, shortest_paths)
             unvisited.remove(next_node)
 
@@ -330,7 +334,7 @@ class Planet:
 
         self.unexplored[node].add(dir)
 
-    def get_next_exploration_dir(self, current_node: Tuple[int, int] = (0, 0)) -> Direction:
+    def get_next_exploration_dir(self, current_node: Tuple[int, int]) -> Direction or None:
         """
 
         Continue exploring planet by going to the nextnearest node which has an unexplored dir

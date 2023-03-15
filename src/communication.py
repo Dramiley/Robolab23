@@ -144,11 +144,7 @@ class Communication:
 
         # check if message type has a callback registered and call it
         if payload['type'] in self.callbacks:
-            try:
-                self.callback(payload['type'], payload['payload'])
-            except Exception as e:
-                self.logger.error('Callback for message type ' + payload['type'] + ' failed')
-                self.logger.error(e)
+            self.callback(payload['type'], payload['payload'])
         else:
             self.logger.error('No callback for message type ' + payload['type'] + ' registered')
 

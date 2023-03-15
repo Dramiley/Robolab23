@@ -11,7 +11,6 @@ class DummyMotor:
 
 
 class RobotDummy(Robot):
-
     """
     This class is a dummy for the robot.
     It is used to test the code without the robot.
@@ -44,6 +43,8 @@ class RobotDummy(Robot):
         return new_path is not None
 
     def drive_until_communication_point(self):
+        print("Driving until communication point...")
+
         # can we drive into our current orientation?
         index_of_current_orientation = self.__orientation // 90
 
@@ -101,7 +102,7 @@ class RobotDummy(Robot):
         with open('dummy/position.json', 'w') as outfile:
             json.dump({'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation}, outfile)
 
-        time.sleep(.5)
+        time.sleep(.1)
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates

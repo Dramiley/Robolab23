@@ -88,7 +88,7 @@ class Controller:
     communication = None
     odometry = None
     planet = None
-    last_position = Position(0, 0, 0)  # updated by received msg from mothership or rotations by rob
+    last_position = None
 
     given_new_target = False  # tracks whether we have a target to drive to by the mothership
     target_pos = None
@@ -155,10 +155,11 @@ class Controller:
             3. drive the path we are told by the mothership
         """
         self.logger.debug("Entering run")
+
         # let robot check paths on the node he is on and register it in planet.unexplored
         self.__check_explorable_paths()
 
-        selected_dir_next = 0
+        next_dir = None
         self.logger.debug("Selecting the next dir to take...")
         if self.target_pos != None:
             self.logger.debug(f"I have to drive to target at {self.target_pos}")
@@ -185,22 +186,24 @@ class Controller:
             next_dir = self.__explore()
 
         self.logger.debug(f"I decided to drive into dir {next_dir}")
+        print("Next dir: " + str(next_dir))
+        print("Last pos: " + str(self.last_position.x) + " " + str(self.last_position.y))
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
 
-    def __explore(self) -> Direction:
+    def __explore(self) -> Direction or None:
         """
         Let the robo have some fun and explore the planet on it's own
         """
         self.logger.debug("---Entering __explore")
-        next_dir = self.planet.get_next_exploration_dir()
+        next_dir = self.planet.get_next_exploration_dir((self.last_position.x, self.last_position.y))
 
-        if next_dir == None:
+        if next_dir is None:
             # planet has been explored completely->there is nothing to explore anymore
             self.logger.debug(
                 "I have explored everything and as this method is only called of there was no target I'm finished:)")
             self.communication.exploration_completed()
-            return
+            return None
 
         self.logger.debug(f"Decide to continue exploration in dir {next_dir}")
         return next_dir
@@ -245,15 +248,15 @@ class Controller:
 
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
-        self.__handle_received_path(startX, startY, startOrientation)
+        self.__handle_received_path(startX, startY, Direction(startOrientation))
 
         # los gehts
         self.run()
 
-    def __handle_received_path(self,  startX: int, startY: int, startOrientation: Direction):
+    def __handle_received_path(self, startX: int, startY: int, startOrientation: Direction):
 
         # startOrientation is the dir the robot is pointing towards after entering the node
-        came_from_dir = (startOrientation + 180) % 360
+        came_from_dir: Direction = Direction((startOrientation + 180) % 360)
         # mark start path as blocked (is always a dead end)
         self.planet.add_path(((startX, startY), came_from_dir), ((startX, startY), came_from_dir), -1)
 
