@@ -4,7 +4,7 @@ import json
 import time
 
 from robot import Robot
-from controller import dummy_log
+from controller import simulator_log
 
 
 class DummyMotor:
@@ -70,6 +70,7 @@ class RobotDummy(Robot):
             raise Exception("This map has no path in current orientation")
 
         if "blocked" in new_path:
+            simulator_log('communication.log', {'message': "Path was blocked, turning around", 'color': 'warning'})
             was_path_blocked = True
             self.__orientation += 180
         else:
@@ -120,8 +121,8 @@ class RobotDummy(Robot):
     def __update_visualisation(self):
 
         time.sleep(1)
-        dummy_log('position',
-                  {'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation})
+        simulator_log('position',
+                      {'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation})
 
     def __path_by_coordinates(self, coordinates, path):
         # a path contains x and y coordinates

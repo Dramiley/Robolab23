@@ -64,7 +64,7 @@ TODO: self.odometry.stop()
 """
 
 
-def dummy_log(log_type, log_dict):
+def simulator_log(log_type, log_dict):
     if not env["SIMULATOR"]:
         return
 
