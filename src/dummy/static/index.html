@@ -253,7 +253,7 @@
         },
         mounted() {
             this.refreshHistory()
-            setInterval(this.refreshHistory, 2000)
+            setInterval(this.refreshHistory, 200)
         }
     }).mount('#site')
 </script>
@@ -328,7 +328,7 @@
         top: 50px;
         left: 50px;
         z-index: 99;
-        transition: .25s;
+        transition: .5s;
     }
 
     #app #info {
