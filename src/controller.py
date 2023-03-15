@@ -210,7 +210,8 @@ class Controller:
             possible_explore_paths[i] = self.robot.has_path_ahead()
 
             # turn to next path
-            self.robot.turn_deg(90)
+            # TODO
+            # self.robot.turn_deg(90) muss weg da has_path_ahead das schon macht
 
         return possible_explore_paths
 
