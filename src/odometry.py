@@ -88,6 +88,9 @@ class Odometry:
 
         Note: list comprehension idea taken from https://stackoverflow.com/a/5314307/20675205
         """
+        # current pos is relative
+        self.current_pos = (0, 0)
+
         #  get diffs to calculate from
         diffs = [[n_l - f_l, n_r - f_r] for [f_l, f_r], [n_l, n_r] in zip(track_list, track_list[1:])]
 
