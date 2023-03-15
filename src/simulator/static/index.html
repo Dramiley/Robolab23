@@ -3,7 +3,7 @@
 <div id="site">
     <div id="app-wrapper">
         <div id="app" v-if="def != null && typeof def.startPosition !== 'undefined'">
-            <img id="map" src="Fassaden-M1.png">
+            <img id="map" :src="name+'.png'">
             <img id="robot" src="robot.png"
                  :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
 
@@ -175,11 +175,11 @@
         },
         computed: {
             top() {
-                return (this.pos.y + this.def.top.offsetPos) * this.def.top.factor + this.def.top.offsetPx
+                return ((this.pos.y + this.def.top.offsetPos) * this.def.top.factor) + this.def.top.offsetPx
                 // return (this.pos.y * -132) + 635
             },
             left() {
-                return (this.pos.x + this.def.left.offsetPos) * this.def.left.factor + this.def.left.offsetPx
+                return ((this.pos.x + this.def.left.offsetPos) * this.def.left.factor) + this.def.left.offsetPx
                 // return ((this.pos.x - 3) * 135) + 5
             },
             rotation() {

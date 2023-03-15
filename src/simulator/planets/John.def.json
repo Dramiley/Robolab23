@@ -1,13 +1,13 @@
 {
   "left": {
-    "offsetPos": -3,
-    "offsetPx": 5,
-    "factor": 135
+    "offsetPos": -86,
+    "offsetPx": 108,
+    "factor": -16.5
   },
   "top": {
-    "offsetPos": 0,
-    "offsetPx": 635,
-    "factor": -132
+    "offsetPos": -421,
+    "offsetPx": 640,
+    "factor": -265
   },
   "startPosition": {
     "x": 68,
