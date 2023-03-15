@@ -14,7 +14,7 @@ class DummyMotor:
 
 class RobotDummy(Robot):
     """
-    This class is a dummy for the robot.
+    This class is a simulator for the robot.
     It is used to test the code without the robot.
     """
 
@@ -28,9 +28,9 @@ class RobotDummy(Robot):
     was_path_blocked = False
 
     # read map from file
-    # read map name from maps/current_map.txt
-    with open('maps/current_planet.txt') as __file:
-        __file_name = 'maps/' + __file.read().strip() + '.json'
+    # read map name from planets/current_map.txt
+    with open('simulator/planets/current_planet.txt') as __file:
+        __file_name = 'planets/' + __file.read().strip() + '.json'
 
         # if file exists, read it
         if os.path.isfile(__file_name):
@@ -140,10 +140,10 @@ class RobotDummy(Robot):
 
     def __init__(self):
         # clean history file
-        open('dummy/history.json', 'w').close()
+        open('simulator/history.json', 'w').close()
 
         # inform user
-        print("Using dummy robot ...")
+        print("Using simulator robot ...")
         print("I think I am at position " + str(self.__position) + " and my orientation is " + str(self.__orientation))
 
 

@@ -54,7 +54,7 @@ class Planet:
         Attributes:
             self.paths = Dict[Path]
             self.nodes = List[Tuple[int, int]]
-                - maps node ids to coordinates of nodes for easier representation
+                - planets node ids to coordinates of nodes for easier representation
             self.computed_shortest_paths = Dict
                 - indizes=(normally) 2-element frozenset (set doesn't work bc not hasable) consisting of 2 nodes
                     - note: only one element for path of a node to itself!!! (since it's a set)
