@@ -1,6 +1,7 @@
 # !/usr/bin/env python3
 import math
 import time
+from threading import Thread
 from typing import Tuple, List
 from communication_facade import CommunicationFacade
 
@@ -48,15 +49,25 @@ class Odometry:
 
         self.motor_pos_list = []
 
+        tracking_thread = Thread(target=self.__track)
+        tracking_thread.run()
+
+
+    def __track(self):
+        """
+        Does the actual tracking of the motor pos
+        """
         while self.running:
             self.__track_motor_pos()
             time.sleep(self.tracking_interval)
+
 
     def stop(self):
         """
         Stops the odometry tracking and computes result
         ->WARNING: Call only when on a station
         """
+        # TODO: could get rid of self.running by stopping the thread
         self.running = False
         self.__calculate()
 
@@ -105,8 +116,8 @@ class Odometry:
         """
         Tracks motor positions of the motors in a list of tuples
         """
-        motor_pos_left = self.robot.motor_left.position
-        motor_pos_right = self.robot.motor_right.position
+        motor_pos_left = self.robot.motor_left.__position
+        motor_pos_right = self.robot.motor_right.__position
         self.motor_pos_list.append([motor_pos_left, motor_pos_right])
 
     def __calculate(self):

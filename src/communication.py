@@ -75,6 +75,21 @@ class Communication:
 
         self.__dict__[attr] = value
 
+    def __publish(self, topic, payload, qos=2):
+
+        """
+        Publishes a message to the given topic while replacing all None values with null
+        :param topic: String
+        :param payload: String
+        :return: void
+        """
+
+        # in the payload, replace all None values with the string "None"
+        payload = json.loads(json.dumps(payload).replace('None', 'null'))
+
+        # publish the message
+        self.client.publish(topic, payload=payload, qos=2)
+
     def on_message(self, client, data, message):
         """
         Handles the callback if any message arrived
@@ -83,7 +98,16 @@ class Communication:
         :param message: Object
         :return: void
         """
-        payload = json.loads(message.payload.decode('utf-8'))
+        payload = ""
+        try:
+            if message.payload is not None:
+                self.logger.info(message.payload.decode('utf-8'))
+                payload = json.loads(message.payload.decode('utf-8'))
+                self.logger.success('payload valid')
+            else:
+                self.logger.error('no payload')
+        except:
+            print("json.loads failed")
 
         # if "from" is the client itself, ignore the message
         if 'from' in payload and payload['from'] == "client":
@@ -113,7 +137,10 @@ class Communication:
 
         # check if message type has a callback registered and call it
         if payload['type'] in self.callbacks:
-            self.callback(payload['type'], payload['payload'])
+            try:
+                self.callback(payload['type'], payload['payload'])
+            except:
+                self.logger(f'Callback of type {payload["type"]} failed')
         else:
             self.logger.error('No callback for message type ' + payload['type'] + ' registered')
 
@@ -134,7 +161,7 @@ class Communication:
 
         # send message
         self.check_syntax(topic, payload)
-        self.client.publish('planet/{}/{}'.format(self.planet_name, self.group_id), payload=payload, qos=2)
+        self.__publish('planet/{}/{}'.format(self.planet_name, self.group_id), payload=payload, qos=2)
 
     def send_explorer_message(self, topic, payload):
         """
@@ -146,7 +173,7 @@ class Communication:
 
         # send message
         self.check_syntax(topic, payload)
-        self.client.publish('explorer/{}'.format(self.group_id), payload=payload, qos=2)
+        self.__publish('explorer/{}'.format(self.group_id), payload=payload, qos=2)
 
     def send_message(self, topic, message):
         self.send_explorer_message(topic, message)
@@ -227,7 +254,7 @@ class Communication:
         return True
 
     def check_syntax(self, topic, payload):
-        self.client.publish('comtest/{}'.format(self.group_id), payload=payload, qos=2)
+        self.__publish('comtest/{}'.format(self.group_id), payload=payload, qos=2)
 
     def done(self):
         print("Disconnecting from broker")
