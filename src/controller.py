@@ -50,7 +50,7 @@ from threading import Thread
 # DONT CHANGE ANYTHING HERE, ONLY IN .env
 # Bitte nicht hierdrinne verändern, sondern in der src/.env setzen.
 # siehe https://se-gitlab.inf.tu-dresden.de/robolab-spring/ws2022/group-046/-/blob/master/README.md#example-for-development-purposes
-env = {"SIMULATOR": False, "DEBUG": False, "GITLAB_RUNNER": False}
+env = {"SIMULATOR": False, "DEBUG": False, "GITLAB_RUNNER": False, "ODOMETRY": True}
 
 if os.path.exists(".env"):
     with open(".env") as f:
@@ -301,11 +301,14 @@ class Controller:
         :return: void
         """
         self.logger.debug("---Robo entered a communication point---")
-        # only track when following a line
-        self.odometry.stop()
         # calculate start and end position
         start_position = self.last_position
-        end_position = self.odometry.get_coords()
+
+        if env["ODOMETRY"]:
+            self.odometry.stop()
+            end_position = self.odometry.get_coords()
+        else:
+            end_position = self.last_position
 
         is_path_blocked = self.robot.was_path_blocked
         self.logger.debug(f"The driven path was blocked?: {is_path_blocked}")
@@ -332,7 +335,7 @@ class Controller:
         """
         self.communication.exploration_completed("Exploration completed.")
 
-    def receive_path(self, startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight):
+    def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         """
         Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
@@ -340,13 +343,13 @@ class Controller:
 
         # init odometry
         self.odometry.set_coords((startX, startY))
-        self.odometry.set_dir(startOrientation)
+        self.odometry.set_dir(startDirection)
 
         # update odometry inside planet
-        self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
+        self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
         # update last position and path status
-        self.last_position = Position(endX, endY, endOrientation)
+        self.last_position = Position(endX, endY, endDirection)
 
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
@@ -377,7 +380,8 @@ class Controller:
         self.__rotate_robo_in_dir(startDirection)
 
         # now we can finally drive to the next communication point
-        self.odometry.start()
+        if env["ODOMETRY"]:
+            self.odometry.start()
         self.robot.drive_until_communication_point()
 
     def receive_target(self, x, y):

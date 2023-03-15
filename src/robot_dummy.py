@@ -23,6 +23,8 @@ class RobotDummy(Robot):
     motor_left = DummyMotor()
     motor_right = DummyMotor()
 
+    was_path_blocked = False
+
     # read map from file
     with open('maps/Fassaden-M1.json') as __json_file:
         __map = json.load(__json_file)
