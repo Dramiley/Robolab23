@@ -79,7 +79,7 @@ class Robot:
         self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
         time.sleep(1.5)
 
-    def __ScanTurn(self):
+    def __scan_turn(self):
         self.motor_left.run_timed(time_sp=1250, speed_sp=131)
         self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
 
@@ -172,21 +172,20 @@ class Robot:
         self.motor_left.run_timed(time_sp=312, speed_sp=65)
         self.motor_right.run_timed(time_sp=312, speed_sp=-65)
         time.sleep(0.5)
-        self.__move_distance_straight(5)
+        self.__move_distance_straight(4)
         time.sleep(1)
 
 
-    def __station_scan(self):
+    def station_scan(self):
         self.color.color_check()
         while self.color.subname != 'white':
             self.__drive(131, -131)
             self.color.color_check()
         self.__stop()
         starttime = time.time()
-        self.__ScanTurn()
+        self.__scan_turn()
         while self.color.subname != 'black' and time.time() - starttime <= 2:
             self.color.color_check()
-        self.__stop()
         if self.color.subname == 'black':
             return True
         else:
@@ -222,7 +221,7 @@ class Robot:
              elif i == "4":
                  break
              elif i == "5":
-                  print(self.__station_scan())
+                  print(self.station_scan())
              elif i == "6":
                  self.__turn90()
              elif i == "7":
