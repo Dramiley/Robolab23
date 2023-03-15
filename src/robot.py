@@ -1,6 +1,7 @@
 import ev3dev.ev3 as ev3
 import time
 import sys
+import pdb
 import logging
 import measurements as ms
 from typing import List
@@ -30,8 +31,6 @@ class Robot:
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
 
-
-        import odometry
         self.motor_left = ev3.LargeMotor(left_port)
         self.motor_right = ev3.LargeMotor(right_port)
         self.motor_pos_list = []
@@ -65,6 +64,7 @@ class Robot:
         self.logger.info(f"Tracked motor_pos_values: {motor_pos_left}, {motor_pos_right}")
 
     def __reset_motor_pos_list(self):
+        # init with current pos list
         motor_left_pos0 = self.motor_left.position
         motor_right_pos0 = self.motor_right.position
         self.motor_pos_list = [(motor_left_pos0, motor_right_pos0)]
@@ -161,8 +161,6 @@ class Robot:
                 # wenn genau zwischen den beiden Farben, setzt integral auf 0
                 integral = 0
 
-                integral = 0
-
             derivative = error - lerror
             lenkfaktor = 170 * error + 10 * integral + 110 * derivative
             lenkfaktor = lenkfaktor / 100
@@ -223,15 +221,11 @@ class Robot:
         """
         Moves the robot d_cm [cm] on a straight line#
         """
-        self.__move_time(1000, int(d_cm * 20))
+        self.__move_time(1000, d_cm * 20)
         time.sleep(1)
 
     def set_controller(self, controller):
         self.controller = controller
-
-    def __begin(self):
-        self.__calibrate()
-        self.__followline()
 
     def __skip_calibrate(self):
         self.middlegreytone = 175
@@ -239,7 +233,7 @@ class Robot:
         self.white = 290
 
     def begin(self):
-        self.__skip_calibrate()
+        self.__calibrate()
         self.__followline()
 
         # self.__menu()
@@ -283,6 +277,8 @@ class Robot:
         """
         Turns the robot by param degrees
         """
-        self.motor_left.run_timed(time_sp=13.88 * deg, speed_sp=133)
-        self.motor_right.run_timed(time_sp=13.88 * deg, speed_sp=-133)
-        time.sleep(0.01388 * deg)
+        ROT_TIME_FACTOR = 13.88
+        self.motor_left.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=133)
+        self.motor_right.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=-133)
+        time.sleep(ROT_TIME_FACTOR * 10**-3 * deg)
+        2
