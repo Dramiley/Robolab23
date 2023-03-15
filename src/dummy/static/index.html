@@ -25,43 +25,119 @@
         </div>
     </div>
     <div id="history">
-        <div class="list-header">
-            <h2>History</h2>
-            <div class="list-slider">
-                <!--
-                <input name="slider" @click="pause=true" type="range" min="0" :max="history.length - 1"
-                       class="form-range"
-                       v-model="historyIndex" step="1">
-                       -->
-                <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio1"
-                           :checked="pause">
-                    <label class="btn btn-outline-primary" for="btnradio1" @click="pause=true">Pause</label>
+        <div>
+            <div class="list-header">
+                <h2>History</h2>
+                <div class="list-slider">
+                    <div class="btn btn-outline-primary" @click="toggleCollapsed">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24 " height="24" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                  d="M5 20h14c.55 0 1 .45 1 1s-.45 1-1 1H5c-.55 0-1-.45-1-1s.45-1 1-1zM5 2h14c.55 0 1 .45 1 1s-.45 1-1 1H5c-.55 0-1-.45-1-1s.45-1 1-1zm8 7h1.79c.45 0 .67-.54.35-.85l-2.79-2.79c-.2-.2-.51-.2-.71 0L8.85 8.15a.5.5 0 0 0 .36.85H11v6H9.21c-.45 0-.67.54-.35.85l2.79 2.79c.2.2.51.2.71 0l2.79-2.79a.5.5 0 0 0-.35-.85H13V9z"/>
+                        </svg>
+                    </div>
+                    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1"
+                               :checked="pause">
+                        <label class="btn btn-outline-primary" for="btnradio1" @click="pause=true">Pause</label>
 
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2"
-                           :checked="!pause">
-                    <label class="btn btn-outline-primary" for="btnradio2" @click="pause=false">Live</label>
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2"
+                               :checked="!pause">
+                        <label class="btn btn-outline-primary" for="btnradio2" @click="pause=false">Live</label>
+                    </div>
                 </div>
 
             </div>
+
+            <!--
+            <div class="list-options" style="padding:10px;">
+                <div class="btn-group" role="group">
+                    <template v-for="(enabled,color) in filterColors">
+                        <label :class="{btn:true, 'btn-outline-secondary':!enabled, 'btn-secondary':enabled}"
+                               :for="'btnradio' + color"
+                               @click="filterColors[color] = !filterColors[color]">
+                            {{color}}
+                        </label>
+
+                    </template>
+                </div>
+            </div>
+            -->
+
         </div>
-        <div class="scrollable-list">
-            <li class="pos" v-for="(pos, index) in history" :class="{active: historyIndex == index}"
-                @click="historyIndex = index; pause = true">
-                <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
-                    <path fill="currentColor"
-                          d="M12 14q-.825 0-1.412-.588Q10 12.825 10 12t.588-1.413Q11.175 10 12 10t1.413.587Q14 11.175 14 12q0 .825-.587 1.412Q12.825 14 12 14Zm0-6q-.425 0-.712-.287Q11 7.425 11 7V4q0-.425.288-.713Q11.575 3 12 3t.713.287Q13 3.575 13 4v3q0 .425-.287.713Q12.425 8 12 8Zm0 13q-.425 0-.712-.288Q11 20.425 11 20v-3q0-.425.288-.712Q11.575 16 12 16t.713.288Q13 16.575 13 17v3q0 .425-.287.712Q12.425 21 12 21Zm5-8q-.425 0-.712-.288Q16 12.425 16 12t.288-.713Q16.575 11 17 11h3q.425 0 .712.287q.288.288.288.713t-.288.712Q20.425 13 20 13ZM4 13q-.425 0-.712-.288Q3 12.425 3 12t.288-.713Q3.575 11 4 11h3q.425 0 .713.287Q8 11.575 8 12t-.287.712Q7.425 13 7 13Z"/>
-                </svg>
-                X: {{ pos.x }} Y: {{ pos.y }}
-                <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                       stroke-width="1.5">
-                        <path d="M10.586 10.586L16.95 7.05l-3.536 6.364L7.05 16.95l3.536-6.364Z"/>
-                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12s4.477 10 10 10Z"/>
-                    </g>
-                </svg>
-                {{ pos.orientation }}°
-            </li>
+        <div class="scrollable-list" v-if="history.length">
+            <template v-for="(entry, index) in history">
+                <li :class="{pos:true, active: historySelected == index, [entry.type]: true }"
+                    @click="selectEntry(index)">
+
+                    <template v-if="entry.type == 'position'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                  d="M12 14q-.825 0-1.412-.588Q10 12.825 10 12t.588-1.413Q11.175 10 12 10t1.413.587Q14 11.175 14 12q0 .825-.587 1.412Q12.825 14 12 14Zm0-6q-.425 0-.712-.287Q11 7.425 11 7V4q0-.425.288-.713Q11.575 3 12 3t.713.287Q13 3.575 13 4v3q0 .425-.287.713Q12.425 8 12 8Zm0 13q-.425 0-.712-.288Q11 20.425 11 20v-3q0-.425.288-.712Q11.575 16 12 16t.713.288Q13 16.575 13 17v3q0 .425-.287.712Q12.425 21 12 21Zm5-8q-.425 0-.712-.288Q16 12.425 16 12t.288-.713Q16.575 11 17 11h3q.425 0 .712.287q.288.288.288.713t-.288.712Q20.425 13 20 13ZM4 13q-.425 0-.712-.288Q3 12.425 3 12t.288-.713Q3.575 11 4 11h3q.425 0 .713.287Q8 11.575 8 12t-.287.712Q7.425 13 7 13Z"/>
+                        </svg>
+                        X: {{ entry.x }} Y: {{ entry.y }}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                               stroke-width="1.5">
+                                <path d="M10.586 10.586L16.95 7.05l-3.536 6.364L7.05 16.95l3.536-6.364Z"/>
+                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12s4.477 10 10 10Z"/>
+                            </g>
+                        </svg>
+                        {{ entry.orientation }}°
+                    </template>
+                    <span v-else-if="entry.type == 'communication.log'" :class="'color-' + entry.color">
+                        <div v-if="entry.json && entry.json?.from == 'server'">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path
+                                    fill="currentColor"
+                                    d="M15.5 19v2h-1.77c-.34.6-.99 1-1.73 1s-1.39-.4-1.73-1H8.5v-2h1.77c.17-.3.43-.56.73-.73V17h-1c-.55 0-1-.45-1-1v-3H6v4c0 .55-.45 1-1 1H3c-.55 0-1-.45-1-1V8c0-.55.45-1 1-1h2c.55 0 1 .45 1 1v3h3V8c0-.55.45-1 1-1h1V6h-1c-.55 0-1-.45-1-1V4c0-.55.45-1 1-1h4c.55 0 1 .45 1 1v1c0 .55-.45 1-1 1h-1v1h1c.55 0 1 .45 1 1v3h3V8c0-.55.45-1 1-1h2c.55 0 1 .45 1 1v9c0 .55-.45 1-1 1h-2c-.55 0-1-.45-1-1v-4h-3v3c0 .55-.45 1-1 1h-1v1.27c.3.17.56.43.73.73h1.77M3 16v1h2v-1H3m0-2v1h2v-1H3m0-2v1h2v-1H3m0-2v1h2v-1H3m0-2v1h2V8H3m16 8v1h2v-1h-2m0-2v1h2v-1h-2m0-2v1h2v-1h-2m0-2v1h2v-1h-2m0-2v1h2V8h-2Z"/></svg>
+                            Mothership<div class="network"> <b> {{ entry.json.type}} </b> &larr;</div>
+                            <div :class="{more:true, collapsed: entry.collapsed}">
+                                {{entry.json.payload}}
+                            </div>
+                        </div>
+                        <div v-else-if="entry.json && entry.json?.from == 'client'">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path
+                                    fill="currentColor"
+                                    d="M22 14h-1c0-3.87-3.13-7-7-7h-1V5.73A2 2 0 1 0 10 4c0 .74.4 1.39 1 1.73V7h-1c-3.87 0-7 3.13-7 7H2c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1h1v1a2 2 0 0 0 2 2h14c1.11 0 2-.89 2-2v-1h1c.55 0 1-.45 1-1v-3c0-.55-.45-1-1-1M9.79 16.5C9.4 15.62 8.53 15 7.5 15s-1.9.62-2.29 1.5c-.13-.31-.21-.64-.21-1a2.5 2.5 0 0 1 5 0c0 .36-.08.69-.21 1m9 0c-.39-.88-1.29-1.5-2.29-1.5s-1.9.62-2.29 1.5c-.13-.31-.21-.64-.21-1a2.5 2.5 0 0 1 5 0c0 .36-.08.69-.21 1Z"/></svg>
+
+                            Robot <div class="network"> <b> {{ entry.json.type}} </b> &rarr;</div>
+                            <div :class="{more:true, collapsed: entry.collapsed}">
+                                {{entry.json.payload}}
+                            </div>
+                        </div>
+                        <div v-else-if="entry.json">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path
+                                    fill="currentColor"
+                                    d="M5 3h2v2H5v5a2 2 0 0 1-2 2a2 2 0 0 1 2 2v5h2v2H5c-1.07-.27-2-.9-2-2v-4a2 2 0 0 0-2-2H0v-2h1a2 2 0 0 0 2-2V5a2 2 0 0 1 2-2m14 0a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h1v2h-1a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-2v-2h2v-5a2 2 0 0 1 2-2a2 2 0 0 1-2-2V5h-2V3h2m-7 12a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1m-4 0a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1m8 0a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1Z"/></svg>
+                            JSON
+                            <table :class="{more:true, collapsed: entry.collapsed, table:true}"
+                                   style="width:100%; margin: 0;">
+                                <tr v-for="(value, key) in entry.json">
+                                    <td>{{ key }}</td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div v-else-if="entry.color">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16"><g
+                                    fill="currentColor"><path
+                                    d="M6 10V9h9v1H6zm4-4h5v1h-5V6zm5-3v1H6V3h9zm-9 9v1h9v-1H6z"/><path
+                                    fill-rule="evenodd"
+                                    d="m1 2.795l.783-.419l5.371 3.581v.838l-5.371 3.581L1 9.957V2.795zm1.007.94v5.281l3.96-2.64l-3.96-2.64z"
+                                    clip-rule="evenodd"/></g></svg>
+                            {{colorHeadings[entry.color]}}
+                            <div :class="{more:true, collapsed: entry.collapsed}">
+                                {{ entry.message }}
+                            </div>
+                        </div>
+                        <div v-else>
+                            {{ entry.message }}
+                        </div>
+                    </span>
+                </li>
+            </template>
+        </div>
+        <div v-else>
+            <p>History is empty</p>
         </div>
     </div>
 </div>
@@ -72,14 +148,32 @@
     createApp({
         data() {
             return {
-                pause: false,
-                startPos: {
+                startPosition: {
                     x: 5,
                     y: -1,
-                    rotation: 0
+                    orientation: 0
                 },
                 history: [],
-                historyIndex: 0
+                historySelected: 0,
+                pause: false,
+                colorHeadings: {
+                    'error': 'Fehlermeldung',
+                    'success': 'Erfolgsmeldung',
+                    'debug': 'Debug',
+                    'warning': 'Warnung',
+                    'info': 'Info',
+                },
+                filterColors: {
+                    'error': true,
+                    'success': true,
+                    'debug': false,
+                    'warning': true,
+                    'info': true,
+                },
+                filterType: {
+                    'communication.log': true,
+                    'position': true,
+                },
             }
         },
         computed: {
@@ -93,33 +187,73 @@
                 return this.pos.orientation
             },
             pos() {
-                if (this.history.length === 0)
-                    return this.startPos
-                return this.history[this.historyIndex]
+                console.log(this.historySelected, this.history.length)
+                return this.history[this.historySelected] ?? this.startPosition
             }
         },
         methods: {
             refreshHistory() {
                 fetch('/history')
                     .then(response => response.json())
-                    .then(rawData => {
+                    .then(history => {
 
-                        // filter only type = pos
-                        const data = rawData.filter(item => item.type === 'position')
+                        // at the beginning, insert the start position
+                        history.unshift({
+                            type: 'position',
+                            ...this.startPosition
+                        })
 
-                        // if length hasnt changed, dont update
-                        if (data.length === this.history.length)
-                            return
+                        let earlierHistory = this.history
 
-                        this.history = data
-                        if (!this.pause)
-                            this.historyIndex = data.length - 1
+                        // history
+                        this.history = history.map((entry, index) => {
+                            entry.collapsed = earlierHistory[index]?.collapsed ?? true
+                            if (entry.type === 'communication.log' && entry.message.startsWith('{')) {
+                                try {
+                                    entry.json = JSON.parse(entry.message)
+                                } catch (e) {
+                                    console.error(e)
+                                }
+                            }
+                            return entry
+                        })
+
+                        if (!this.pause) {
+                            // go the the last position in the history with type position
+                            this.historySelected = this.history.length - 1
+                            while (this.history[this.historySelected].type !== 'position') {
+                                this.historySelected--
+                            }
+                        }
+
                     })
-            }
+            },
+            toggleCollapsed() {
+                // if all entries are collapsed, expand all
+                if (this.history.every(entry => entry.collapsed)) {
+                    this.history.forEach(entry => entry.collapsed = false)
+                } else {
+                    this.history.forEach(entry => entry.collapsed = true)
+                }
+
+            },
+            selectEntry: function (index) {
+                this.pause = true
+                console.log(index)
+
+                if (this.history[index].type === 'position') {
+                    this.historySelected = index
+                } else {
+                    this.history[index].collapsed = !this.history[index].collapsed
+                    while (this.history[this.historySelected].type !== 'position') {
+                        this.historySelected--
+                    }
+                }
+            },
         },
         mounted() {
             this.refreshHistory()
-            setInterval(this.refreshHistory, 500)
+            setInterval(this.refreshHistory, 2000)
         }
     }).mount('#site')
 </script>
@@ -221,20 +355,76 @@
         list-style: none;
     }
 
-    .scrollable-list li {
-        border-top: 1px solid #0002;
+    .scrollable-list li:not(.position) {
+        border-bottom: 1px solid #e0e0e0;
     }
 
-    .scrollable-list li:hover {
+    .scrollable-list li.position:hover {
         cursor: pointer;
         background: #0001;
     }
 
-    .scrollable-list li.active {
+    .scrollable-list li {
+        font-weight: bold;
+    }
+
+    .more {
+        font-weight: normal;
+    }
+
+    .scrollable-list li.position {
+        border-left: 5px solid #0d6efd;
+    }
+
+    .scrollable-list li.position.active {
         background: #0d6efd;
         color: white;
     }
 
+    .color-error {
+        color: rgb(220, 53, 69);
+    }
+
+    .color-success {
+        color: rgb(25, 135, 84);
+    }
+
+    .color-warning {
+        color: rgb(255, 193, 7);
+    }
+
+    .color-debug {
+        /* blue */
+        color: rgb(190, 193, 196);
+    }
+
+    .color-info {
+        /* cyan */
+        color: rgb(13, 110, 253);
+    }
+
+    li span {
+        display: blocK;
+        width: 100%;
+    }
+
+    .table tr td {
+        border-bottom: 0px;
+    }
+
+    .more {
+        font-family: monospace;
+    }
+
+    .more.collapsed {
+        display: none;
+    }
+
+    .network {
+        float: right;
+        padding: 4px;
+        font-weight: 100;
+    }
 </style>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
       integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">

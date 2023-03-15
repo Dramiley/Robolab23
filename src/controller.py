@@ -36,13 +36,7 @@ import sys
 import math
 import pdb
 import logging
-
-from communication import Communication
-from communication_logger import CommunicationLogger
-from odometry import Odometry
-from robot import Robot
-from robot_dummy import RobotDummy
-from planet import Planet, Direction
+from datetime import datetime
 
 from typing import List, Tuple
 from threading import Thread
@@ -74,6 +68,32 @@ TODO: self.odometry.stop()
 """
 
 
+def dummy_log(log_type, log_dict):
+    if not env["SIMULATOR"]:
+        return
+
+    print("Received message of type " + log_type + " with payload " + str(log_dict))
+
+    # append to history file (which contains an array of positions)
+    with open('dummy/history.json', 'r+') as outfile:
+        try:
+            data = json.load(outfile)
+        except:
+            data = []
+
+        # set payload type
+        log_dict["type"] = log_type
+        log_dict["timestamp"] = time.time()
+        log_dict["time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # append to array
+        data.append(log_dict)
+
+        # write to file
+        outfile.seek(0)
+        json.dump(data, outfile)
+
+
 class Position:
     x, y, direction = 0, 0, 0
 
@@ -81,6 +101,14 @@ class Position:
         self.x = x
         self.y = y
         self.direction = direction
+
+
+from communication import Communication
+from communication_logger import CommunicationLogger
+from odometry import Odometry
+from robot import Robot
+from robot_dummy import RobotDummy
+from planet import Planet, Direction
 
 
 class Controller:
@@ -413,23 +441,3 @@ class Controller:
         print("Message: " + message)
         self.robot.__stop()
         self.communication.done()
-
-    def dummy_log(self, log_type, log_dict):
-        print("Received message of type " + log_type + " with payload " + str(log_dict))
-
-        # append to history file (which contains an array of positions)
-        with open('dummy/history.json', 'r+') as outfile:
-            try:
-                data = json.load(outfile)
-            except:
-                data = []
-
-            # set payload type
-            log_dict["type"] = log_type
-
-            # append to array
-            data.append(log_dict)
-
-            # write to file
-            outfile.seek(0)
-            json.dump(data, outfile)
