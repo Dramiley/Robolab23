@@ -27,7 +27,9 @@
     <div id="history">
         <div>
             <div class="list-header">
-                <h2>History</h2>
+                <select v-model="name" @change="setPlanet" class="form-select">
+                    <option v-for="planet in planets" :value="planet">{{ planet }}</option>
+                </select>
                 <div class="list-slider">
                     <div class="btn btn-outline-primary" @click="toggleCollapsed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24 " height="24" viewBox="0 0 24 24">
@@ -158,6 +160,7 @@
         data() {
             return {
                 name: null,
+                planets: [],
                 def: null,
                 history: [],
                 historySelected: 0,
@@ -216,6 +219,13 @@
                         this.def = def
                     })
                     .catch(e => console.error(e))
+            },
+            refreshPlanets() {
+                fetch('/planets')
+                    .then(response => response.json())
+                    .then(planets => {
+                        this.planets = planets
+                    })
             },
             refreshHistory() {
                 fetch('/history')
@@ -281,6 +291,7 @@
             },
         },
         mounted() {
+            this.refreshPlanets()
             this.refreshPlanet()
             this.refreshHistory()
             setInterval(this.refreshHistory, 500)
