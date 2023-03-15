@@ -75,7 +75,7 @@ class Communication:
 
         self.__dict__[attr] = value
 
-    def __publish(self, topic, payload, qos=2):
+    def __publish(self, topic, payload: str, qos=2):
 
         """
         Publishes a message to the given topic while replacing all None values with null
@@ -84,8 +84,14 @@ class Communication:
         :return: void
         """
 
+        payload_dict = json.loads(payload)
+
+        # if the payload has the key startDirection and the value is None, raise an error
+        if 'startDirection' in payload_dict and payload_dict['startDirection'] is None:
+            raise ValueError('startDirection in payload is None')
+
         # in the payload, replace all None values with the string "None"
-        payload = json.loads(json.dumps(payload).replace('None', 'null'))
+        payload = payload.replace('None', '"None"')
 
         # publish the message
         self.client.publish(topic, payload=payload, qos=2)
@@ -116,7 +122,7 @@ class Communication:
         # if "from" is debug and the message type is syntax, check if the syntax is correct
         if 'from' in payload and payload['from'] == "debug" and payload['type'] == "syntax":
             if payload['payload']['message'] == 'Incorrect':
-                self.logger.info("Syntax check errors: " + payload['payload']['errors'])
+                self.logger.info("Syntax check errors: " + str(payload['payload']['errors']))
             return
 
         # log message
@@ -140,7 +146,7 @@ class Communication:
             try:
                 self.callback(payload['type'], payload['payload'])
             except:
-                self.logger(f'Callback of type {payload["type"]} failed')
+                self.logger.error('Callback for message type ' + payload['type'] + ' failed')
         else:
             self.logger.error('No callback for message type ' + payload['type'] + ' registered')
 
