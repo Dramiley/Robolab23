@@ -66,7 +66,6 @@ class Planet:
         self.nodes = []
 
         self.unexplored = {} # dict keeping track of unexplored paths of the form node: Set[Direction] which are the unexplored directions
-        self.computed_shortests_paths = {} # stores shortests paths, indezes=2-element sets, values=List[node, dir]
         self.computations_uptodate = False
 
     def __is_node_known(self, node: Tuple[int, int]) -> bool:
@@ -89,8 +88,7 @@ class Planet:
             :return: void
 
         NOTE:
-            - blocked paths are registered as loops (start=target)
-            - Convention for registering blocked paths: weight=-1 (but there shouldn't be errors )
+            - blocked paths are registered as loops (start=targe) and weight=-1
 
         TODO: initiate recomputation of self.computed_shortest_paths
             - instead of having to compute them every time on the run
@@ -104,16 +102,9 @@ class Planet:
             # if no path is yet known for start_coords
             self.paths[start_coords] = {}
 
-            # init shortest path to node itself
-            path_to_self = frozenset([start_coords, start_coords]) # since set->only 1 element
-            self.computed_shortests_paths[path_to_self] = ([], 0)
         if not (target_coords in self.paths.keys()):
             # if no path is yet known for target_coords
             self.paths[target_coords] = {}
-
-            # init shortest path to node itself
-            path_to_self = frozenset([target_coords, target_coords]) # since set->only 1 element
-            self.computed_shortests_paths[path_to_self] = ([], 0)
 
         if start_entry_dir in self.paths[start_coords]:
             # path is already registered -> same for target_coords
@@ -256,6 +247,10 @@ class Planet:
         TODO: test sorted(marked.items(), key=lambda x: x[1][0]) on marked
         TODO: save calculated shortest paths so they dont have to be recalculated
         """
+        # stay on node if it is already the target
+        if start_coords == target_coords:
+            return []
+
         # init data structures
         unvisited = set(self.paths.keys()) # set of unvivisted nodes
         marked = {start_coords: (0, None)} # dict with keys=nodes, values=(weight, parent_node)
@@ -300,59 +295,14 @@ class Planet:
         """
 
         # YOUR CODE FOLLOWS (remove pass, please!)
-        node_id = frozenset([start, target])
-        if node_id in self.computed_shortests_paths.keys():
-            # path has already been computed previously
-            return self.computed_shortests_paths[node_id]
-        # TODO: remove elif when implemented precomputation of djikstra, since all known nodes must have a shortest path then
-        elif self.__is_node_known(target):
+
+        if self.__is_node_known(target):
             # perform djikstra and return shortest path
             shortest_path = self.__djikstra(start, target)[0]
             return shortest_path
         else:
             # continue exploration until target is found
             return None
-
-    def __store_shortest_paths(self,
-                            start: Tuple[int, int], target: Tuple[int, int],
-                            list: List[Tuple[Tuple[int, int], Direction]]
-    ):
-        """
-        Stores the given shortest path (=list) so they don't have to be recomputed
-        - Note: subpaths are also shortest paths!!!
-        """
-        nodes_set = frozenset([start, target]) # index needs to be hashable
-        self.computed_shortests_paths[nodes_set] = list
-
-    def __get_precomputed_shortest_paths(
-            self, start: Tuple[int, int], target: Tuple[int, int]
-    ) -> Optional[List[Tuple[Tuple[int, int], Direction]]]:
-        """
-        Returns:
-            - List (=shortest path) if there is already a precomputed one between start and target
-            - None if there is no precomputed path btw start and target
-        """
-        node_id = frozenset([start, target]) # see structure of self.self.computed_shortests_paths for why
-        if node_id in self.computed_shortests_paths.keys():
-            return self.computed_shortests_paths[node_id]
-
-        return None
-
-    def __update_shortest_paths(
-            self, start: Tuple[int, int], start_dir: Direction,
-            target: Tuple[int, int], target_dir: Direction
-        ):
-        """
-        Updates self.computed_shortest_path with new path if node is one that wasn't explored before
-
-        Note: By design the start node should already be known!
-        """
-        if not self.__is_node_known(start):
-            raise ValueError("Start node is not known, but should be :(")
-
-        if self.__is_node_known(target):
-            # node is known and hence there must already exist a shortest path to it
-            current_weight = self.computed_shortests_paths
 
     def is_path_explored(self, node: Tuple[int, int], dir: Direction):
         if self.__is_node_known(node):
@@ -423,6 +373,7 @@ class Planet:
 
         TODO: redundant, completeness can be checked by checking if get_next_exploration_path == None
         """
+        # TODO: remove
         return False
         is_complete = not self.unexplored
         return is_complete
