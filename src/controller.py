@@ -36,15 +36,15 @@ import sys
 import logging
 from typing import Optional
 
-# DONT CHANGE ANYTHING HERE, ONLY IN venv
-# Bitte nicht hierdrinne verändern, sondern in der src/venv setzen.
+# DONT CHANGE ANYTHING HERE, ONLY IN .env
+# Bitte nicht hierdrinne verändern, sondern in der src/.env setzen.
 # siehe https://se-gitlab.inf.tu-dresden.de/robolab-spring/ws2022/group-046/-/blob/master/README.md#example-for-development-purposes
 env = {"SIMULATOR": False, "DEBUG": False, "GITLAB_RUNNER": False, "ODOMETRY": True, "ROBIN_MODE": False}
 
 __current_dir = os.path.dirname(os.path.realpath(__file__))
 print(__current_dir)
-if os.path.exists(__current_dir + "/venv"):
-    with open(__current_dir + "/venv") as f:
+if os.path.exists(__current_dir + "/.env"):
+    with open(__current_dir + "/.env") as f:
         for line in f:
             # if line is empty, skip it
             if line == "\n":
