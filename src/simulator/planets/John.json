@@ -54,9 +54,9 @@
         null,
         {
           "x": 68,
-          "y": 420,
+          "y": 421,
           "orientation": 180,
-          "blocked": false
+          "blocked": true
         },
         null
       ]

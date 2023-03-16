@@ -34,6 +34,8 @@ src/.vscode/*
 src/simulator/history.json
 src/.env
 
+.src_deploy/
+
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
 .fseventsd
@@ -311,3 +313,5 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,python,windows,macos,linux
 
 logs/
+
+src/simulator/planets/current.txt
