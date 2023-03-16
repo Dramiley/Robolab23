@@ -5,7 +5,8 @@
     <div id="app-wrapper">
         <div id="app" v-if="def != null && typeof def.startPosition !== 'undefined'">
             <img id="map" :src="name+'.png'">
-            <img id="robot" src="robot.png" :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
+            <img id="robot" src="robot.png"
+                 :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
 
             <div id="info" class="pos">
                 <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
@@ -191,11 +192,13 @@
         },
         computed: {
             top() {
-                return ((this.pos.y + this.def.top.offsetPos) * this.def.top.factor) + this.def.top.offsetPx
+                return this.def.top.offsetPx + this.def.top.factor * (this.def.area.y.max - this.def.startPosition.y)
+                // return ((this.pos.y + this.def.top.offsetPos) * this.def.top.factor) + this.def.top.offsetPx
                 // return (this.pos.y * -132) + 635
             },
             left() {
-                return ((this.pos.x + this.def.left.offsetPos) * this.def.left.factor) + this.def.left.offsetPx
+                return this.def.left.offsetPx + this.def.left.factor * (this.def.startPosition.x - this.def.area.x.min)
+                // return ((this.pos.x + this.def.left.offsetPos) * this.def.left.factor) + this.def.left.offsetPx
                 // return ((this.pos.x - 3) * 135) + 5
             },
             rotation() {
@@ -216,7 +219,7 @@
             refreshPlanet() {
                 fetch('/planet')
                     .then(response => response.json())
-                    .then(({name, def}) => {
+                    .then(({def, name}) => {
                         this.name = name
                         this.def = def
                     })

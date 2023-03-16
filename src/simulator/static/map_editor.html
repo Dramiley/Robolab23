@@ -59,7 +59,7 @@
         <h1>{{name}}.def.json</h1>
         <textarea>{{JSON.stringify(def, null, 2)}}</textarea>
         <h1>{{name}}.json</h1>
-        <textarea>{{JSON.stringify(pointsWithPaths, null, 2)}}</textarea>
+        <textarea>{{JSON.stringify({version:1,area,...def,paths:pointsWithPaths}, null, 2)}}</textarea>
     </div>
 </div>
 
@@ -131,14 +131,14 @@
             r() {
                 return [
                     {
-                        top: this.def.top.offsetPx + this.def.top.factor * (this.area.y.max - this.def.startPosition.y),
-                        left: this.def.left.offsetPx + this.def.left.factor * (this.def.startPosition.x - this.area.x.min),
-                        rotation: this.def.startPosition.orientation
+                        top: this.def.top.offsetPx + this.def.top.factor * (this.area.y.max - this.area.y.min),
+                        left: this.def.left.offsetPx,
+                        rotation: 0
                     },
                     {
-                        top: this.def.top.offsetPx + this.def.top.factor * (this.def.startPosition.y - this.area.y.min),
-                        left: this.def.left.offsetPx + this.def.left.factor * (this.area.x.max - this.def.startPosition.x),
-                        rotation: this.def.startPosition.orientation
+                        top: this.def.top.offsetPx,
+                        left: this.def.left.offsetPx + this.def.left.factor * (this.area.x.max - this.area.x.min),
+                        rotation: 0
                     }
                 ]
             },

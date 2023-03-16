@@ -1,0 +1,254 @@
+{
+  "version": 1,
+  "area": {
+    "x": {
+      "min": 1,
+      "max": 4
+    },
+    "y": {
+      "min": 4,
+      "max": 8
+    }
+  },
+  "left": {
+    "offsetPos": 0,
+    "offsetPx": 101,
+    "factor": 126
+  },
+  "top": {
+    "offsetPos": 0,
+    "offsetPx": 146,
+    "factor": 125.5
+  },
+  "startPosition": {
+    "x": 3,
+    "y": 4,
+    "orientation": 270
+  },
+  "paths": [
+    {
+      "x": 1,
+      "y": 5,
+      "paths": [
+        null,
+        {
+          "x": 2,
+          "y": 5,
+          "orientation": 288
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "orientation": 288
+        },
+        null
+      ]
+    },
+    {
+      "x": 1,
+      "y": 6,
+      "paths": [
+        {
+          "x": 1,
+          "y": 7,
+          "orientation": 198
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "orientation": 90
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "x": 1,
+      "y": 7,
+      "paths": [
+        {
+          "x": 2,
+          "y": 8,
+          "orientation": 288
+        },
+        null,
+        {
+          "x": 1,
+          "y": 6,
+          "orientation": 180
+        },
+        null
+      ]
+    },
+    {
+      "x": 2,
+      "y": 4,
+      "paths": [
+        null,
+        {
+          "x": 3,
+          "y": 4,
+          "orientation": 288
+        },
+        null,
+        {
+          "x": 1,
+          "y": 5,
+          "orientation": 0
+        }
+      ]
+    },
+    {
+      "x": 2,
+      "y": 5,
+      "paths": [
+        null,
+        {
+          "x": 3,
+          "y": 5,
+          "orientation": 288
+        },
+        null,
+        {
+          "x": 1,
+          "y": 5,
+          "orientation": 270
+        }
+      ]
+    },
+    {
+      "x": 2,
+      "y": 6,
+      "paths": [
+        {
+          "x": 2,
+          "y": 7,
+          "orientation": 0
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "orientation": 288
+        },
+        null,
+        {
+          "x": 1,
+          "y": 6,
+          "orientation": 108
+        }
+      ]
+    },
+    {
+      "x": 2,
+      "y": 7,
+      "paths": [
+        {
+          "x": 2,
+          "y": 8,
+          "orientation": 0
+        },
+        null,
+        {
+          "x": 2,
+          "y": 6,
+          "orientation": 18
+        },
+        null
+      ]
+    },
+    {
+      "x": 2,
+      "y": 8,
+      "paths": [
+        null,
+        {
+          "x": 3,
+          "y": 7,
+          "orientation": 180
+        },
+        {
+          "x": 2,
+          "y": 7,
+          "orientation": 18
+        },
+        {
+          "x": 1,
+          "y": 7,
+          "orientation": 180
+        }
+      ]
+    },
+    {
+      "x": 3,
+      "y": 4,
+      "paths": [
+        null,
+        null,
+        null,
+        {
+          "x": 2,
+          "y": 4,
+          "orientation": 270
+        }
+      ]
+    },
+    {
+      "x": 3,
+      "y": 5,
+      "paths": [
+        null,
+        {
+          "x": 3,
+          "y": 7,
+          "orientation": 108
+        },
+        null,
+        {
+          "x": 2,
+          "y": 5,
+          "orientation": 270
+        }
+      ]
+    },
+    {
+      "x": 3,
+      "y": 6,
+      "paths": [
+        {
+          "x": 3,
+          "y": 7,
+          "orientation": 198
+        },
+        null,
+        null,
+        {
+          "x": 2,
+          "y": 6,
+          "orientation": 270
+        }
+      ]
+    },
+    {
+      "x": 3,
+      "y": 7,
+      "paths": [
+        {
+          "x": 2,
+          "y": 8,
+          "orientation": 108
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "orientation": 270
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "orientation": 180
+        },
+        null
+      ]
+    }
+  ]
+}

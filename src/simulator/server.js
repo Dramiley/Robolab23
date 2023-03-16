@@ -8,7 +8,7 @@ const server = http.createServer(app);
 const {Server} = require("socket.io");
 const io = new Server(server);
 
-let available_planets = fs.readdirSync('./planets').filter(f => f.endsWith('.def.json')).map(f => f.replace('.def.json', ''))
+let available_planets = fs.readdirSync('./planets').filter(f => f.endsWith('.sim.json')).map(f => f.replace('.sim.json', ''))
 
 app.get('/history', (req, res) => {
     res.send(fs.readFileSync('./history.json', 'utf8'));
@@ -18,11 +18,13 @@ app.get('/planet', (req, res) => {
     let name = fs.readFileSync('./planets/current_planet.txt', 'utf8')
 
     // read file ../planets/{planetName}.def.json into var
-    let def = JSON.parse(fs.readFileSync('./planets/' + name + '.def.json', 'utf8'))
+    let def = JSON.parse(fs.readFileSync('./planets/' + name + '.sim.json', 'utf8'))
+
+    // remove the paths from the def
+    def.paths = undefined;
 
     // output them
-    res.send({def, name});
-
+    res.send({name, def});
 });
 app.get('/planets', (req, res) => {
     res.send(available_planets);
@@ -32,7 +34,6 @@ app.post('/planet', (req, res) => {
     // write the passed name to ./planets/current_planet.json if it exists
     // otherwise return 404
     let name = req.query.name
-    let file_name = './planets/' + name + '.def.json'
     if (!available_planets.includes(name)) {
         res.status(404).send('Planet ' + name + ' not found. Available planets: ' + available_planets.join(', '));
     } else {
