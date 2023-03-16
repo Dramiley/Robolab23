@@ -112,6 +112,17 @@ class Communication:
         :param message: Object
         :return: void
         """
+
+        # log the data
+        # get client id
+        client_id = client._client_id.decode('utf-8')
+
+        if client_id != data:
+            self.logger.error('Client id does not match data')
+            return
+        else:
+            self.logger.debug('Client id matches data')
+
         payload = ""
         try:
             if message.payload is not None:

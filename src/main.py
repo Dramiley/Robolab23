@@ -27,7 +27,8 @@ def init_client():
     client_id = '046-' + str(uuid.uuid4())  # Replace YOURGROUPID with your group ID
     client = mqtt.Client(client_id=client_id,  # Unique Client-ID to recognize our program
                          clean_session=True,  # We want a clean session after disconnect or abort/crash
-                         protocol=mqtt.MQTTv311  # Define MQTT protocol version
+                         protocol=mqtt.MQTTv311,  # Define MQTT protocol version
+                         userdata=client_id # Pass client_id to on_connect callback
                          )
     # Setup logging directory and file
     curr_dir = os.path.abspath(os.getcwd())
@@ -41,6 +42,7 @@ def init_client():
     logger = logging.getLogger('RoboLab')
     return client
 
+
 def run():
     # DO NOT CHANGE THESE VARIABLES
     #
@@ -52,6 +54,7 @@ def run():
     controller = Controller(client)
     controller.begin()
     # test_odo()
+
 
 # DO NOT EDIT
 def signal_handler(sig=None, frame=None, raise_interrupt=True):
