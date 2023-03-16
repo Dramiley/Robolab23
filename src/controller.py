@@ -369,15 +369,14 @@ class Controller:
         self.communication.target_reached("Target reached.")
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
-        """
-        Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
-        siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
-        """
-
         # pass onto handler, forget pathStatus
         self.__handle_received_path(startX, startY, startDirection, endX, endY, endDirection, pathWeight)
 
     def __handle_received_path(self, startX, startY, startDirection, endX, endY, endDirection, pathWeight):
+        """
+         Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
+         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
+         """
 
         # init odometry
         self.odometry.set_coords((startX, startY))
