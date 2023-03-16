@@ -9,6 +9,8 @@ from typing import List
 from planet import Direction
 import math
 
+from controller import env
+
 class Robot:
     """
     Controls the robot's actions
@@ -252,8 +254,11 @@ class Robot:
 
     def begin(self):
         self.__calibrate()
-        # self.__followline()
-        self.__menu()
+        
+        if env["ROBIN_MODE"]:
+            self.__menu()
+        else:
+            self.__followline()
 
     def __menu(self):
         while True:
