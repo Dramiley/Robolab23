@@ -156,7 +156,7 @@ class Controller:
             self.robot.begin()
         else:
             print(
-                "Simulator: skipping drive_until_communication_point(), because we're already at a communication point")
+                "Simulator: skipping drive_until_communication_point(), because we'll already be at an communication point")
 
         # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
         self.communication.ready()
