@@ -69,8 +69,12 @@ class RobotDummy(Robot):
         # check if our path is valid
         print("Taking new path: " + str(new_path))
         if new_path is None:
-            simulator_log('communication.log',{'simulator.action':'crash','message': "You went off road. This map has no path in orientation " + str(self.__orientation) + " at position " + str(self.__position), 'color': 'error'})
-            raise Exception("You went off road. This map has no path in orientation " + str(self.__orientation) + " at position " + str(self.__position))
+            simulator_log('communication.log', {'simulator.action': 'crash',
+                                                'message': "You went off road. This map has no path in orientation " + str(
+                                                    self.__orientation) + " at position " + str(self.__position),
+                                                'color': 'error'})
+            raise Exception("You went off road. This map has no path in orientation " + str(
+                self.__orientation) + " at position " + str(self.__position))
 
         if "blocked" in new_path and new_path['blocked']:
             simulator_log('communication.log', {'message': "Path was blocked, turning around", 'color': 'warning'})
@@ -122,8 +126,7 @@ class RobotDummy(Robot):
         self.__update_visualisation()
 
     def __update_visualisation(self):
-
-        time.sleep(1)
+        time.sleep(.3)
         simulator_log('position',
                       {'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation})
 

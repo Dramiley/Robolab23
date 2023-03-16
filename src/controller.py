@@ -148,7 +148,7 @@ class Controller:
         self.logger.setLevel(logging.DEBUG)
 
     def begin(self):
-        print("Controller started")
+        print("controller.begin()")
 
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
@@ -162,7 +162,6 @@ class Controller:
         self.communication.ready()
 
         # then we wait for planet msg->ready() only exits when everything is over
-
         # as long as the programm is not exited, wait for callbacks
         # but if we are in CI mode, exit right away since we tested everything
         if not env["GITLAB_RUNNER"]:
@@ -286,7 +285,7 @@ class Controller:
         self.__handle_received_planet(startX, startY, Direction(startOrientation))
 
         # los gehts
-        self.begin()
+        self.run()  # undo alex's change to begin()
 
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 

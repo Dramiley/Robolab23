@@ -9,6 +9,7 @@ import time
 
 # import communication_facade
 from communication_facade import CommunicationFacade
+from controller import env
 
 
 class Communication:
@@ -132,7 +133,7 @@ class Communication:
             return
 
         # log message
-        self.logger.debug(json.dumps(payload, indent=2))
+        # self.logger.debug(json.dumps(payload, indent=2))
 
         # check if message type is set
         if 'type' not in payload:
@@ -289,7 +290,10 @@ class Communication:
             # send message
             print("waiting 3s before faking server response")
 
-            time.sleep(3)  # TODO: change to 3s
+            if env["SIMULATOR"]:
+                time.sleep(1)  # TODO: change to 3s
+            else:
+                time.sleep(3)  # TODO: change to 3s
 
             print("waited 3s before faking server response")
 
