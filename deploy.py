@@ -18,6 +18,13 @@ Released under the MIT License
 import subprocess
 import sys
 
+# copy the folder src to .src_deploy using bash
+subprocess.call(["cp", "-r", "src", ".src_deploy"])
+
+delete_folders = ["simulator", "tests"]
+for folder in delete_folders:
+    subprocess.call(["rm", "-rf", ".src_deploy/" + folder])
+
 # Store path to executable
 DEPLOY_EXECUTABLE = "./robolab-deploy-lite/deploy.py"
 # Windows-Fix: Get the full executable path, windows can't handle our shebang

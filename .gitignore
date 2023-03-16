@@ -34,6 +34,8 @@ src/.vscode/*
 src/simulator/history.json
 src/.env
 
+.src_deploy/
+
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
 .fseventsd
