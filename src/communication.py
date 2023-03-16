@@ -226,10 +226,10 @@ class Communication:
         # check if callback function signature matches the payload definition
         if len(self.callbacks[message_type].__code__.co_varnames) == len(payload) or \
                 len(self.callbacks[message_type].__code__.co_varnames) == len(payload) + 1:
-            self.logger.success('Calling callback for message type ' + message_type)
-            self.logger.debug('with payload: ' + str(payload))
-            self.logger.debug('Required arguments: ' + str(self.callbacks[message_type].__code__.co_varnames))
-            self.logger.debug('Provided arguments: ' + str(payload))
+            # self.logger.success('Calling callback for message type ' + message_type)
+            # self.logger.debug('with payload: ' + str(payload))
+            # self.logger.debug('Required arguments: ' + str(self.callbacks[message_type].__code__.co_varnames))
+            # self.logger.debug('Provided arguments: ' + str(payload))
             self.callbacks[message_type](**payload)
         else:
             self.logger.error('Callback function signature for "' + message_type + '" does not match payload '
