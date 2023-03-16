@@ -26,7 +26,7 @@ class RobotDummy(Robot):
     motor_right = DummyMotor()
 
     was_path_blocked = False
-
+    motor_pos_list = []
     # read map from file
     # read map name from planets/current_map.txt
     # get the current directory
