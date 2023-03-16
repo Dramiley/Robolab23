@@ -7,7 +7,7 @@
         <h1>Planeten wählen</h1>
         <div class="planets">
             <div v-for="planet in planets" class="planet" @click="selectPlanet(planet)">
-                <img :src="planet+'.jpg'">
+                <img :src="planet+'.svg'">
                 <div class="planet-name">{{ planet }}</div>
             </div>
         </div>
@@ -15,7 +15,7 @@
 
     <div id="app-wrapper">
         <div id="app" v-if="def != null && typeof def.startPosition !== 'undefined'">
-            <img id="map" :src="name+'.png'">
+            <img id="map" :src="name+'.svg'">
             <img id="robot" :src="robot.crashed?'robot_offroad.png':'robot.png'"
                  :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
 
