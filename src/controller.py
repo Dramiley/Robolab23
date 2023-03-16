@@ -111,8 +111,6 @@ class Position:
 from communication import Communication
 from communication_logger import CommunicationLogger
 from odometry import Odometry
-from robot import Robot
-from robot_dummy import RobotDummy
 from planet import Planet, Direction
 
 
@@ -130,6 +128,8 @@ class Controller:
     history = []
 
     def __init__(self, client):
+        from robot import Robot
+        from robot_dummy import RobotDummy
 
         # setup communication
         self.communication = Communication(client, CommunicationLogger()).facade

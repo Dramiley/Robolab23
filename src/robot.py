@@ -9,7 +9,6 @@ from typing import List
 from planet import Direction
 import math
 
-from controller import env
 
 class Robot:
     """
@@ -33,6 +32,10 @@ class Robot:
 
     did_calibrate = False
     motor_pos_list = None
+
+    def __env(self, name):
+        from controller import env
+        return env[name]
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
 
@@ -126,7 +129,7 @@ class Robot:
         self.color.color_check()
         black = self.color.greytone
         print("black = " + str(black))
-        middlegreytone = ((white + black) / 2) + 10 #50
+        middlegreytone = ((white + black) / 2) + 10  # 50
         print("grey = " + str(middlegreytone))
         self.middlegreytone = middlegreytone
 
@@ -250,7 +253,7 @@ class Robot:
     def begin(self):
         self.__calibrate()
 
-        if env["ROBIN_MODE"]:
+        if self.__env('ROBIN_MODE'):
             self.__menu()
         else:
             self.__followline()
@@ -297,9 +300,9 @@ class Robot:
         """
         ROT_TIME_FACTOR = 13.88
         rot_dir = math.copysign(1, deg)
-        speed = rot_dir*133
+        speed = rot_dir * 133
         # so time isnt negative
         deg = abs(deg)
         self.motor_left.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=speed)
         self.motor_right.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=-speed)
-        time.sleep(ROT_TIME_FACTOR * 10**-3 * deg)
+        time.sleep(ROT_TIME_FACTOR * 10 ** -3 * deg)
