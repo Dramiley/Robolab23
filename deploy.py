@@ -23,6 +23,15 @@ DEPLOY_EXECUTABLE = "./robolab-deploy/deploy.py"
 # Windows-Fix: Get the full executable path, windows can't handle our shebang
 PYTHON_EXECUTABLE = sys.executable
 
+"""
+# Check if there is a .deployignore file present
+ignore_files = []
+with open(".deployignore") as f:
+    # create a deploying branch and check it out
+    for line in f:
+        ignore_files.append(line.strip())
+"""
+
 # Check if the "robolab-deploy" submodule is available
 try:
     with open(DEPLOY_EXECUTABLE) as f:
