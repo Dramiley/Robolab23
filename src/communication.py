@@ -115,7 +115,6 @@ class Communication:
         payload = ""
         try:
             if message.payload is not None:
-                self.logger.info(message.payload.decode('utf-8'))
                 payload = json.loads(message.payload.decode('utf-8'))
             else:
                 self.logger.error('no payload')
@@ -125,6 +124,15 @@ class Communication:
         # if "from" is the client itself, ignore the message
         if 'from' in payload and payload['from'] == "client":
             return
+
+        # if type notice, just print the message but do not handle it
+        types_notice = ['notice', 'syntax', 'adjust', 'debug']
+        if 'type' in payload and payload['type'] in types_notice:
+            self.logger.info(payload['payload']['message'])
+            return
+
+        # log on_message event, please dont remove this line, its probably the most useful debug line
+        self.logger.info(message.payload.decode('utf-8'))
 
         # if "from" is debug and the message type is syntax, check if the syntax is correct
         if 'from' in payload and payload['from'] == "debug" and payload['type'] == "syntax":
