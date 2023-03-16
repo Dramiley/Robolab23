@@ -335,6 +335,15 @@
                         this.historySelected--
                     }
                 }
+
+                // because were pressing shift and the user might be clicking, text will be selected
+                // we need to deselect it
+                if (window.getSelection) {
+                    window.getSelection().removeAllRanges();
+                } else if (document.selection) {
+                    document.selection.empty();
+                }
+
             },
             playButtonPressed() {
                 if (this.run === 'play' || this.run === 'pause') {
@@ -344,7 +353,8 @@
                     this.run = 'play'
                     fetch('/run/start')
                 }
-            },
+            }
+            ,
             setupKeyListeners() {
                 document.addEventListener('keydown', (event) => {
                     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
@@ -371,14 +381,18 @@
                         this.toggleCollapsed()
                     } else if (event.key === 'Shift') {
                         this.filterPositions = true
+
+
                     }
                 })
                 document.addEventListener('keyup', (event) => {
                     if (event.key === 'Shift') {
                         this.filterPositions = false
+
                     }
                 })
-            },
+            }
+            ,
         },
         mounted() {
 
