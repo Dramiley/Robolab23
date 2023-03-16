@@ -34,6 +34,7 @@ import time
 import os
 import sys
 import logging
+from typing import Optional
 
 from lockfile import LockFile
 
@@ -214,7 +215,7 @@ class Controller:
                 next_dir = shortest_path[0][1]
                 self.logger.debug(f"Continuing driving towards target at {self.target_pos} in dir {next_dir}")
         else:
-            self.logger.debug("No target to drive to-continuing exploration")
+            self.logger.debug("No target to drive to - continuing exploration")
             next_dir = self.__explore()
 
         self.logger.debug(f"I decided to drive into dir {next_dir}")
@@ -223,7 +224,7 @@ class Controller:
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
 
-    def __explore(self) -> Direction or None:
+    def __explore(self) -> Optional[Direction]:
         """
         Let the robo have some fun and explore the planet on it's own
         """
@@ -235,6 +236,7 @@ class Controller:
             self.logger.debug(
                 "I have explored everything and as this method is only called of there was no target I'm finished:)")
             self.communication.exploration_completed()
+            self.logger.warning("THIS SHOULDNT BE EXECUTED, program should quit once the exploration is completed")
             return None
 
         self.logger.debug(f"Decide to continue exploration in dir {next_dir}")
@@ -365,12 +367,6 @@ class Controller:
         """
         self.logger.info("I have reached my target!!!")
         self.communication.target_reached("Target reached.")
-
-    def __exploration_complete(self):
-        """
-        Wird aufgerufen, wenn die Erkundung abgeschlossen ist
-        """
-        self.communication.exploration_completed("Exploration completed.")
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         """
