@@ -163,20 +163,11 @@ class Controller:
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
         if not env["SIMULATOR"]:
-            self.robot.begin()
+            # TODO: replace with self.robot.calibrate()
+            self.robot.skip_calibrate()
         else:
             print(
                 "Simulator: skipping drive_until_communication_point(), because we'll already be at an communication point")
-
-        # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
-        self.communication.ready()
-
-        # then we wait for planet msg->ready() only exits when everything is over
-        # as long as the programm is not exited, wait for callbacks
-        # but if we are in CI mode, exit right away since we tested everything
-        if not env["GITLAB_RUNNER"]:
-            while True:
-                time.sleep(1)
 
     def run(self):
         """
@@ -390,6 +381,7 @@ class Controller:
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         # pass onto handler, forget pathStatus
+        self.communication.communication.received_since_last_path_select += 1
         self.__handle_received_path(startX, startY, startDirection, endX, endY, endDirection, pathWeight)
 
     def __handle_received_path(self, startX, startY, startDirection, endX, endY, endDirection, pathWeight):

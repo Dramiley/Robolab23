@@ -65,6 +65,8 @@ class Communication:
         # create facade
         self.facade = CommunicationFacade(self)
 
+        self.received_since_last_path_select = 0
+
     # destructor
     def __del__(self):
         """
@@ -118,8 +120,10 @@ class Communication:
         client_id = client._client_id.decode('utf-8')
 
         if client_id != data:
-            self.logger.warning('Client id does not match data')
+            self.logger.error('Client id does not match data')
             return
+        else:
+            self.logger.debug('Client id matches data')
 
         payload = ""
         try:
@@ -303,15 +307,13 @@ class Communication:
     def set_controller(self, controller):
         self.controller = controller
 
-    received_since_last_path_select = 0
-
     def prepare_fallback_path_select_message(self, startDirection):
 
         # have a async function
         def async_fake(a):
 
             # reset counter
-            received_since_last_path_select = 0
+            self.received_since_last_path_select = 0
 
             # send message
             print("waiting 3s before faking server response")
@@ -319,12 +321,12 @@ class Communication:
             if env["SIMULATOR"]:
                 time.sleep(1)  # TODO: change to 3s
             else:
-                time.sleep(3)  # TODO: change to 3s
+                time.sleep(3.2)  # TODO: change to 3s
 
             print("waited 3s before faking server response")
 
             # checking if there was a path select message in the meantime
-            if received_since_last_path_select > 0:
+            if self.received_since_last_path_select > 0:
                 print("received a path select message in the meantime, not sending fake server response")
                 return
             else:
