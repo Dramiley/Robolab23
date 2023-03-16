@@ -19,6 +19,7 @@ import subprocess
 import sys
 
 # copy the folder src to .src_deploy using bash
+subprocess.call(["rm", "-rf", ".src_deploy"])
 subprocess.call(["cp", "-r", "src", ".src_deploy"])
 
 delete_folders = ["simulator", "tests"]
