@@ -131,7 +131,8 @@ class Controller:
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
         # load test planet name from planets/current.txt
-        with open('simulator/planets/current.txt') as f:
+        __current_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(__current_dir + '/simulator/planets/current.txt') as f:
             self.communication.test_planet(f.read().replace("\n", ""))
 
         # for our Simulator
