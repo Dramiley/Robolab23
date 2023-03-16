@@ -153,7 +153,7 @@ class Controller:
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
         if not env["SIMULATOR"]:
-            self.robot.drive_until_communication_point()
+            self.robot.begin()
         else:
             print(
                 "Simulator: skipping drive_until_communication_point(), because we're already at a communication point")
@@ -286,7 +286,7 @@ class Controller:
         self.__handle_received_planet(startX, startY, Direction(startOrientation))
 
         # los gehts
-        self.run()
+        self.begin()
 
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
