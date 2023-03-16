@@ -69,6 +69,7 @@ class RobotDummy(Robot):
         # check if our path is valid
         print("Taking new path: " + str(new_path))
         if new_path is None:
+            simulator_log('communication.log',{'simulator.action':'crash','message': "You went off road. This map has no path in orientation " + str(self.__orientation) + " at position " + str(self.__position), 'color': 'error'})
             raise Exception("You went off road. This map has no path in orientation " + str(self.__orientation) + " at position " + str(self.__position))
 
         if "blocked" in new_path and new_path['blocked']:

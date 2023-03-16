@@ -5,7 +5,7 @@
     <div id="app-wrapper">
         <div id="app" v-if="def != null && typeof def.startPosition !== 'undefined'">
             <img id="map" :src="name+'.png'">
-            <img id="robot" src="robot.png"
+            <img id="robot" :src="robot.crashed?'robot_offroad.png':'robot.png'"
                  :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
 
             <div id="info" class="pos">
@@ -162,6 +162,9 @@
     createApp({
         data() {
             return {
+                robot: {
+                    crashed: false
+                },
                 name: null,
                 planets: [],
                 def: null,
@@ -245,10 +248,18 @@
 
                 let earlierHistory = this.history
 
+                this.robot.crashed = false
+
                 // history
                 this.history = history.map((entry, index) => {
                     entry._index = index
                     entry.collapsed = earlierHistory[index]?.collapsed ?? true
+                    if (entry['simulator.action']) {
+                        if (entry['simulator.action'] == 'crash') {
+                            this.robot.crashed = true
+
+                        }
+                    }
                     if (entry.type === 'communication.log' && entry.message.startsWith('{')) {
                         try {
                             entry.json = JSON.parse(entry.message)
@@ -306,9 +317,23 @@
             this.refreshPlanet()
             this.refreshHistory()
 
-            socket.on('history', (history) => {
-                this.refreshHistory(history)
+            socket.on('history', (bool) => {
+                this.refreshHistory()
             });
+
+            /*
+            // on socket disconnect, try to reconnect
+            socket.on('disconnect', () => {
+                setTimeout(() => {
+                    socket.connect()
+                }, 1000)
+
+                setTimeout(() => {
+                    this.refreshHistory()
+                }, 2000)
+            })
+
+             */
 
         }
     }).mount('#site')
