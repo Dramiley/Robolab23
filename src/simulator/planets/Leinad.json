@@ -457,26 +457,21 @@
       "paths": [
         {
           "x": 13,
-          "y": 2,
-          "orientation": 90,
+          "y": 4,
+          "orientation": 0,
           "blocked": false
         },
+        null,
         {
-          "x": 10,
-          "y": 4,
-          "orientation": 180,
+          "x": 11,
+          "y": 2,
+          "orientation": 0,
           "blocked": false
         },
         {
           "x": 12,
           "y": 4,
           "orientation": 0,
-          "blocked": false
-        },
-        {
-          "x": 13,
-          "y": 2,
-          "orientation": 180,
           "blocked": false
         }
       ]
@@ -499,8 +494,8 @@
         },
         {
           "x": 13,
-          "y": 4,
-          "orientation": 270,
+          "y": 2,
+          "orientation": 180,
           "blocked": true
         },
         {
