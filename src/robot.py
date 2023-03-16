@@ -251,6 +251,7 @@ class Robot:
         self.white = 297
 
     def begin(self):
+        print("begin & calibrate")
         self.calibrate()
 
         if self.__env('ROBIN_MODE'):

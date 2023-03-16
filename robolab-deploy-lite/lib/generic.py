@@ -174,6 +174,15 @@ class Generic:
              'robot@{}:/home/robot/'.format(self.settings['ip'])
              ], cwd=str(self.tempdir.name), stdout=subprocess.DEVNULL)
 
+        # Move files to correct location
+        subprocess.run(
+            ['ssh',
+             '-i', str(self.tempdir_ssh_key),
+             '-o', 'StrictHostKeyChecking=no',
+             'robot@{}'.format(self.settings['ip']),
+             'rm -rf /home/robot/src && mkdir /home/robot/src && mv /home/robot/.src_deploy/ /home/robot/src/'
+             ])
+
         print('Done.')
 
     def copy_files_tar(self):
