@@ -395,12 +395,14 @@
                     } else if (event.key === 'd') {
                         this.deploy()
                     }
+                    event.preventDefault()
                 })
                 document.addEventListener('keyup', (event) => {
                     if (event.key === 'Shift') {
                         this.filterPositions = false
 
                     }
+                    event.preventDefault()
                 })
             },
             deploy() {
