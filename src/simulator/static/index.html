@@ -392,6 +392,8 @@
                         this.filterPositions = true
                     } else if (event.key === 'r') {
                         window.location.reload()
+                    } else if (event.key === 'd') {
+                        this.deploy()
                     }
                 })
                 document.addEventListener('keyup', (event) => {
