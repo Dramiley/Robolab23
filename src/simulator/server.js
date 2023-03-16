@@ -8,17 +8,17 @@ const server = http.createServer(app);
 const {Server} = require("socket.io");
 const io = new Server(server);
 
-let available_planets = fs.readdirSync('./planets').filter(f => f.endsWith('.sim.json')).map(f => f.replace('.sim.json', ''))
+let available_planets = fs.readdirSync('./planets').filter(f => f.endsWith('.json')).map(f => f.replace('.json', ''))
 
 app.get('/history', (req, res) => {
     res.send(fs.readFileSync('./history.json', 'utf8'));
 });
 app.get('/planet', (req, res) => {
     // read file ../planets/current_planet.json into var
-    let name = fs.readFileSync('./planets/current_planet.txt', 'utf8')
+    let name = fs.readFileSync('./planets/current.txt', 'utf8')
 
     // read file ../planets/{planetName}.def.json into var
-    let def = JSON.parse(fs.readFileSync('./planets/' + name + '.sim.json', 'utf8'))
+    let def = JSON.parse(fs.readFileSync('./planets/' + name + '.json', 'utf8'))
 
     // remove the paths from the def
     def.paths = undefined;
@@ -37,7 +37,7 @@ app.post('/planet', (req, res) => {
     if (!available_planets.includes(name)) {
         res.status(404).send('Planet ' + name + ' not found. Available planets: ' + available_planets.join(', '));
     } else {
-        fs.writeFileSync('./planets/current_planet.txt', name, 'utf8')
+        fs.writeFileSync('./planets/current.txt', name, 'utf8')
 
         // empty history
         fs.writeFileSync('./history.json', '[{"type":"communication.log","message":"Set planet to ' + name + '.","color":"success"}]', 'utf8')
@@ -46,6 +46,7 @@ app.post('/planet', (req, res) => {
 });
 
 app.use(express.static('./static'));
+app.use(express.static('./planets'));
 
 
 server.listen(port, () => {

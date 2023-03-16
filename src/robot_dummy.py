@@ -29,8 +29,8 @@ class RobotDummy(Robot):
 
     # read map from file
     # read map name from planets/current_map.txt
-    with open('simulator/planets/current_planet.txt') as __file:
-        __file_name = 'simulator/planets/' + __file.read().strip() + '.sim.json'
+    with open('simulator/planets/current.txt') as __file:
+        __file_name = 'simulator/planets/' + __file.read().strip() + '.json'
 
         # if file exists, read it
         if os.path.isfile(__file_name):
