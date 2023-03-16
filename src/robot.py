@@ -7,7 +7,7 @@ import measurements as ms
 from typing import List
 
 from planet import Direction
-
+import math
 
 class Robot:
     """
@@ -33,6 +33,8 @@ class Robot:
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
 
+
+        import odometry
         self.motor_left = ev3.LargeMotor(left_port)
         self.motor_right = ev3.LargeMotor(right_port)
         self.motor_pos_list = []
@@ -65,7 +67,7 @@ class Robot:
         motor_pos_right = self.motor_right.position
         print(motor_pos_left, motor_pos_right)
         self.motor_pos_list.append([motor_pos_left, motor_pos_right])
-        self.logger.info(f"Tracked motor_pos_values: {motor_pos_left}, {motor_pos_right}")
+        # self.logger.info(f"Tracked motor_pos_values: {motor_pos_left}, {motor_pos_right}")
 
     def __reset_motor_pos_list(self):
         # init with current pos list
@@ -127,7 +129,7 @@ class Robot:
         self.color.color_check()
         black = self.color.greytone
         print("black = " + str(black))
-        middlegreytone = ((white + black) / 2) + 10  # 20 #50
+        middlegreytone = ((white + black) / 2) + 30 #50
         print("grey = " + str(middlegreytone))
         self.middlegreytone = middlegreytone
 
@@ -152,7 +154,10 @@ class Robot:
         middle_greytone = self.middlegreytone
         integral = 0
         lerror = 0
-        tempo = 200
+        tempo = 150
+        de = 1 * tempo
+        di = 0.06 * tempo
+        dd = 0.7 * tempo
         starttime = time.time()
 
         self.__reset_motor_pos_list()
@@ -175,7 +180,7 @@ class Robot:
                 integral = 0
 
             derivative = error - lerror
-            lenkfaktor = 170 * error + 10 * integral + 110 * derivative
+            lenkfaktor = de * error + di * integral + dd * derivative
             lenkfaktor = lenkfaktor / 100
             power_left = tempo + lenkfaktor
             power_right = tempo - lenkfaktor
@@ -207,7 +212,7 @@ class Robot:
         self.motor_left.run_timed(time_sp=312, speed_sp=65)
         self.motor_right.run_timed(time_sp=312, speed_sp=-65)
         time.sleep(0.5)
-        self.__move_distance_straight(3)
+        self.__move_distance_straight(5)
         time.sleep(1)
 
     def station_scan(self) -> bool:
@@ -258,7 +263,7 @@ class Robot:
             print("4 for quit")
             print("5 for station_scan")
             print("6 for turn90")
-            print("7 for station_scan2")
+            print("7 for turn_deg")
             i = input()
             if i == "1":
                 self.__followline()
@@ -269,12 +274,13 @@ class Robot:
             elif i == "4":
                 break
             elif i == "5":
-                t = int(input("Wie oft drehen?\n"))
-                print(self.__station_scan(t))
+                print(self.station_scan())
             elif i == "6":
                 self.__turn90()
             elif i == "7":
-                print(self.__station_scan_alternative())
+                print("Um wieviel Grad soll gedreht werden?")
+                t = input()
+                self.turn_deg(int(t))
 
     def drive_until_communication_point(self):
         """
@@ -290,6 +296,10 @@ class Robot:
         Turns the robot by param degrees
         """
         ROT_TIME_FACTOR = 13.88
-        self.motor_left.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=133)
-        self.motor_right.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=-133)
+        rot_dir = math.copysign(1, deg)
+        speed = rot_dir*133
+        # so time isnt negative
+        deg = abs(deg)
+        self.motor_left.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=speed)
+        self.motor_right.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=-speed)
         time.sleep(ROT_TIME_FACTOR * 10**-3 * deg)
