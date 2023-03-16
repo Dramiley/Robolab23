@@ -36,8 +36,6 @@ import sys
 import logging
 from typing import Optional
 
-from lockfile import LockFile
-
 # DONT CHANGE ANYTHING HERE, ONLY IN .env
 # Bitte nicht hierdrinne verändern, sondern in der src/.env setzen.
 # siehe https://se-gitlab.inf.tu-dresden.de/robolab-spring/ws2022/group-046/-/blob/master/README.md#example-for-development-purposes
@@ -73,6 +71,7 @@ def simulator_log(log_type, log_dict):
     log_dict["type"] = log_type
 
     # append to history file (which contains an array of positions)
+    from lockfile import LockFile
     lock = LockFile("simulator/history.json.lock")
     with lock:
         time.sleep(0.001)
