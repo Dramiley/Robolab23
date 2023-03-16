@@ -22,7 +22,7 @@
   },
   "startPosition": {
     "x": 68,
-    "y": 420,
+    "y": 421,
     "orientation": 0
   },
   "paths": [
@@ -33,7 +33,7 @@
         {
           "x": 68,
           "y": 421,
-          "orientation": 198,
+          "orientation": 0,
           "blocked": false
         },
         null,
@@ -48,7 +48,7 @@
         {
           "x": 68,
           "y": 422,
-          "orientation": 198,
+          "orientation": 0,
           "blocked": false
         },
         null,
@@ -68,13 +68,13 @@
         {
           "x": 69,
           "y": 423,
-          "orientation": 288,
+          "orientation": 90,
           "blocked": false
         },
         {
           "x": 70,
           "y": 422,
-          "orientation": 288,
+          "orientation": 90,
           "blocked": true
         },
         {
@@ -115,7 +115,7 @@
         {
           "x": 69,
           "y": 420,
-          "orientation": 18,
+          "orientation": 180,
           "blocked": false
         },
         null
@@ -128,13 +128,13 @@
         {
           "x": 70,
           "y": 424,
-          "orientation": 288,
+          "orientation": 90,
           "blocked": false
         },
         {
           "x": 70,
           "y": 423,
-          "orientation": 288,
+          "orientation": 90,
           "blocked": false
         },
         null,
@@ -160,7 +160,7 @@
         {
           "x": 69,
           "y": 421,
-          "orientation": 108,
+          "orientation": 270,
           "blocked": false
         },
         {
@@ -180,7 +180,7 @@
         {
           "x": 70,
           "y": 422,
-          "orientation": 18,
+          "orientation": 180,
           "blocked": false
         },
         {

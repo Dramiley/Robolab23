@@ -118,7 +118,7 @@
                     }
                 ],
                 currentVar: 0,
-                name: 'Mehl',
+                name: 'John',
                 area: {
                     "x": {
                         "min": 1,
@@ -207,7 +207,7 @@
                     this.points.find(p => p.x === this.connectStart.x && p.y === this.connectStart.y).paths[this.connectStart.o] = {
                         x: x,
                         y: y,
-                        orientation: (o * 90 + 18) % 3600,
+                        orientation: (o * 90 + 180) % 360,
                         blocked: this.connectStart.blocked
                     }
                     this.points.find(p => p.x === x && p.y === y).paths[o] = {
