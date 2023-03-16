@@ -10,7 +10,7 @@ Computer Science, TU Dresden.
 
 ## Getting Started
 
-You might want to create a `src/.env` file to set the default values for the `SIMULATOR` and `DEBUG` variables.
+You might want to create a `src/venv` file to set the default values for the `SIMULATOR` and `DEBUG` variables.
 
 ### Example for development purposes:
 

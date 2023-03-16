@@ -32,7 +32,7 @@ Icon
 .vscode/*
 src/.vscode/*
 src/simulator/history.json
-src/.env
+src/venv
 
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
@@ -252,7 +252,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-src/.env
+src/venv
 .venv
 env/
 venv/
