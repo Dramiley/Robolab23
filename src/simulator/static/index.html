@@ -329,7 +329,7 @@
                 }
             },
             playButtonPressed() {
-                if (this.run === 'play') {
+                if (this.run === 'play' || this.run === 'pause') {
                     this.run = 'stop'
                     fetch('/run/stop')
                 } else {
