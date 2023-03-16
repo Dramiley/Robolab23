@@ -17,7 +17,7 @@
                  class="point">
                 <template v-for="(path,o) in paths">
                     <div
-                            :class="{connector:true, connected: path != null, active: (connectStart?.x === x && connectStart?.y === y && connectStart?.o === o)}"
+                            :class="{connector:true, connected: path != null, active: (connectStart?.x === x && connectStart?.y === y && connectStart?.o === o), blocked: connectStart?.blocked   }"
                             @click="connectorClicked(x,y,o)"></div>
                 </template>
             </div>
@@ -51,6 +51,11 @@
         <input type="number" v-model="def.startPosition.y"/>
         <input type="number" v-model="def.startPosition.orientation"/>
 
+        <div v-if="connectStart != null">
+            <h1>Manipulate connecting</h1>
+            <button @click="connectStart = null">Reset selected connector</button>
+            <button @click="connectStart.blocked = !connectStart.blocked">Toggle blocked</button>
+        </div>
 
         <h1>Finish connecting</h1>
         <button @click="setStartConnector">Set current edge as start</button>
@@ -181,19 +186,22 @@
                     this.points.find(p => p.x === this.connectStart.x && p.y === this.connectStart.y).paths[this.connectStart.o] = {
                         x: x,
                         y: y,
-                        orientation: (o * 90 + 18) % 3600
+                        orientation: (o * 90 + 18) % 3600,
+                        blocked: this.connectStart.blocked
                     }
                     this.points.find(p => p.x === x && p.y === y).paths[o] = {
                         x: this.connectStart.x,
                         y: this.connectStart.y,
-                        orientation: (this.connectStart.o * 90 + 180) % 360
+                        orientation: (this.connectStart.o * 90 + 180) % 360,
+                        blocked: this.connectStart.blocked
                     }
                     this.connectStart = null
                 } else {
                     this.connectStart = {
                         x: x,
                         y: y,
-                        o: o
+                        o: o,
+                        blocked: false
                     }
                 }
             },
@@ -206,10 +214,10 @@
             }
         },
         mounted() {
-            return
             this.click({offsetX: 123, offsetY: 168})
             this.click({offsetX: 506, offsetY: 676})
             this.connectorClicked(3, 4, 1)
+            return
             this.setStartConnector()
         },
     }).mount('#app')
@@ -298,6 +306,11 @@
     .connector.active {
         background: #0d6efd;
     }
+
+    .connector.active.blocked {
+        background: #e32a12;
+    }
+
 
     #points {
         z-index: 120;
