@@ -29,15 +29,17 @@ class RobotDummy(Robot):
 
     # read map from file
     # read map name from planets/current_map.txt
-    with open('simulator/planets/current_planet.txt') as __file:
+    with open('simulator/planets/current.txt') as __file:
         __file_name = 'simulator/planets/' + __file.read().strip() + '.json'
 
         # if file exists, read it
         if os.path.isfile(__file_name):
             with open(__file_name) as __json_file:
-                __map = json.load(__json_file)
+                __sim = json.load(__json_file)
+                __map = __sim['startPosition']
                 __position = __map['x'], __map['y']
                 __orientation = __map['orientation']
+                __map = __sim['paths']
         else:
             raise Exception("Map file " + __file_name + " does not exist")
 
@@ -46,7 +48,7 @@ class RobotDummy(Robot):
         index_of_current_orientation = self.__orientation // 90
 
         # this is where we are
-        path = self.__path_by_coordinates(self.__position, self.__map)
+        path = self.__path()
 
         # output the path we are going to take
         new_path = path['paths'][index_of_current_orientation]
@@ -61,15 +63,16 @@ class RobotDummy(Robot):
         index_of_current_orientation = self.__orientation // 90
 
         # this is where we are
-        path = self.__path_by_coordinates(self.__position, self.__map)
+        path = self.__path()
         new_path = path['paths'][index_of_current_orientation]
 
         # check if our path is valid
         print("Taking new path: " + str(new_path))
         if new_path is None:
-            raise Exception("This map has no path in current orientation")
+            simulator_log('communication.log',{'simulator.action':'crash','message': "You went off road. This map has no path in orientation " + str(self.__orientation) + " at position " + str(self.__position), 'color': 'error'})
+            raise Exception("You went off road. This map has no path in orientation " + str(self.__orientation) + " at position " + str(self.__position))
 
-        if "blocked" in new_path:
+        if "blocked" in new_path and new_path['blocked']:
             simulator_log('communication.log', {'message': "Path was blocked, turning around", 'color': 'warning'})
             was_path_blocked = True
             self.__orientation += 180
@@ -124,23 +127,15 @@ class RobotDummy(Robot):
         simulator_log('position',
                       {'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation})
 
-    def __path_by_coordinates(self, coordinates, path):
+    def __path(self):
         # a path contains x and y coordinates
         # a path also contains an array paths
 
-        if path is None or path == -1 or path == -2:
-            return None
+        for p in self.__map:
+            if p['x'] == self.__position[0] and p['y'] == self.__position[1]:
+                return p
 
-        if 'paths' not in path:
-            return None
-
-        if path['x'] == coordinates[0] and path['y'] == coordinates[1]:
-            return path
-
-        for p in path['paths']:
-            result = self.__path_by_coordinates(coordinates, p)
-            if result is not None:
-                return result
+        raise ("Path not found: " + str(self.__position))
 
     def __init__(self):
         # clean history file

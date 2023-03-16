@@ -5,7 +5,8 @@
     <div id="app-wrapper">
         <div id="app" v-if="def != null && typeof def.startPosition !== 'undefined'">
             <img id="map" :src="name+'.png'">
-            <img id="robot" src="robot.png" :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
+            <img id="robot" :src="robot.crashed?'robot_offroad.png':'robot.png'"
+                 :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
 
             <div id="info" class="pos">
                 <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
@@ -161,6 +162,9 @@
     createApp({
         data() {
             return {
+                robot: {
+                    crashed: false
+                },
                 name: null,
                 planets: [],
                 def: null,
@@ -191,12 +195,10 @@
         },
         computed: {
             top() {
-                return ((this.pos.y + this.def.top.offsetPos) * this.def.top.factor) + this.def.top.offsetPx
-                // return (this.pos.y * -132) + 635
+                return this.def.top.offsetPx + (this.def.top.factor * (this.def.area.y.max - this.pos.y))
             },
             left() {
-                return ((this.pos.x + this.def.left.offsetPos) * this.def.left.factor) + this.def.left.offsetPx
-                // return ((this.pos.x - 3) * 135) + 5
+                return this.def.left.offsetPx + (this.def.left.factor * (this.pos.x - this.def.area.x.min))
             },
             rotation() {
                 return this.pos.orientation
@@ -216,7 +218,7 @@
             refreshPlanet() {
                 fetch('/planet')
                     .then(response => response.json())
-                    .then(({name, def}) => {
+                    .then(({def, name}) => {
                         this.name = name
                         this.def = def
                     })
@@ -246,10 +248,18 @@
 
                 let earlierHistory = this.history
 
+                this.robot.crashed = false
+
                 // history
                 this.history = history.map((entry, index) => {
                     entry._index = index
                     entry.collapsed = earlierHistory[index]?.collapsed ?? true
+                    if (entry['simulator.action']) {
+                        if (entry['simulator.action'] == 'crash') {
+                            this.robot.crashed = true
+
+                        }
+                    }
                     if (entry.type === 'communication.log' && entry.message.startsWith('{')) {
                         try {
                             entry.json = JSON.parse(entry.message)
@@ -307,9 +317,23 @@
             this.refreshPlanet()
             this.refreshHistory()
 
-            socket.on('history', (history) => {
-                this.refreshHistory(history)
+            socket.on('history', (bool) => {
+                this.refreshHistory()
             });
+
+            /*
+            // on socket disconnect, try to reconnect
+            socket.on('disconnect', () => {
+                setTimeout(() => {
+                    socket.connect()
+                }, 1000)
+
+                setTimeout(() => {
+                    this.refreshHistory()
+                }, 2000)
+            })
+
+             */
 
         }
     }).mount('#site')

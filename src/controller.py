@@ -131,8 +131,8 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        # load test planet name from planets/current_planet.txt
-        with open('simulator/planets/current_planet.txt') as f:
+        # load test planet name from planets/current.txt
+        with open('simulator/planets/current.txt') as f:
             self.communication.test_planet(f.read().replace("\n", ""))
 
         # for our Simulator
@@ -369,10 +369,14 @@ class Controller:
         self.communication.target_reached("Target reached.")
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
+        # pass onto handler, forget pathStatus
+        self.__handle_received_path(startX, startY, startDirection, endX, endY, endDirection, pathWeight)
+
+    def __handle_received_path(self, startX, startY, startDirection, endX, endY, endDirection, pathWeight):
         """
-        Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
-        siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
-        """
+         Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
+         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
+         """
 
         # init odometry
         self.odometry.set_coords((startX, startY))
@@ -382,14 +386,14 @@ class Controller:
         self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
         # update last position and path status
-        current_dir = (endDirection + 180) % 360 # we now look at to the opposite direction than we entered the node
+        current_dir = (endDirection + 180) % 360  # we now look at to the opposite direction than we entered the node
         self.last_position = Position(endX, endY, current_dir)
 
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
         self.run()
 
-    def receive_path_unveiled(self, startX, startY, startOrientation, endX, endY, endOrientation, pathStatus,
+    def receive_path_unveiled(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus,
                               pathWeight):
         """
         Zusätzlich zur immer gesendeten Bestätigung bzw. Korrektur mit Gewichtung können weitere Nachrichten empfangen werden. Hierbei werden neue Pfade aufgedeckt, die durch andere Roboter bereits erkundet wurden, oder auch bereits erkundete Strecken gesperrt (bspw. durch einen Meteoriteneinschlag).
@@ -398,7 +402,7 @@ class Controller:
         """
 
         # TODO: check
-        self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
+        self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
     def receive_path_select(self, startDirection: Direction):
         """
