@@ -19,9 +19,7 @@ SETUP PROGRAM
 """
 
 
-def run():
-    # DO NOT CHANGE THESE VARIABLES
-    #
+def init_client():
     # The deploy-script uses the variable "client" to stop the mqtt-client after your program stops or crashes.
     # Your script isn't able to close the client after crashing.
     global client
@@ -41,6 +39,12 @@ def run():
                         format='%(asctime)s: %(message)s'  # Define default logging format
                         )
     logger = logging.getLogger('RoboLab')
+    return client
+
+def run():
+    # DO NOT CHANGE THESE VARIABLES
+    #
+    client = init_client()
 
     # THE EXECUTION OF ALL CODE SHALL BE STARTED FROM WITHIN THIS FUNCTION.
     # ADD YOUR OWN IMPLEMENTATION HEREAFTER.
@@ -48,7 +52,6 @@ def run():
     controller = Controller(client)
     controller.begin()
     # test_odo()
-
 
 # DO NOT EDIT
 def signal_handler(sig=None, frame=None, raise_interrupt=True):
