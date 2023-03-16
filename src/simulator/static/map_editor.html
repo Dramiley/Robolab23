@@ -11,7 +11,7 @@
                  :style="{top: r[1].top + 'px', left: r[1].left + 'px', transform: 'rotate(' + r[1].rotation + 'deg)'}">
         </div>
         <div id="clickable" @click="click"></div>
-        <div id="points" v-if="points.length > 0">
+        <div id="points" v-if="points.length > 0" :style="{opacity: translucent ? 0.5 : 1}">
             <div v-for="({x,y,paths}) in points"
                  :style="{top: def.top.offsetPx + def.top.factor * (area.y.max - y) + 'px', left: def.left.offsetPx + def.left.factor * (x - area.x.min) + 'px'}"
                  class="point">
@@ -64,6 +64,7 @@
             <h1>Manipulate connecting</h1>
             <button @click="connectStart = null">Reset selected connector</button>
             <button @click="connectStart.blocked = !connectStart.blocked">Toggle blocked</button>
+            <button @click="translucent=!translucent">Toggle translucent</button>
         </div>
 
         <h1>Finish connecting</h1>
@@ -81,6 +82,7 @@
     createApp({
         data() {
             return {
+                translucent: false,
                 vars: [
                     {
                         title: "Bitte klicke auf den linken obersten Punkt der Karte",
