@@ -18,6 +18,8 @@ client = None  # DO NOT EDIT
 SETUP PROGRAM
 """
 
+print("Starting program...")
+
 
 def init_client():
     # The deploy-script uses the variable "client" to stop the mqtt-client after your program stops or crashes.
@@ -28,7 +30,7 @@ def init_client():
     client = mqtt.Client(client_id=client_id,  # Unique Client-ID to recognize our program
                          clean_session=True,  # We want a clean session after disconnect or abort/crash
                          protocol=mqtt.MQTTv311,  # Define MQTT protocol version
-                         userdata=client_id # Pass client_id to on_connect callback
+                         userdata=client_id  # Pass client_id to on_connect callback
                          )
     # Setup logging directory and file
     curr_dir = os.path.abspath(os.getcwd())
@@ -76,3 +78,4 @@ if __name__ == '__main__':
     except Exception as e:
         signal_handler(raise_interrupt=False)
         raise
+

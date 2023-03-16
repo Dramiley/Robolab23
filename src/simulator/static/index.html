@@ -4,10 +4,10 @@
 <div id="site">
 
     <div id="select-planet-screen" v-if="selectVisible">
-        <h1>Planeten wählen</h1>
+        <h1>Planeten</h1>
         <div class="planets">
             <div v-for="planet in planets" class="planet" @click="selectPlanet(planet)">
-                <img :src="planet+'.jpg'">
+                <img :src="planet+'.svg'">
                 <div class="planet-name">{{ planet }}</div>
             </div>
         </div>
@@ -15,7 +15,7 @@
 
     <div id="app-wrapper">
         <div id="app" v-if="def != null && typeof def.startPosition !== 'undefined'">
-            <img id="map" :src="name+'.png'">
+            <img id="map" :src="name+'.svg'">
             <img id="robot" :src="robot.crashed?'robot_offroad.png':'robot.png'"
                  :style="{top: top + 'px', left: left + 'px', transform: 'rotate(' + rotation + 'deg)'}">
 
@@ -42,11 +42,6 @@
                 <div class="form-select" @click="selectVisible=true">
                     {{name}}
                 </div>
-                <!--
-                <select v-model="name" @change="setPlanet" class="form-select">
-                    <option v-for="planet in planets" :value="planet">{{ planet }}</option>
-                </select>
-                -->
                 <div class="list-slider">
                     <div class="btn btn-outline-primary" @click="toggleCollapsed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24 " height="24" viewBox="0 0 24 24">
@@ -61,18 +56,26 @@
                                   d="M3 9a1 1 0 0 0 1-1V5a1 1 0 0 1 1-1h3a1 1 0 0 0 0-2H5a3 3 0 0 0-3 3v3a1 1 0 0 0 1 1Zm5 11H5a1 1 0 0 1-1-1v-3a1 1 0 0 0-2 0v3a3 3 0 0 0 3 3h3a1 1 0 0 0 0-2Zm9-7a1 1 0 0 0 0-2h-1.14A4 4 0 0 0 13 8.14V7a1 1 0 0 0-2 0v1.14A4 4 0 0 0 8.14 11H7a1 1 0 0 0 0 2h1.14A4 4 0 0 0 11 15.86V17a1 1 0 0 0 2 0v-1.14A4 4 0 0 0 15.86 13Zm-5 1a2 2 0 1 1 2-2a2 2 0 0 1-2 2Zm9 1a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 0 0 2h3a3 3 0 0 0 3-3v-3a1 1 0 0 0-1-1ZM19 2h-3a1 1 0 0 0 0 2h3a1 1 0 0 1 1 1v3a1 1 0 0 0 2 0V5a3 3 0 0 0-3-3Z"/>
                         </svg>
                     </div>
-
-                    <div :class="{btn:true, 'btn-outline-primary':pause,'btn-primary':!pause}" @click="pause=!pause">
-                        <svg v-if="!pause" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                             viewBox="0 0 1024 1024">
-                            <path fill="currentColor"
-                                  d="M304 176h80v672h-80zm408 0h-64c-4.4 0-8 3.6-8 8v656c0 4.4 3.6 8 8 8h64c4.4 0 8-3.6 8-8V184c0-4.4-3.6-8-8-8z"/>
-                        </svg>
-                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <div :class="{btn:true, 'btn-outline-primary':run!=='stop','btn-primary':run==='stop'}"
+                         @click="playButtonPressed()">
+                        <svg v-if="run === 'stop'" xmlns="http://www.w3.org/2000/svg" width="24"
+                             height="24"
+                             viewBox="0 0 24 24">
                             <path fill="currentColor"
                                   d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.69L9.54 5.98A.998.998 0 0 0 8 6.82z"/>
                         </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M6 6h12v12H6z"/>
+                        </svg>
                     </div>
+
+                    <div @click="deploy" :class="{btn:true, 'btn-outline-success':!deploying,'btn-success':deploying}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                  d="M23 1s-6.528-.458-9 2c-.023.037-4 4-4 4L5 8l-3 2l8 4l4 8l2-3l1-5s3.963-3.977 4-4c2.458-2.472 2-9 2-9Zm-6 7a1 1 0 1 1 0-2a1 1 0 0 1 0 2ZM7 17c-1-1-3-1-4 0s-1 5-1 5s4 0 5-1s1-3 0-4Z"/>
+                        </svg>
+                    </div>
+
 
                 </div>
             </div>
@@ -182,12 +185,13 @@
                 robot: {
                     crashed: false
                 },
+                deploying: false,
                 name: null,
                 planets: [],
                 def: null,
                 history: [],
                 historySelected: 0,
-                pause: false,
+                run: 'stop',
                 colorHeadings: {
                     'error': 'Fehlermeldung',
                     'success': 'Erfolgsmeldung',
@@ -233,8 +237,8 @@
         },
         methods: {
             selectPlanet(planet) {
-                this.selectVisible = false
                 this.setPlanet(planet)
+                this.selectVisible = false
             },
             refreshPlanet() {
                 fetch('/planet')
@@ -242,15 +246,24 @@
                     .then(({def, name}) => {
                         this.name = name
                         this.def = def
+
+                        this.run = 'stop'
+                        fetch('/run/stop').then(() => {
+                        })
+
+                        setTimeout(() => {
+                            this.playButtonPressed()
+                        }, 500)
                     })
                     .catch(e => console.error(e))
             },
             setPlanet(name = this.name) {
+                this.run = 'stop'
+                this.name = name // set the name to the planet already, so that the image can load before server call
                 fetch('/planet?name=' + name, {
                     method: 'POST'
                 }).then(() => {
                     this.refreshPlanet()
-                    this.pause = false
                 })
             },
             refreshPlanets() {
@@ -291,7 +304,7 @@
                     return entry
                 })
 
-                if (!this.pause) {
+                if (this.run == 'play') {
                     // go the the last position in the history with type position
                     this.historySelected = this.history.length - 1
                     while (this.history[this.historySelected].type !== 'position') {
@@ -321,7 +334,7 @@
 
             },
             selectEntry: function (index) {
-                this.pause = true
+                this.run = 'pause'
 
                 if (this.history[index].type === 'position') {
                     this.historySelected = index
@@ -331,9 +344,82 @@
                         this.historySelected--
                     }
                 }
+
+                // because were pressing shift and the user might be clicking, text will be selected
+                // we need to deselect it
+                if (window.getSelection) {
+                    window.getSelection().removeAllRanges();
+                } else if (document.selection) {
+                    document.selection.empty();
+                }
+
+            },
+            playButtonPressed() {
+                if (this.run === 'play' || this.run === 'pause') {
+                    this.run = 'stop'
+                    fetch('/run/stop')
+                } else {
+                    this.run = 'play'
+                    fetch('/run/start')
+                }
+            }
+            ,
+            setupKeyListeners() {
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                        // go to the next position in the history
+                        if (this.historySelected < this.history.length - 1) {
+                            this.historySelected++
+                            while (this.history[this.historySelected].type !== 'position') {
+                                this.historySelected++
+                            }
+                        }
+                    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                        // go to the previous position in the history
+                        if (this.historySelected > 0) {
+                            this.historySelected--
+                            while (this.history[this.historySelected].type !== 'position') {
+                                this.historySelected--
+                            }
+                        }
+                    } else if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space' || event.key === 'Enter') {
+                        this.playButtonPressed()
+                    } else if (event.key === 'Escape') {
+                        this.selectVisible = !this.selectVisible
+                    } else if (event.key === 'Tab') {
+                        this.toggleCollapsed()
+                    } else if (event.key === 'Shift') {
+                        this.filterPositions = true
+                    } else if (event.key === 'r') {
+                        window.location.reload()
+                    } else if (event.key === 'd') {
+                        this.deploy()
+                    }
+                    event.preventDefault()
+                })
+                document.addEventListener('keyup', (event) => {
+                    if (event.key === 'Shift') {
+                        this.filterPositions = false
+
+                    }
+                    event.preventDefault()
+                })
+            },
+            deploy() {
+                this.deploying = true
+                fetch('/deploy', {
+                    method: 'POST'
+                }).then(() => {
+                    setTimeout(() => {
+                        this.deploying = false
+                    }, 6000)
+                })
             },
         },
         mounted() {
+
+            this.setupKeyListeners()
+
             this.refreshPlanets()
             this.refreshPlanet()
             this.refreshHistory()
@@ -358,13 +444,15 @@
 
         }
     }).mount('#site')
+
+
 </script>
 
 <style>
     html, body {
         margin: 0;
         padding: 0;
-        font-family: sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     }
 
     #site {
@@ -372,7 +460,7 @@
         flex-direction: row;
         height: 100vh;
         width: 100vw;
-        background: blueviolet;
+        background: #2a2a2a;
     }
 
     #history {
@@ -388,7 +476,6 @@
         justify-content: center;
         display: flex;
         align-items: center;
-        background: #b1b1b1;
     }
 
     .list-header {
@@ -431,6 +518,10 @@
         left: 50px;
         z-index: 99;
         transition: .5s;
+    }
+
+    div {
+        cursor: default;
     }
 
     #app #info {
@@ -597,6 +688,17 @@
         border-color: #0d6efd;
         color: #0d6efd !important;
     }
+
+    /* text soll nicht selektierbar sein */
+    .no-select, body, html, * {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Nicht unterstützt */
+    }
+
 
 </style>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
