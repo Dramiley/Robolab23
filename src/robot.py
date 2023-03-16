@@ -9,7 +9,8 @@ from typing import List
 from planet import Direction
 import math
 
-from controller import env
+# CIRCULAR IMPORT!!!!
+# from controller import env
 
 class Robot:
     """
@@ -249,10 +250,10 @@ class Robot:
     def begin(self):
         self.__calibrate()
 
-        if env["ROBIN_MODE"]:
-            self.__menu()
-        else:
-            self.__followline()
+        # if env["ROBIN_MODE"]:
+        #     self.__menu()
+        # else:
+        #     self.__followline()
 
     def __menu(self):
         while True:
