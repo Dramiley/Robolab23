@@ -39,9 +39,14 @@
     <div id="history">
         <div>
             <div class="list-header">
+                <div class="form-select" @click="selectVisible=true">
+                    {{name}}
+                </div>
+                <!--
                 <select v-model="name" @change="setPlanet" class="form-select">
                     <option v-for="planet in planets" :value="planet">{{ planet }}</option>
                 </select>
+                -->
                 <div class="list-slider">
                     <div class="btn btn-outline-primary" @click="toggleCollapsed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24 " height="24" viewBox="0 0 24 24">
@@ -227,6 +232,10 @@
 
         },
         methods: {
+            selectPlanet(planet) {
+                this.selectVisible = false
+                this.setPlanet(planet)
+            },
             refreshPlanet() {
                 fetch('/planet')
                     .then(response => response.json())
@@ -236,8 +245,8 @@
                     })
                     .catch(e => console.error(e))
             },
-            setPlanet() {
-                fetch('/planet?name=' + this.name, {
+            setPlanet(name = this.name) {
+                fetch('/planet?name=' + name, {
                     method: 'POST'
                 }).then(() => {
                     this.refreshPlanet()
@@ -535,33 +544,41 @@
         justify-content: center;
         flex-direction: column;
         z-index: 999;
+        overflow: auto;
     }
 
     #select-planet-screen .planets {
         margin: 20px 0;
-        /* 5 planets per row */
+        /* display as many as possible in a row */
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 10px;
-
+        width: 1100px;
+        max-width: 100%;
+        overflow: auto;
     }
 
     #select-planet-screen .planet img {
-        width: 150px;
-        height: 160px;
+        width: 160px;
+        height: 180px;
         object-fit: contain;
-        background: #FBFBFB;
         padding: 10px;
         object-position: center;
     }
 
     #select-planet-screen .planet {
-        border-radius: 2px;
-        background: white;
+        border-radius: 5px;
+        background: #FBFBFB;
         display: flex;
         flex-direction: column;
         align-items: center;
         cursor: pointer;
+        border: 3px solid transparent;
+    }
+
+    #select-planet-screen .planet:hover {
+        border-color: #0d6efd;
+        background: #ffffff;
     }
 
     #select-planet-screen .planet .planet-name {
@@ -569,6 +586,16 @@
         font-size: 1.2em;
         text-align: center;
         color: #333;
+        margin-bottom: 10px;
+    }
+
+    .form-select {
+        cursor: pointer;
+    }
+
+    .form-select:hover *, .form-select:hover {
+        border-color: #0d6efd;
+        color: #0d6efd !important;
     }
 
 </style>
