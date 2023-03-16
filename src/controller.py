@@ -374,6 +374,11 @@ class Controller:
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
         """
 
+        # pass onto handler, forget pathStatus
+        self.__handle_received_path(startX, startY, startDirection, endX, endY, endDirection, pathWeight)
+
+    def __handle_received_path(self, startX, startY, startDirection, endX, endY, endDirection, pathWeight):
+
         # init odometry
         self.odometry.set_coords((startX, startY))
         self.odometry.set_dir(startDirection)
@@ -382,7 +387,7 @@ class Controller:
         self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
         # update last position and path status
-        current_dir = (endDirection + 180) % 360 # we now look at to the opposite direction than we entered the node
+        current_dir = (endDirection + 180) % 360  # we now look at to the opposite direction than we entered the node
         self.last_position = Position(endX, endY, current_dir)
 
         # don't drive to next communication point yet, because we want to receive path select messages first
