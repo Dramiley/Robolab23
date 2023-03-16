@@ -149,7 +149,8 @@ class RobotDummy(Robot):
 
     def __init__(self):
         # clean history file
-        open('simulator/history.json', 'w').close()
+        __current_dir = os.path.dirname(os.path.realpath(__file__))
+        open(__current_dir + '/simulator/history.json', 'w').close()
 
         # inform user
         print("Using simulator robot ...")

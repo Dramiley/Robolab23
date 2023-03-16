@@ -41,8 +41,10 @@ from typing import Optional
 # siehe https://se-gitlab.inf.tu-dresden.de/robolab-spring/ws2022/group-046/-/blob/master/README.md#example-for-development-purposes
 env = {"SIMULATOR": False, "DEBUG": False, "GITLAB_RUNNER": False, "ODOMETRY": True, "ROBIN_MODE": False}
 
-if os.path.exists(".env"):
-    with open(".env") as f:
+__current_dir = os.path.dirname(os.path.realpath(__file__))
+print(__current_dir)
+if os.path.exists(__current_dir + "/.env"):
+    with open(__current_dir + "/.env") as f:
         for line in f:
             key, value = line.split("=")
             value = value.replace("\n", "")
@@ -62,6 +64,8 @@ if len(sys.argv) > 1 and sys.argv[1] == "ci":
 TODO: self.odometry.stop()
 """
 
+__current_dir = os.path.dirname(os.path.realpath(__file__))
+
 
 def simulator_log(log_type, log_dict):
     if not env["SIMULATOR"]:
@@ -72,12 +76,12 @@ def simulator_log(log_type, log_dict):
 
     # append to history file (which contains an array of positions)
     from lockfile import LockFile
-    lock = LockFile("simulator/history.json.lock")
+    lock = LockFile(__current_dir + "/simulator/history.json.lock")
     with lock:
         time.sleep(0.001)
 
     lock.acquire()
-    with open('simulator/history.json', 'r+') as outfile:
+    with open(__current_dir + '/simulator/history.json', 'r+') as outfile:
         try:
             data = json.load(outfile)
         except:

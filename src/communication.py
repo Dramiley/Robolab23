@@ -229,7 +229,8 @@ class Communication:
         # load payload definitions from json file
         # in the current directory
 
-        with open('communication_definitions.json') as json_file:
+        __current_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(__current_dir + '/communication_definitions.json') as json_file:
             payload_definitions = json.load(json_file)
 
         # check if payload is valid
