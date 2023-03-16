@@ -112,6 +112,17 @@ class Communication:
         :param message: Object
         :return: void
         """
+
+        # log the data
+        # get client id
+        client_id = client._client_id.decode('utf-8')
+
+        if client_id != data:
+            self.logger.error('Client id does not match data')
+            return
+        else:
+            self.logger.debug('Client id matches data')
+
         payload = ""
         try:
             if message.payload is not None:
@@ -229,7 +240,8 @@ class Communication:
         # load payload definitions from json file
         # in the current directory
 
-        with open('communication_definitions.json') as json_file:
+        __current_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(__current_dir + '/communication_definitions.json') as json_file:
             payload_definitions = json.load(json_file)
 
         # check if payload is valid

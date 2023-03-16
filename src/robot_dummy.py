@@ -26,11 +26,15 @@ class RobotDummy(Robot):
     motor_right = DummyMotor()
 
     was_path_blocked = False
-
+    motor_pos_list = []
     # read map from file
     # read map name from planets/current_map.txt
-    with open('simulator/planets/current.txt') as __file:
-        __file_name = 'simulator/planets/' + __file.read().strip() + '.json'
+    # get the current directory
+    __current_dir = os.path.dirname(os.path.realpath(__file__))
+    print("Current dir: " + __current_dir)
+
+    with open(__current_dir + '/simulator/planets/current.txt') as __file:
+        __file_name = __current_dir + '/simulator/planets/' + __file.read().strip() + '.json'
 
         # if file exists, read it
         if os.path.isfile(__file_name):
@@ -56,8 +60,6 @@ class RobotDummy(Robot):
         # check if our path is valid
         return new_path is not None
 
-    def getOrientation(self):
-        return self.__orientation
     def drive_until_communication_point(self):
         print("Driving until communication point...")
 
@@ -144,7 +146,8 @@ class RobotDummy(Robot):
 
     def __init__(self):
         # clean history file
-        open('simulator/history.json', 'w').close()
+        __current_dir = os.path.dirname(os.path.realpath(__file__))
+        open(__current_dir + '/simulator/history.json', 'w').close()
 
         # inform user
         print("Using simulator robot ...")

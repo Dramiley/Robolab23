@@ -53,8 +53,8 @@ class Odometry:
         delta_coords_x = ((abs(delta_x) + RASTER_WIDTH / 2) // 50) * 50
         delta_coords_y = ((abs(delta_y) + RASTER_WIDTH / 2) // 50) * 50
 
-        new_coords_x = self.start_pos_coords[0] + sign_x * delta_coords_x
-        new_coords_y = self.start_pos_coords[1] + sign_y * delta_coords_y
+        new_coords_x = int(self.start_pos_coords[0] + sign_x * delta_coords_x)
+        new_coords_y = int(self.start_pos_coords[1] + sign_y * delta_coords_y)
 
         return (new_coords_x, new_coords_y)
 

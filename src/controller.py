@@ -2,7 +2,7 @@
 OUR VERSION:
 At every communication point:
     0. check whether missed an incoming target request
-        ->if yes, set self.target to received target
+        ->if yes, set self.target_pos to received target
     1. check if target is set
         -> if it is, compute shortest path and select next path based on that shortest path
         -> else: get_next_exploration_dir
@@ -41,9 +41,14 @@ from typing import Optional
 # siehe https://se-gitlab.inf.tu-dresden.de/robolab-spring/ws2022/group-046/-/blob/master/README.md#example-for-development-purposes
 env = {"SIMULATOR": False, "DEBUG": False, "GITLAB_RUNNER": False, "ODOMETRY": True, "ROBIN_MODE": False}
 
-if os.path.exists(".env"):
-    with open(".env") as f:
+__current_dir = os.path.dirname(os.path.realpath(__file__))
+print(__current_dir)
+if os.path.exists(__current_dir + "/.env"):
+    with open(__current_dir + "/.env") as f:
         for line in f:
+            # if line is empty, skip it
+            if line == "\n":
+                continue
             key, value = line.split("=")
             value = value.replace("\n", "")
             if value == "True" or value == "False":
@@ -62,6 +67,8 @@ if len(sys.argv) > 1 and sys.argv[1] == "ci":
 TODO: self.odometry.stop()
 """
 
+__current_dir = os.path.dirname(os.path.realpath(__file__))
+
 
 def simulator_log(log_type, log_dict):
     if not env["SIMULATOR"]:
@@ -72,12 +79,12 @@ def simulator_log(log_type, log_dict):
 
     # append to history file (which contains an array of positions)
     from lockfile import LockFile
-    lock = LockFile("simulator/history.json.lock")
+    lock = LockFile(__current_dir + "/simulator/history.json.lock")
     with lock:
         time.sleep(0.001)
 
     lock.acquire()
-    with open('simulator/history.json', 'r+') as outfile:
+    with open(__current_dir + '/simulator/history.json', 'r+') as outfile:
         try:
             data = json.load(outfile)
         except:
@@ -131,7 +138,8 @@ class Controller:
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
         # load test planet name from planets/current.txt
-        with open('simulator/planets/current.txt') as f:
+        __current_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(__current_dir + '/simulator/planets/current.txt') as f:
             self.communication.test_planet(f.read().replace("\n", ""))
 
         # for our Simulator
@@ -179,7 +187,7 @@ class Controller:
 
         At every communication point:
             0. check whether missed an incoming target request (done implicitly by communication which then calls .receive_target(), right?? @ Dominik)
-                ->if yes, set self.target to received target
+                ->if yes, set self.target_pos to received target
             1. check if target is set
                 -> if it is, compute shortest path and select next path based on that shortest path
                 -> else: get_next_exploration_dir
@@ -198,7 +206,7 @@ class Controller:
             self.logger.debug(f"I have to drive to target at {self.target_pos}")
             # we have a given target we need to drive to
             last_pos = (self.last_position.x, self.last_position.y)
-            shortest_path = self.planet.get_shortest_path(last_pos, self.target)  # =List[Tuple[pos, dir]]
+            shortest_path = self.planet.get_shortest_path(last_pos, self.target_pos)  # =List[Tuple[pos, dir]]
 
             if shortest_path == []:
                 # we are already at target
@@ -343,9 +351,12 @@ class Controller:
         # calculate start and end position
         start_position = self.last_position
 
+        end_position = None
         if env["ODOMETRY"]:
             self.odometry.calculate(self.robot.motor_pos_list)
-            end_position = self.odometry.get_coords()
+            end_coords = self.odometry.get_coords()
+            end_position = Position(self.odometry.get_coords()[0], self.odometry.get_coords()[1],
+                                    self.odometry.get_dir())
         else:
             end_position = self.last_position
             # when there is no odometry, better send something than nothing
@@ -442,8 +453,9 @@ class Controller:
         # TODO: make sure robot.turn_deg deals appropriately with neg. values
         current_dir = self.last_position.direction
         logging.debug(f"Rotating: From {current_dir} to {target_dir}")
-        # TODO: robot currently would rotate 270° instead of -90°->unefficient!!!!
+        # TODO: robot currently would sometimes rotate more than necessary (e.g. target_dir=270, current_dir=0)
         deg_to_rotate = target_dir - current_dir
+        self.last_position.direction = target_dir
         self.robot.turn_deg(deg_to_rotate)
 
     def receive_done(self, message):

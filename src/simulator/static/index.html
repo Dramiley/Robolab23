@@ -2,6 +2,17 @@
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 
 <div id="site">
+
+    <div id="select-planet-screen" v-if="selectVisible">
+        <h1>Planeten wählen</h1>
+        <div class="planets">
+            <div v-for="planet in planets" class="planet" @click="selectPlanet(planet)">
+                <img :src="planet+'.jpg'">
+                <div class="planet-name">{{ planet }}</div>
+            </div>
+        </div>
+    </div>
+
     <div id="app-wrapper">
         <div id="app" v-if="def != null && typeof def.startPosition !== 'undefined'">
             <img id="map" :src="name+'.png'">
@@ -28,9 +39,14 @@
     <div id="history">
         <div>
             <div class="list-header">
+                <div class="form-select" @click="selectVisible=true">
+                    {{name}}
+                </div>
+                <!--
                 <select v-model="name" @change="setPlanet" class="form-select">
                     <option v-for="planet in planets" :value="planet">{{ planet }}</option>
                 </select>
+                -->
                 <div class="list-slider">
                     <div class="btn btn-outline-primary" @click="toggleCollapsed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24 " height="24" viewBox="0 0 24 24">
@@ -162,6 +178,7 @@
     createApp({
         data() {
             return {
+                selectVisible: false,
                 robot: {
                     crashed: false
                 },
@@ -215,6 +232,10 @@
 
         },
         methods: {
+            selectPlanet(planet) {
+                this.selectVisible = false
+                this.setPlanet(planet)
+            },
             refreshPlanet() {
                 fetch('/planet')
                     .then(response => response.json())
@@ -224,8 +245,8 @@
                     })
                     .catch(e => console.error(e))
             },
-            setPlanet() {
-                fetch('/planet?name=' + this.name, {
+            setPlanet(name = this.name) {
+                fetch('/planet?name=' + name, {
                     method: 'POST'
                 }).then(() => {
                     this.refreshPlanet()
@@ -305,7 +326,7 @@
                 if (this.history[index].type === 'position') {
                     this.historySelected = index
                 } else {
-                    this.history[index].collapsed = !this.history[index].collapsed
+                    this.history[index].collapsed = false
                     while (this.history[this.historySelected].type !== 'position') {
                         this.historySelected--
                     }
@@ -508,6 +529,75 @@
         padding: 4px;
         font-weight: 100;
     }
+
+    #select-planet-screen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #eee;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        z-index: 999;
+        overflow: auto;
+    }
+
+    #select-planet-screen .planets {
+        margin: 20px 0;
+        /* display as many as possible in a row */
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+        width: 1100px;
+        max-width: 100%;
+        overflow: auto;
+    }
+
+    #select-planet-screen .planet img {
+        width: 160px;
+        height: 180px;
+        object-fit: contain;
+        padding: 10px;
+        object-position: center;
+    }
+
+    #select-planet-screen .planet {
+        border-radius: 5px;
+        background: #FBFBFB;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        border: 3px solid transparent;
+    }
+
+    #select-planet-screen .planet:hover {
+        border-color: #0d6efd;
+        background: #ffffff;
+    }
+
+    #select-planet-screen .planet .planet-name {
+        padding: 10px 20px;
+        font-size: 1.2em;
+        text-align: center;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .form-select {
+        cursor: pointer;
+    }
+
+    .form-select:hover *, .form-select:hover {
+        border-color: #0d6efd;
+        color: #0d6efd !important;
+    }
+
 </style>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
       integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
