@@ -24,15 +24,24 @@
         </div>
     </div>
     <div id="controls">
+
+        <h1>Planet</h1>
+        <input type="text" v-model="name"/>
+
         <h1>Area</h1>
         <p>Please type in:</p>
         <p>X</p>
         <input type="number" v-model="area.x.min"/>
         <input type="number" v-model="area.x.max"/>
+
+        {{area.x.min >= area.x.max ? 'X min must be smaller than X max' : 'Numbers are fine.'}}
+
         <p>Y</p>
         <input type="number" v-model="area.y.min"/>
         <input type="number" v-model="area.y.max"/>
         <br/>
+
+        {{area.y.min >= area.y.max ? 'Y min must be smaller than Y max' : 'Numbers are fine.'}}
 
         <h1>Controls</h1>
         Und jetzt:
@@ -61,8 +70,6 @@
         <button @click="setStartConnector">Set current edge as start</button>
     </div>
     <div id="output">
-        <h1>{{name}}.def.json</h1>
-        <textarea>{{JSON.stringify(def, null, 2)}}</textarea>
         <h1>{{name}}.json</h1>
         <textarea>{{JSON.stringify({version:1,area,...def,paths:pointsWithPaths}, null, 2)}}</textarea>
     </div>
@@ -216,10 +223,10 @@
             }
         },
         mounted() {
+            return
             this.click({offsetX: 123, offsetY: 168})
             this.click({offsetX: 506, offsetY: 676})
             this.connectorClicked(3, 4, 1)
-            return
             this.setStartConnector()
         },
     }).mount('#app')
