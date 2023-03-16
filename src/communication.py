@@ -87,7 +87,11 @@ class Communication:
         :return: void
         """
 
-        payload_dict = json.loads(payload)
+        payload_dict = None
+        try:
+            payload_dict = json.loads(payload)
+        except:
+            self.logger.debug("json.loads(payload) failed")
 
         # if the payload has the key startDirection and the value is None, raise an error
         if 'startDirection' in payload_dict and payload_dict['startDirection'] is None:

@@ -73,24 +73,24 @@ def simulator_log(log_type, log_dict):
     log_dict["type"] = log_type
 
     # append to history file (which contains an array of positions)
-    lock = LockFile("simulator/history.json.lock")
-    with lock:
-        time.sleep(0.001)
+    # lock = LockFile("simulator/history.json.lock")
+    # with lock:
+    #     time.sleep(0.001)
 
-    lock.acquire()
-    with open('simulator/history.json', 'r+') as outfile:
-        try:
-            data = json.load(outfile)
-        except:
-            data = []
+    # lock.acquire()
+    # with open('simulator/history.json', 'r+') as outfile:
+    #     try:
+    #         data = json.load(outfile)
+    #     except:
+    #         data = []
 
-        # append to array
-        data.append(log_dict)
+    #     # append to array
+    #     data.append(log_dict)
 
-        # write to file
-        outfile.seek(0)
-        json.dump(data, outfile)
-    lock.release()
+    #     # write to file
+    #     outfile.seek(0)
+    #     json.dump(data, outfile)
+    # lock.release()
 
 
 class Position:
@@ -154,7 +154,7 @@ class Controller:
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
         if not env["SIMULATOR"]:
-            self.robot.drive_until_communication_point()
+            self.robot.begin()
         else:
             print(
                 "Simulator: skipping drive_until_communication_point(), because we're already at a communication point")
@@ -287,7 +287,7 @@ class Controller:
         self.__handle_received_planet(startX, startY, Direction(startOrientation))
 
         # los gehts
-        self.robot.begin()
+        self.begin()
 
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
@@ -369,10 +369,14 @@ class Controller:
         self.communication.target_reached("Target reached.")
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
+        # pass onto handler, forget pathStatus
+        self.__handle_received_path(startX, startY, startDirection, endX, endY, endDirection, pathWeight)
+
+    def __handle_received_path(self, startX, startY, startDirection, endX, endY, endDirection, pathWeight):
         """
-        Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
-        siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
-        """
+         Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
+         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
+         """
 
         # init odometry
         self.odometry.set_coords((startX, startY))
@@ -382,7 +386,7 @@ class Controller:
         self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
         # update last position and path status
-        current_dir = (endDirection + 180) % 360 # we now look at to the opposite direction than we entered the node
+        current_dir = (endDirection + 180) % 360  # we now look at to the opposite direction than we entered the node
         self.last_position = Position(endX, endY, current_dir)
 
         # don't drive to next communication point yet, because we want to receive path select messages first
