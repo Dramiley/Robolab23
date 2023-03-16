@@ -9,6 +9,7 @@ import time
 
 # import communication_facade
 from communication_facade import CommunicationFacade
+from controller import env
 
 
 class Communication:
@@ -114,12 +115,23 @@ class Communication:
         payload = ""
         try:
             if message.payload is not None:
-                self.logger.info(message.payload.decode('utf-8'))
                 payload = json.loads(message.payload.decode('utf-8'))
             else:
                 self.logger.error('no payload')
         except:
             self.logger.error("json.loads failed")
+
+        # if type notice, just print the message but do not handle it
+        types_notice = ['notice', 'syntax', 'adjust', 'debug']
+        if 'type' in payload and payload['type'] in types_notice:
+            if 'message' in payload['payload']:
+                self.logger.info(payload['payload']['message'])
+            else:
+                self.logger.info(str(payload['payload']))
+            return
+
+        # log on_message event, please dont remove this line, its probably the most useful debug line
+        self.logger.info(message.payload.decode('utf-8'))
 
         # if "from" is the client itself, ignore the message
         if 'from' in payload and payload['from'] == "client":
@@ -132,7 +144,7 @@ class Communication:
             return
 
         # log message
-        self.logger.debug(json.dumps(payload, indent=2))
+        # self.logger.debug(json.dumps(payload, indent=2))
 
         # check if message type is set
         if 'type' not in payload:
@@ -226,10 +238,10 @@ class Communication:
         # check if callback function signature matches the payload definition
         if len(self.callbacks[message_type].__code__.co_varnames) == len(payload) or \
                 len(self.callbacks[message_type].__code__.co_varnames) == len(payload) + 1:
-            self.logger.success('Calling callback for message type ' + message_type)
-            self.logger.debug('with payload: ' + str(payload))
-            self.logger.debug('Required arguments: ' + str(self.callbacks[message_type].__code__.co_varnames))
-            self.logger.debug('Provided arguments: ' + str(payload))
+            # self.logger.success('Calling callback for message type ' + message_type)
+            # self.logger.debug('with payload: ' + str(payload))
+            # self.logger.debug('Required arguments: ' + str(self.callbacks[message_type].__code__.co_varnames))
+            # self.logger.debug('Provided arguments: ' + str(payload))
             self.callbacks[message_type](**payload)
         else:
             self.logger.error('Callback function signature for "' + message_type + '" does not match payload '
@@ -289,7 +301,10 @@ class Communication:
             # send message
             print("waiting 3s before faking server response")
 
-            time.sleep(3)  # TODO: change to 3s
+            if env["SIMULATOR"]:
+                time.sleep(1)  # TODO: change to 3s
+            else:
+                time.sleep(3)  # TODO: change to 3s
 
             print("waited 3s before faking server response")
 

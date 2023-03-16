@@ -36,8 +36,6 @@ import sys
 import logging
 from typing import Optional
 
-#from lockfile import LockFile
-
 # DONT CHANGE ANYTHING HERE, ONLY IN .env
 # Bitte nicht hierdrinne verändern, sondern in der src/.env setzen.
 # siehe https://se-gitlab.inf.tu-dresden.de/robolab-spring/ws2022/group-046/-/blob/master/README.md#example-for-development-purposes
@@ -73,24 +71,25 @@ def simulator_log(log_type, log_dict):
     log_dict["type"] = log_type
 
     # append to history file (which contains an array of positions)
-    # lock = LockFile("simulator/history.json.lock")
-    # with lock:
-    #     time.sleep(0.001)
+    from lockfile import LockFile
+    lock = LockFile("simulator/history.json.lock")
+    with lock:
+        time.sleep(0.001)
 
-    # lock.acquire()
-    # with open('simulator/history.json', 'r+') as outfile:
-    #     try:
-    #         data = json.load(outfile)
-    #     except:
-    #         data = []
+    lock.acquire()
+    with open('simulator/history.json', 'r+') as outfile:
+        try:
+            data = json.load(outfile)
+        except:
+            data = []
 
-    #     # append to array
-    #     data.append(log_dict)
+        # append to array
+        data.append(log_dict)
 
-    #     # write to file
-    #     outfile.seek(0)
-    #     json.dump(data, outfile)
-    # lock.release()
+        # write to file
+        outfile.seek(0)
+        json.dump(data, outfile)
+    lock.release()
 
 
 class Position:
@@ -145,11 +144,13 @@ class Controller:
         # setup callbacks
         self.__init_callbacks()
 
-        self.logger = logging.getLogger(__name__)
+        # self.logger = logging.getLogger(__name__)
+        self.logger = self.communication.communication.logger
+
         self.logger.setLevel(logging.DEBUG)
 
     def begin(self):
-        print("Controller started")
+        print("controller.begin()")
 
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
@@ -157,13 +158,12 @@ class Controller:
             self.robot.begin()
         else:
             print(
-                "Simulator: skipping drive_until_communication_point(), because we're already at a communication point")
+                "Simulator: skipping drive_until_communication_point(), because we'll already be at an communication point")
 
         # teilt dem Mutterschiff mit, dass er bereit zur Erkundung ist
         self.communication.ready()
 
         # then we wait for planet msg->ready() only exits when everything is over
-
         # as long as the programm is not exited, wait for callbacks
         # but if we are in CI mode, exit right away since we tested everything
         if not env["GITLAB_RUNNER"]:
@@ -287,7 +287,7 @@ class Controller:
         self.__handle_received_planet(startX, startY, Direction(startOrientation))
 
         # los gehts
-        self.begin()
+        self.run()  # undo alex's change to begin()
 
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
