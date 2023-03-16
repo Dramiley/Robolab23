@@ -70,13 +70,13 @@
         {
           "x": 0,
           "y": 0,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
           "x": -1,
           "y": 0,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         }
       ]

@@ -72,7 +72,6 @@ app.get('/run/start', (req, res) => {
 app.get('/run/deploy', (req, res) => {
     try {
         exec('python3 ../deploy.py');
-
         res.send('Deployed python script');
     } catch (e) {
         res.send('Could not deploy: ' + e);

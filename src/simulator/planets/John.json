@@ -55,7 +55,7 @@
         {
           "x": 68,
           "y": 421,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": true
         },
         null
@@ -80,7 +80,7 @@
         {
           "x": 68,
           "y": 421,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         null
@@ -115,7 +115,7 @@
         {
           "x": 69,
           "y": 420,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         null
@@ -141,7 +141,7 @@
         {
           "x": 68,
           "y": 422,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         }
       ]
@@ -180,7 +180,7 @@
         {
           "x": 70,
           "y": 422,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -201,7 +201,7 @@
         {
           "x": 69,
           "y": 423,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         }
       ]
