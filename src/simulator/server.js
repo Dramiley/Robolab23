@@ -62,47 +62,44 @@ const {exec} = require("child_process");
 app.get('/run/start', (req, res) => {
     console.log('Starting python script');
     try {
-
-        // run python script and send all output to the console
-        cmd = 'python3 ../main.py'
-        exec(cmd, (error, stdout, stderr) => {
-            if (error) {
-                console.log(`error: ${error.message}`);
-                return;
-            }
-            if (stderr) {
-                console.log(`stderr: ${stderr}`);
-                return;
-            }
-            console.log(`stdout: ${stdout}`);
-        });
+        exec('python3 ../main.py');
 
         res.send('Started python script');
-
     } catch (e) {
-        res.send('Error: ' + e);
+        res.send('Could not start: ' + e);
     }
 });
+app.get('/run/deploy', (req, res) => {
+    try {
+        exec('python3 ../deploy.py');
+
+        res.send('Deployed python script');
+    } catch (e) {
+        res.send('Could not deploy: ' + e);
+    }
+})
 
 app.get('/run/stop', (req, res) => {
-    console.log('Stopping python script');
+    try {
+        // stop python script
+        exec('pkill -f main.py', (error, stdout, stderr) => {
 
-    // stop python script
-    exec('pkill -f main.py', (error, stdout, stderr) => {
+            // get current directory path
+            let path = __dirname + '/'
 
-        // get current directory path
-        let path = __dirname + '/'
+            // find all files that end with .lock or have a name longer than 40 characters
+            let files = fs.readdirSync(__dirname).filter(f => f.endsWith('.lock') || f.length > 40)
 
-        // find all files that end with .lock or have a name longer than 40 characters
-        let files = fs.readdirSync(__dirname).filter(f => f.endsWith('.lock') || f.length > 40)
+            // delete all files that match the criteria
+            files.forEach(f => {
+                console.log('Deleting ' + path + f)
+                fs.unlinkSync(path + f)
+            })
 
-        // delete all files that match the criteria
-        files.forEach(f => {
-            console.log('Deleting ' + path + f)
-            fs.unlinkSync(path + f)
+            res.send('Stopped python script');
         })
-
-        res.send('Stopped python script');
-    })
+    } catch (e) {
+        res.send('Could not stop: ' + e);
+    }
 
 });
