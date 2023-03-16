@@ -46,6 +46,9 @@ print(__current_dir)
 if os.path.exists(__current_dir + "/.env"):
     with open(__current_dir + "/.env") as f:
         for line in f:
+            # if line is empty, skip it
+            if line == "\n":
+                continue
             key, value = line.split("=")
             value = value.replace("\n", "")
             if value == "True" or value == "False":
@@ -352,7 +355,8 @@ class Controller:
         if env["ODOMETRY"]:
             self.odometry.calculate(self.robot.motor_pos_list)
             end_coords = self.odometry.get_coords()
-            end_position = Position(self.odometry.get_coords()[0], self.odometry.get_coords()[1], self.odometry.get_dir())
+            end_position = Position(self.odometry.get_coords()[0], self.odometry.get_coords()[1],
+                                    self.odometry.get_dir())
         else:
             end_position = self.last_position
             # when there is no odometry, better send something than nothing
