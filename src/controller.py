@@ -2,7 +2,7 @@
 OUR VERSION:
 At every communication point:
     0. check whether missed an incoming target request
-        ->if yes, set self.target to received target
+        ->if yes, set self.target_pos to received target
     1. check if target is set
         -> if it is, compute shortest path and select next path based on that shortest path
         -> else: get_next_exploration_dir
@@ -184,7 +184,7 @@ class Controller:
 
         At every communication point:
             0. check whether missed an incoming target request (done implicitly by communication which then calls .receive_target(), right?? @ Dominik)
-                ->if yes, set self.target to received target
+                ->if yes, set self.target_pos to received target
             1. check if target is set
                 -> if it is, compute shortest path and select next path based on that shortest path
                 -> else: get_next_exploration_dir
@@ -203,7 +203,7 @@ class Controller:
             self.logger.debug(f"I have to drive to target at {self.target_pos}")
             # we have a given target we need to drive to
             last_pos = (self.last_position.x, self.last_position.y)
-            shortest_path = self.planet.get_shortest_path(last_pos, self.target)  # =List[Tuple[pos, dir]]
+            shortest_path = self.planet.get_shortest_path(last_pos, self.target_pos)  # =List[Tuple[pos, dir]]
 
             if shortest_path == []:
                 # we are already at target
@@ -348,9 +348,11 @@ class Controller:
         # calculate start and end position
         start_position = self.last_position
 
+        end_position = None
         if env["ODOMETRY"]:
             self.odometry.calculate(self.robot.motor_pos_list)
-            end_position = self.odometry.get_coords()
+            end_coords = self.odometry.get_coords()
+            end_position = Position(self.odometry.get_coords()[0], self.odometry.get_coords()[1], self.odometry.get_dir())
         else:
             end_position = self.last_position
             # when there is no odometry, better send something than nothing
@@ -447,8 +449,9 @@ class Controller:
         # TODO: make sure robot.turn_deg deals appropriately with neg. values
         current_dir = self.last_position.direction
         logging.debug(f"Rotating: From {current_dir} to {target_dir}")
-        # TODO: robot currently would rotate 270° instead of -90°->unefficient!!!!
+        # TODO: robot currently would sometimes rotate more than necessary (e.g. target_dir=270, current_dir=0)
         deg_to_rotate = target_dir - current_dir
+        self.last_position.direction = target_dir
         self.robot.turn_deg(deg_to_rotate)
 
     def receive_done(self, message):

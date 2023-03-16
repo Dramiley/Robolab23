@@ -120,15 +120,15 @@ class Planet:
         Adds new path to self.paths AND updates self.unexplored
         """
         start_coords = start[0]
-        start_entry_dir = start[1]
+        start_exit_dir = start[1]
         target_coords = target[0]
         target_entry_dir = target[1]
 
-        self.paths[start_coords][start_entry_dir] = (target_coords, target_entry_dir, weight)
-        self.paths[target_coords][target_entry_dir] = (start_coords, start_entry_dir, weight)
+        self.paths[start_coords][start_exit_dir] = (target_coords, target_entry_dir, weight)
+        self.paths[target_coords][target_entry_dir] = (start_coords, start_exit_dir, weight)
 
-        if target_coords in self.unexplored.keys() and target_entry_dir in self.unexplored[target_coords]:
-            self.__mark_dir_explored(target_coords, target_entry_dir)
+        if start_coords in self.unexplored.keys() and start_exit_dir in self.unexplored[start_coords]:
+            self.__mark_dir_explored(start_coords, start_exit_dir)
 
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
         """
