@@ -19,11 +19,11 @@ import subprocess
 import sys
 
 # Store path to executable
-DEPLOY_EXECUTABLE = "./robolab-deploy/deploy.py"
+DEPLOY_EXECUTABLE = "./robolab-deploy-lite/deploy.py"
 # Windows-Fix: Get the full executable path, windows can't handle our shebang
 PYTHON_EXECUTABLE = sys.executable
 
-# Check if the "robolab-deploy" submodule is available
+# Check if the "robolab-deploy-lite" submodule is available
 try:
     with open(DEPLOY_EXECUTABLE) as f:
         f.close()
