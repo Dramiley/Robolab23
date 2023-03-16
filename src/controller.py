@@ -29,23 +29,14 @@ TODO: register unexplored dirs (when robot turns around on a node) on __get_unex
 TODO: add odometry into robot's movement??
 TODO: update dir of self.last_position everytime we tell the robot to rotate
 """
-
+import json
 import time
 import os
 import sys
-import math
-import pdb
 import logging
+from typing import Optional
 
-from communication import Communication
-from communication_logger import CommunicationLogger
-from odometry import Odometry
-from robot import Robot
-from robot_dummy import RobotDummy
-from planet import Planet, Direction
-
-from typing import List, Tuple
-from threading import Thread
+from lockfile import LockFile
 
 # DONT CHANGE ANYTHING HERE, ONLY IN .env
 # Bitte nicht hierdrinne verändern, sondern in der src/.env setzen.
@@ -74,6 +65,34 @@ TODO: self.odometry.stop()
 """
 
 
+def simulator_log(log_type, log_dict):
+    if not env["SIMULATOR"]:
+        return
+
+    # set payload type
+    log_dict["type"] = log_type
+
+    # append to history file (which contains an array of positions)
+    lock = LockFile("simulator/history.json.lock")
+    with lock:
+        time.sleep(0.001)
+
+    lock.acquire()
+    with open('simulator/history.json', 'r+') as outfile:
+        try:
+            data = json.load(outfile)
+        except:
+            data = []
+
+        # append to array
+        data.append(log_dict)
+
+        # write to file
+        outfile.seek(0)
+        json.dump(data, outfile)
+    lock.release()
+
+
 class Position:
     x, y, direction = 0, 0, 0
 
@@ -81,6 +100,14 @@ class Position:
         self.x = x
         self.y = y
         self.direction = direction
+
+
+from communication import Communication
+from communication_logger import CommunicationLogger
+from odometry import Odometry
+from robot import Robot
+from robot_dummy import RobotDummy
+from planet import Planet, Direction
 
 
 class Controller:
@@ -104,7 +131,9 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        self.communication.test_planet('Fassaden-M1')
+        # load test planet name from planets/current.txt
+        with open('simulator/planets/current.txt') as f:
+            self.communication.test_planet(f.read().replace("\n", ""))
 
         # for our Simulator
         if env["SIMULATOR"]:
@@ -186,7 +215,7 @@ class Controller:
                 next_dir = shortest_path[0][1]
                 self.logger.debug(f"Continuing driving towards target at {self.target_pos} in dir {next_dir}")
         else:
-            self.logger.debug("No target to drive to-continuing exploration")
+            self.logger.debug("No target to drive to - continuing exploration")
             next_dir = self.__explore()
 
         self.logger.debug(f"I decided to drive into dir {next_dir}")
@@ -195,7 +224,7 @@ class Controller:
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
 
-    def __explore(self) -> Direction or None:
+    def __explore(self) -> Optional[Direction]:
         """
         Let the robo have some fun and explore the planet on it's own
         """
@@ -207,6 +236,7 @@ class Controller:
             self.logger.debug(
                 "I have explored everything and as this method is only called of there was no target I'm finished:)")
             self.communication.exploration_completed()
+            self.logger.warning("THIS SHOULDNT BE EXECUTED, program should quit once the exploration is completed")
             return None
 
         self.logger.debug(f"Decide to continue exploration in dir {next_dir}")
@@ -240,6 +270,7 @@ class Controller:
         """
 
         # remember last position
+        print("settings last position to " + str(startX) + " " + str(startY) + " " + str(startOrientation))
         self.last_position = Position(startX, startY, startOrientation)
 
         # setup planet
@@ -253,15 +284,15 @@ class Controller:
         print("Init position: " + str(startX) + " " + str(startY) + " " + str(startOrientation))
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
-        self.__handle_received_path(startX, startY, Direction(startOrientation))
+        self.__handle_received_planet(startX, startY, Direction(startOrientation))
 
         # los gehts
         self.run()
 
-    def __handle_received_path(self, startX: int, startY: int, startOrientation: Direction):
+    def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
         # startOrientation is the dir the robot is pointing towards after entering the node
-        came_from_dir: Direction = Direction((startOrientation + 180) % 360)
+        came_from_dir = Direction((startOrientation + 180) % 360)
         # mark start path as blocked (is always a dead end)
         self.planet.add_path(((startX, startY), came_from_dir), ((startX, startY), came_from_dir), -1)
 
@@ -300,12 +331,20 @@ class Controller:
         Mithilfe der Odometrie schätzt er dabei seine neue Position ab.
         :return: void
         """
+
+        self.communication.communication.logger.debug("paths: " + str(self.planet.paths))
+        self.communication.communication.logger.debug("unexplored: " + str(self.planet.unexplored))
+
+        if (self.last_position is None):
+            self.logger.debug("last_position is None")
+            return
+
         self.logger.debug("---Robo entered a communication point---")
         # calculate start and end position
         start_position = self.last_position
 
         if env["ODOMETRY"]:
-            self.odometry.stop()
+            self.odometry.calculate(self.robot.motor_pos_list)
             end_position = self.odometry.get_coords()
         else:
             end_position = self.last_position
@@ -324,16 +363,10 @@ class Controller:
 
     def __target_reached(self):
         """
-        Wird von der Odometrie aufgerufen, wenn das Ziel erreicht wurde
+        Wird aufgerufen, wenn das Ziel erreicht wurde
         """
         self.logger.info("I have reached my target!!!")
         self.communication.target_reached("Target reached.")
-
-    def __exploration_complete(self):
-        """
-        Wird von der Odometrie aufgerufen, wenn die Erkundung abgeschlossen ist
-        """
-        self.communication.exploration_completed("Exploration completed.")
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         """
@@ -349,12 +382,14 @@ class Controller:
         self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
         # update last position and path status
-        self.last_position = Position(endX, endY, endDirection)
+        current_dir = (endDirection + 180) % 360 # we now look at to the opposite direction than we entered the node
+        self.last_position = Position(endX, endY, current_dir)
 
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
+        self.run()
 
-    def receive_path_unveiled(self, startX, startY, startOrientation, endX, endY, endOrientation, pathStatus,
+    def receive_path_unveiled(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus,
                               pathWeight):
         """
         Zusätzlich zur immer gesendeten Bestätigung bzw. Korrektur mit Gewichtung können weitere Nachrichten empfangen werden. Hierbei werden neue Pfade aufgedeckt, die durch andere Roboter bereits erkundet wurden, oder auch bereits erkundete Strecken gesperrt (bspw. durch einen Meteoriteneinschlag).
@@ -363,8 +398,7 @@ class Controller:
         """
 
         # TODO: check
-        self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
-        # self.odometry.receive_path_unveiled(startX, startY, startOrientation, endX, endY, endOrientation, pathStatus, pathWeight)
+        self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
     def receive_path_select(self, startDirection: Direction):
         """
@@ -379,9 +413,6 @@ class Controller:
 
         self.__rotate_robo_in_dir(startDirection)
 
-        # now we can finally drive to the next communication point
-        if env["ODOMETRY"]:
-            self.odometry.start()
         self.robot.drive_until_communication_point()
 
     def receive_target(self, x, y):
@@ -402,7 +433,7 @@ class Controller:
         current_dir = self.last_position.direction
         logging.debug(f"Rotating: From {current_dir} to {target_dir}")
         # TODO: robot currently would rotate 270° instead of -90°->unefficient!!!!
-        deg_to_rotate = current_dir - target_dir
+        deg_to_rotate = target_dir - current_dir
         self.robot.turn_deg(deg_to_rotate)
 
     def receive_done(self, message):

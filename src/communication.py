@@ -112,11 +112,10 @@ class Communication:
             if message.payload is not None:
                 self.logger.info(message.payload.decode('utf-8'))
                 payload = json.loads(message.payload.decode('utf-8'))
-                self.logger.success('payload valid')
             else:
                 self.logger.error('no payload')
         except:
-            print("json.loads failed")
+            self.logger.error("json.loads failed")
 
         # if "from" is the client itself, ignore the message
         if 'from' in payload and payload['from'] == "client":
@@ -262,7 +261,8 @@ class Communication:
         return True
 
     def check_syntax(self, topic, payload):
-        self.__publish('comtest/{}'.format(self.group_id), payload=payload, qos=2)
+        # self.__publish('comtest/{}'.format(self.group_id), payload=payload, qos=2)
+        pass
 
     def done(self):
         print("Disconnecting from broker")
@@ -285,7 +285,7 @@ class Communication:
             # send message
             print("waiting 3s before faking server response")
 
-            time.sleep(1) # TODO: change to 3s
+            time.sleep(3)  # TODO: change to 3s
 
             print("waited 3s before faking server response")
 
@@ -294,7 +294,7 @@ class Communication:
                 print("received a path select message in the meantime, not sending fake server response")
                 return
             else:
-                print("var "+str(a))
+                print("var " + str(a))
                 print("sending fake server response")
                 self.callback('pathSelect', {'startDirection': startDirection})
                 print(str(startDirection) + " " + str(type(startDirection)))

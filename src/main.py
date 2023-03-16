@@ -9,7 +9,6 @@ import signal
 
 from controller import Controller
 
-
 """
 SETUP COMMUNICATION
 """
@@ -48,6 +47,7 @@ def run():
 
     controller = Controller(client)
     controller.begin()
+    # test_odo()
 
 
 # DO NOT EDIT

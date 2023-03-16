@@ -54,7 +54,7 @@ class Planet:
         Attributes:
             self.paths = Dict[Path]
             self.nodes = List[Tuple[int, int]]
-                - maps node ids to coordinates of nodes for easier representation
+                - planets node ids to coordinates of nodes for easier representation
             self.computed_shortest_paths = Dict
                 - indizes=(normally) 2-element frozenset (set doesn't work bc not hasable) consisting of 2 nodes
                     - note: only one element for path of a node to itself!!! (since it's a set)
@@ -66,7 +66,7 @@ class Planet:
         self.paths = {}
         self.nodes = []
 
-        self.unexplored = {}  # dict keeping track of unexplored paths of the form node: Set[Direction] which are the unexplored directions
+        self.unexplored = {}  # dict keeping track of unexplored paths of the format node: Set[Direction] which are the unexplored directions
         self.computations_uptodate = False
 
     def __is_node_known(self, node: Tuple[int, int]) -> bool:
@@ -127,7 +127,7 @@ class Planet:
         self.paths[start_coords][start_entry_dir] = (target_coords, target_entry_dir, weight)
         self.paths[target_coords][target_entry_dir] = (start_coords, start_entry_dir, weight)
 
-        if target_coords in self.unexplored:
+        if target_coords in self.unexplored.keys() and target_entry_dir in self.unexplored[target_coords]:
             self.__mark_dir_explored(target_coords, target_entry_dir)
 
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
@@ -326,7 +326,7 @@ class Planet:
             ->adds path to self.unexplored if it is not explored
         """
         if dir in self.paths[node].keys():
-            # there is something registered for this dir
+            # there is already a path registered for this dir
             return
 
         if node not in self.unexplored.keys():
@@ -367,7 +367,7 @@ class Planet:
     def __mark_dir_explored(self, node_coords: Tuple[int, int], dir: Direction):
         """
         Unmarks dir of node_coords as not being unexplored anymore
-        ->WARNING: make sure node_coords is unexplored before passing it to this function!
+        ->WARNING: make sure node_coords is unexplored in dir before passing it to this function!
         """
 
         self.unexplored[node_coords].remove(dir)
@@ -384,6 +384,8 @@ class Planet:
         TODO: redundant, completeness can be checked by checking if get_next_exploration_path == None
         """
         # TODO: remove
-        return False
+        # return False
+
+        # we are complete if there are no unexplored nodes
         is_complete = not self.unexplored
         return is_complete

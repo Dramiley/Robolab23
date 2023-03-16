@@ -1,8 +1,10 @@
+import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import time
 
 from robot import Robot
+from controller import simulator_log
 
 
 class DummyMotor:
@@ -12,7 +14,7 @@ class DummyMotor:
 
 class RobotDummy(Robot):
     """
-    This class is a dummy for the robot.
+    This class is a simulator for the robot.
     It is used to test the code without the robot.
     """
 
@@ -26,17 +28,27 @@ class RobotDummy(Robot):
     was_path_blocked = False
 
     # read map from file
-    with open('maps/Fassaden-M1.json') as __json_file:
-        __map = json.load(__json_file)
-        __position = __map['x'], __map['y']
-        __orientation = __map['orientation']
+    # read map name from planets/current_map.txt
+    with open('simulator/planets/current.txt') as __file:
+        __file_name = 'simulator/planets/' + __file.read().strip() + '.json'
+
+        # if file exists, read it
+        if os.path.isfile(__file_name):
+            with open(__file_name) as __json_file:
+                __sim = json.load(__json_file)
+                __map = __sim['startPosition']
+                __position = __map['x'], __map['y']
+                __orientation = __map['orientation']
+                __map = __sim['paths']
+        else:
+            raise Exception("Map file " + __file_name + " does not exist")
 
     def __has_path_ahead(self):
         # can we drive into our current orientation?
         index_of_current_orientation = self.__orientation // 90
 
         # this is where we are
-        path = self.__path_by_coordinates(self.__position, self.__map)
+        path = self.__path()
 
         # output the path we are going to take
         new_path = path['paths'][index_of_current_orientation]
@@ -51,24 +63,29 @@ class RobotDummy(Robot):
         index_of_current_orientation = self.__orientation // 90
 
         # this is where we are
-        path = self.__path_by_coordinates(self.__position, self.__map)
-
-        # output the path we are going to take
+        path = self.__path()
         new_path = path['paths'][index_of_current_orientation]
 
         # check if our path is valid
         print("Taking new path: " + str(new_path))
         if new_path is None:
-            raise Exception("Invalid path")
-        elif new_path == -1 or new_path == -2:
-            raise Exception("Path is not an object")
+            simulator_log('communication.log',{'simulator.action':'crash','message': "You went off road. This map has no path in orientation " + str(self.__orientation) + " at position " + str(self.__position), 'color': 'error'})
+            raise Exception("You went off road. This map has no path in orientation " + str(self.__orientation) + " at position " + str(self.__position))
 
-        # update position
-        self.__orientation = new_path['orientation']
-        self.__position = new_path['x'], new_path['y']
+        if "blocked" in new_path and new_path['blocked']:
+            simulator_log('communication.log', {'message': "Path was blocked, turning around", 'color': 'warning'})
+            was_path_blocked = True
+            self.__orientation += 180
+        else:
+            was_path_blocked = False
+
+            # update position
+            self.__orientation = new_path['orientation']
+            self.__position = new_path['x'], new_path['y']
 
         # log
-        self.__log("Position: " + str(self.__position) + " | Orientation: " + str(self.__orientation))
+        self.__log("Pos: " + str(self.__position) + " | " + str(self.__orientation) + "° | Path blocked: " + str(
+            was_path_blocked))
 
         # tell the controller that we reached the communication point
         self.controller.communication_point_reached()
@@ -97,39 +114,35 @@ class RobotDummy(Robot):
 
     def __log(self, message=""):
         # print to console
-        print("I think I am now at position " + str(self.__position) + " and my orientation is " + str(self.__orientation))
+        print("I think I am now at position " + str(self.__position) + " and my orientation is " + str(
+            self.__orientation))
         print(message)
 
         # update visualisation
         self.__update_visualisation()
 
     def __update_visualisation(self):
-        # write to file
-        with open('dummy/position.json', 'w') as outfile:
-            json.dump({'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation}, outfile)
 
-        time.sleep(.1)
+        time.sleep(1)
+        simulator_log('position',
+                      {'x': self.__position[0], 'y': self.__position[1], 'orientation': self.__orientation})
 
-    def __path_by_coordinates(self, coordinates, path):
+    def __path(self):
         # a path contains x and y coordinates
         # a path also contains an array paths
 
-        if path is None or path == -1 or path == -2:
-            return None
+        for p in self.__map:
+            if p['x'] == self.__position[0] and p['y'] == self.__position[1]:
+                return p
 
-        if 'paths' not in path:
-            return None
-
-        if path['x'] == coordinates[0] and path['y'] == coordinates[1]:
-            return path
-
-        for p in path['paths']:
-            result = self.__path_by_coordinates(coordinates, p)
-            if result is not None:
-                return result
+        raise ("Path not found: " + str(self.__position))
 
     def __init__(self):
-        print("Using dummy robot ...")
+        # clean history file
+        open('simulator/history.json', 'w').close()
+
+        # inform user
+        print("Using simulator robot ...")
         print("I think I am at position " + str(self.__position) + " and my orientation is " + str(self.__orientation))
 
 
