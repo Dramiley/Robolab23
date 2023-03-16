@@ -348,9 +348,11 @@ class Controller:
         # calculate start and end position
         start_position = self.last_position
 
+        end_position = None
         if env["ODOMETRY"]:
             self.odometry.calculate(self.robot.motor_pos_list)
-            end_position = self.odometry.get_coords()
+            end_coords = self.odometry.get_coords()
+            end_position = Position(self.odometry.get_coords()[0], self.odometry.get_coords()[1], self.odometry.get_dir())
         else:
             end_position = self.last_position
             # when there is no odometry, better send something than nothing
