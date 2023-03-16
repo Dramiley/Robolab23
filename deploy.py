@@ -26,6 +26,10 @@ delete_folders = ["simulator", "tests"]
 for folder in delete_folders:
     subprocess.call(["rm", "-rf", ".src_deploy/" + folder])
 
+# copy src/simulator/planets/current.txt to .src_deploy/simulator/planets/current.txt and create missing dirs
+subprocess.call(["mkdir", "-p", ".src_deploy/simulator/planets"])
+subprocess.call(["cp", "src/simulator/planets/current.txt", ".src_deploy/simulator/planets/current.txt"])
+
 # Store path to executable
 DEPLOY_EXECUTABLE = "./robolab-deploy-lite/deploy.py"
 # Windows-Fix: Get the full executable path, windows can't handle our shebang
