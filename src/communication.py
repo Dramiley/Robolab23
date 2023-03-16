@@ -118,10 +118,8 @@ class Communication:
         client_id = client._client_id.decode('utf-8')
 
         if client_id != data:
-            self.logger.error('Client id does not match data')
+            self.logger.warning('Client id does not match data')
             return
-        else:
-            self.logger.debug('Client id matches data')
 
         payload = ""
         try:

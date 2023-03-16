@@ -33,6 +33,7 @@ class Robot:
     motor_right = None
 
     did_calibrate = False
+    motor_pos_list = None
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
 

@@ -3,7 +3,7 @@
 <div id="app">
     <div id="editor">
         <h1>Edit {{name}}</h1>
-        <img :src="'/' + name + '.png'"/>
+        <img :src="'/' + name + '.svg'"/>
         <div id="overlay">
             <img class="robot" src="robot.png"
                  :style="{top: r[0].top + 'px', left: r[0].left + 'px', transform: 'rotate(' + r[0].rotation + 'deg)'}">
@@ -28,52 +28,55 @@
         <h1>Planet</h1>
         <input type="text" v-model="name"/>
 
-        <h1>Area</h1>
-        <p>Please type in:</p>
-        <p>X</p>
-        <input type="number" v-model="area.x.min"/>
-        <input type="number" v-model="area.x.max"/>
+        <div v-if="currentVar < 2">
+            <h1>Area</h1>
+            <p>Please type in:</p>
+            <p>X</p>
+            <input type="number" v-model="area.x.min"/>
+            <input type="number" v-model="area.x.max"/>
 
-        <div>
-            {{area.x.min >= area.x.max ? 'X min must be smaller than X max' : 'Numbers are fine.'}}
+            <div>
+                {{area.x.min >= area.x.max ? 'X min must be smaller than X max' : 'Numbers are fine.'}}
+            </div>
+
+            <p>Y</p>
+            <input type="number" v-model="area.y.min"/>
+            <input type="number" v-model="area.y.max"/>
+            <br/>
+
+            <div>
+                {{area.y.min >= area.y.max ? 'Y min must be smaller than Y max' : 'Numbers are fine.'}}
+            </div>
+
+            <hr>
+            <div>
+                Links oben: {{area.x.min}}, {{area.y.max}}<br>
+                Rechts unten: {{area.x.max}}, {{area.y.min}}
+            </div>
+
+            <h1>Controls</h1>
+            Und jetzt:
+            <pre>{{vars[currentVar].title}}</pre>
+            <p>Offset Position</p>
+            <input type="number" v-model="def.left.offsetPos"/>
+            <input type="number" v-model="def.top.offsetPos"/>
+            <p>Offset Pixel</p>
+            <input type="number" v-model="def.left.offsetPx"/>
+            <input type="number" v-model="def.top.offsetPx"/>
+            <p>Factor</p>
+            <input type="number" v-model="def.left.factor"/>
+            <input type="number" v-model="def.top.factor"/>
+            <p>Start Position</p>
+            <input type="number" v-model="def.startPosition.x"/>
+            <input type="number" v-model="def.startPosition.y"/>
+            <input type="number" v-model="def.startPosition.orientation"/>
+
         </div>
-
-        <p>Y</p>
-        <input type="number" v-model="area.y.min"/>
-        <input type="number" v-model="area.y.max"/>
-        <br/>
-
-        <div>
-            {{area.y.min >= area.y.max ? 'Y min must be smaller than Y max' : 'Numbers are fine.'}}
-        </div>
-
-        <hr>
-        <div>
-            Links oben: {{area.x.min}}, {{area.y.max}}<br>
-            Rechts unten: {{area.x.max}}, {{area.y.min}}
-        </div>
-
-        <h1>Controls</h1>
-        Und jetzt:
-        <pre>{{vars[currentVar].title}}</pre>
-        <p>Offset Position</p>
-        <input type="number" v-model="def.left.offsetPos"/>
-        <input type="number" v-model="def.top.offsetPos"/>
-        <p>Offset Pixel</p>
-        <input type="number" v-model="def.left.offsetPx"/>
-        <input type="number" v-model="def.top.offsetPx"/>
-        <p>Factor</p>
-        <input type="number" v-model="def.left.factor"/>
-        <input type="number" v-model="def.top.factor"/>
-        <p>Start Position</p>
-        <input type="number" v-model="def.startPosition.x"/>
-        <input type="number" v-model="def.startPosition.y"/>
-        <input type="number" v-model="def.startPosition.orientation"/>
 
         <div v-if="connectStart != null">
             <h1>Manipulate connecting</h1>
+            <button :class="{red:connectStart.blocked}" @click="connectStart.blocked = !connectStart.blocked">Toggle blocked</button>
             <button @click="connectStart = null">Reset selected connector</button>
-            <button @click="connectStart.blocked = !connectStart.blocked">Toggle blocked</button>
             <button @click="translucent=!translucent">Toggle translucent</button>
         </div>
 
@@ -92,7 +95,7 @@
     createApp({
         data() {
             return {
-                translucent: false,
+                translucent: true,
                 vars: [
                     {
                         title: "Bitte klicke auf den linken obersten Punkt der Karte",
@@ -338,7 +341,7 @@
     }
 
     #output {
-        flex: 20;
+        flex: 0;
         display: flex;
         flex-direction: column;
     }
@@ -353,5 +356,37 @@
         margin: 0px;
         padding: 0px;
         font-family: sans-serif;
+    }
+
+    button {
+        /* have nice bigger buttons */
+        font-size: 1.5em;
+        padding: 0.5em 1em;
+        border: 1px solid #ccc;
+        border-radius: 0.5em;
+        background: #eee;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #ddd;
+    }
+
+    button:active {
+        background: #ccc;
+    }
+
+    button.disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+
+    button.disabled:hover {
+        background: #ccc;
+    }
+
+    button.red {
+        background: #e32a12;
+        color: white;
     }
 </style>
