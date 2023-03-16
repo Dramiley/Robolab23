@@ -389,7 +389,7 @@ class Controller:
         # instead find paths and ask mothership to select one
         self.run()
 
-    def receive_path_unveiled(self, startX, startY, startOrientation, endX, endY, endOrientation, pathStatus,
+    def receive_path_unveiled(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus,
                               pathWeight):
         """
         Zusätzlich zur immer gesendeten Bestätigung bzw. Korrektur mit Gewichtung können weitere Nachrichten empfangen werden. Hierbei werden neue Pfade aufgedeckt, die durch andere Roboter bereits erkundet wurden, oder auch bereits erkundete Strecken gesperrt (bspw. durch einen Meteoriteneinschlag).
@@ -398,7 +398,7 @@ class Controller:
         """
 
         # TODO: check
-        self.planet.add_path(((startX, startY), startOrientation), ((endX, endY), endOrientation), pathWeight)
+        self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
     def receive_path_select(self, startDirection: Direction):
         """
