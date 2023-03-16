@@ -18,6 +18,11 @@ class CommunicationLogger:
         BOLD = '\033[1m'
         UNDERLINE = '\033[4m'
 
+    level = -1
+
+    def setLevel(self, level):
+        self.level = level
+
     def success(self, message):
         simulator_log('communication.log', {'message': message, 'color': 'success'})
         print(self.bcolors.OKGREEN + "==>")

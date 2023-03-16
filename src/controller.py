@@ -144,7 +144,9 @@ class Controller:
         # setup callbacks
         self.__init_callbacks()
 
-        self.logger = logging.getLogger(__name__)
+        # self.logger = logging.getLogger(__name__)
+        self.logger = self.communication.communication.logger
+
         self.logger.setLevel(logging.DEBUG)
 
     def begin(self):
