@@ -60,9 +60,6 @@ class RobotDummy(Robot):
         # check if our path is valid
         return new_path is not None
 
-    def getOrientation(self):
-        return self.__orientation
-
     def drive_until_communication_point(self):
         print("Driving until communication point...")
 
