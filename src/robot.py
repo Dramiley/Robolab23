@@ -212,7 +212,7 @@ class Robot:
         self.motor_left.run_timed(time_sp=312, speed_sp=65)
         self.motor_right.run_timed(time_sp=312, speed_sp=-65)
         time.sleep(0.5)
-        self.__move_distance_straight(5)
+        self.__move_distance_straight(4)
         time.sleep(1)
 
     def station_scan(self) -> bool:
@@ -252,8 +252,8 @@ class Robot:
 
     def begin(self):
         self.__calibrate()
-        self.__followline()
-        # self.__menu()
+        # self.__followline()
+        self.__menu()
 
     def __menu(self):
         while True:
