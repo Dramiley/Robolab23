@@ -54,13 +54,13 @@
         {
           "x": 8,
           "y": 2,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
           "x": 7,
           "y": 2,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -98,7 +98,7 @@
         {
           "x": 7,
           "y": 7,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": true
         },
         {
@@ -178,7 +178,7 @@
         {
           "x": 9,
           "y": 7,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -190,7 +190,7 @@
         {
           "x": 8,
           "y": 5,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -235,7 +235,7 @@
         {
           "x": 9,
           "y": 4,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -253,7 +253,7 @@
         {
           "x": 8,
           "y": 7,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -326,7 +326,7 @@
         {
           "x": 11,
           "y": 2,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         }
       ]
@@ -395,7 +395,7 @@
         {
           "x": 11,
           "y": 5,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         null
@@ -408,7 +408,7 @@
         {
           "x": 11,
           "y": 7,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": true
         },
         {
@@ -420,7 +420,7 @@
         {
           "x": 13,
           "y": 6,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -495,13 +495,13 @@
         {
           "x": 13,
           "y": 2,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": true
         },
         {
           "x": 13,
           "y": 4,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         }
       ]
@@ -545,7 +545,7 @@
         {
           "x": 13,
           "y": 5,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -569,7 +569,7 @@
         {
           "x": 13,
           "y": 7,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         null,
