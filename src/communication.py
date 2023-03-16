@@ -121,18 +121,21 @@ class Communication:
         except:
             self.logger.error("json.loads failed")
 
-        # if "from" is the client itself, ignore the message
-        if 'from' in payload and payload['from'] == "client":
-            return
-
         # if type notice, just print the message but do not handle it
         types_notice = ['notice', 'syntax', 'adjust', 'debug']
         if 'type' in payload and payload['type'] in types_notice:
-            self.logger.info(payload['payload']['message'])
+            if 'message' in payload['payload']:
+                self.logger.info(payload['payload']['message'])
+            else:
+                self.logger.info(str(payload['payload']))
             return
 
         # log on_message event, please dont remove this line, its probably the most useful debug line
         self.logger.info(message.payload.decode('utf-8'))
+
+        # if "from" is the client itself, ignore the message
+        if 'from' in payload and payload['from'] == "client":
+            return
 
         # if "from" is debug and the message type is syntax, check if the syntax is correct
         if 'from' in payload and payload['from'] == "debug" and payload['type'] == "syntax":
