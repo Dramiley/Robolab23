@@ -92,11 +92,6 @@ class Robot:
         self.motor_left.stop()
         self.motor_right.stop()
 
-    def __turn170(self):  # 180 Grad drehen
-        self.motor_left.run_timed(time_sp=2500, speed_sp=120)
-        self.motor_right.run_timed(time_sp=2500, speed_sp=-120)
-        time.sleep(2.5)
-
     def __scan_turn(self):
         starttime = time.time()
         self.motor_left.run_timed(time_sp=1250, speed_sp=131)
@@ -131,7 +126,7 @@ class Robot:
         self.color.color_check()
         black = self.color.greytone
         print("black = " + str(black))
-        middlegreytone = ((white + black) / 2) + 30 #50
+        middlegreytone = ((white + black) / 2) + 10 #50
         print("grey = " + str(middlegreytone))
         self.middlegreytone = middlegreytone
 
@@ -143,7 +138,7 @@ class Robot:
 
         self.was_path_blocked = True
 
-        self.__turn170()
+        self.turn_deg(175)
         self.__followline()
 
     def __followline(self):
@@ -157,9 +152,9 @@ class Robot:
         integral = 0
         lerror = 0
         tempo = 150
-        de = 1 * tempo
-        di = 0.06 * tempo
-        dd = 0.7 * tempo
+        de = 0.80 * tempo
+        di = 0.05 * tempo
+        dd = 0.60 * tempo
         starttime = time.time()
 
         self.__reset_motor_pos_list()
