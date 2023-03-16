@@ -238,6 +238,14 @@
                     .then(({def, name}) => {
                         this.name = name
                         this.def = def
+
+                        this.run = 'stop'
+                        fetch('/run/stop').then(() => {
+                        })
+
+                        setTimeout(() => {
+                            this.playButtonPressed()
+                        }, 500)
                     })
                     .catch(e => console.error(e))
             },
@@ -337,8 +345,45 @@
                     fetch('/run/start')
                 }
             },
+            setupKeyListeners() {
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                        // go to the next position in the history
+                        if (this.historySelected < this.history.length - 1) {
+                            this.historySelected++
+                            while (this.history[this.historySelected].type !== 'position') {
+                                this.historySelected++
+                            }
+                        }
+                    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                        // go to the previous position in the history
+                        if (this.historySelected > 0) {
+                            this.historySelected--
+                            while (this.history[this.historySelected].type !== 'position') {
+                                this.historySelected--
+                            }
+                        }
+                    } else if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space' || event.key === 'Enter') {
+                        this.playButtonPressed()
+                    } else if (event.key === 'Escape') {
+                        this.selectVisible = !this.selectVisible
+                    } else if (event.key === 'Tab') {
+                        this.toggleCollapsed()
+                    } else if (event.key === 'Shift') {
+                        this.filterPositions = true
+                    }
+                })
+                document.addEventListener('keyup', (event) => {
+                    if (event.key === 'Shift') {
+                        this.filterPositions = false
+                    }
+                })
+            },
         },
         mounted() {
+
+            this.setupKeyListeners()
+
             this.refreshPlanets()
             this.refreshPlanet()
             this.refreshHistory()
@@ -363,6 +408,8 @@
 
         }
     }).mount('#site')
+
+
 </script>
 
 <style>
