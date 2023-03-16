@@ -192,14 +192,10 @@
         },
         computed: {
             top() {
-                return this.def.top.offsetPx + this.def.top.factor * (this.def.area.y.max - this.def.startPosition.y)
-                // return ((this.pos.y + this.def.top.offsetPos) * this.def.top.factor) + this.def.top.offsetPx
-                // return (this.pos.y * -132) + 635
+                return this.def.top.offsetPx + (this.def.top.factor * (this.def.area.y.max - this.pos.y))
             },
             left() {
-                return this.def.left.offsetPx + this.def.left.factor * (this.def.startPosition.x - this.def.area.x.min)
-                // return ((this.pos.x + this.def.left.offsetPos) * this.def.left.factor) + this.def.left.offsetPx
-                // return ((this.pos.x - 3) * 135) + 5
+                return this.def.left.offsetPx + (this.def.left.factor * (this.pos.x - this.def.area.x.min))
             },
             rotation() {
                 return this.pos.orientation
