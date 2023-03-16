@@ -305,7 +305,7 @@
                 if (this.history[index].type === 'position') {
                     this.historySelected = index
                 } else {
-                    this.history[index].collapsed = !this.history[index].collapsed
+                    this.history[index].collapsed = false
                     while (this.history[this.historySelected].type !== 'position') {
                         this.historySelected--
                     }
