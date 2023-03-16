@@ -181,12 +181,12 @@
                     this.points.find(p => p.x === this.connectStart.x && p.y === this.connectStart.y).paths[this.connectStart.o] = {
                         x: x,
                         y: y,
-                        orientation: o * 90 + 180
+                        orientation: (o * 90 + 18) % 3600
                     }
                     this.points.find(p => p.x === x && p.y === y).paths[o] = {
                         x: this.connectStart.x,
                         y: this.connectStart.y,
-                        orientation: this.connectStart.o * 90 + 180
+                        orientation: (this.connectStart.o * 90 + 180) % 360
                     }
                     this.connectStart = null
                 } else {
@@ -196,14 +196,21 @@
                         o: o
                     }
                 }
-
+            },
+            setStartConnector() {
+                this.def.startPosition = {
+                    x: this.connectStart.x,
+                    y: this.connectStart.y,
+                    orientation: (this.connectStart.o * 90 + 180) % 360
+                }
             }
         },
         mounted() {
+            return
             this.click({offsetX: 123, offsetY: 168})
             this.click({offsetX: 506, offsetY: 676})
             this.connectorClicked(3, 4, 1)
-            // this.setStartConnector()
+            this.setStartConnector()
         },
     }).mount('#app')
 </script>
