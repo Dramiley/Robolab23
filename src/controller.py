@@ -36,7 +36,7 @@ import sys
 import logging
 from typing import Optional
 
-from lockfile import LockFile
+#from lockfile import LockFile
 
 # DONT CHANGE ANYTHING HERE, ONLY IN .env
 # Bitte nicht hierdrinne verändern, sondern in der src/.env setzen.
@@ -287,7 +287,7 @@ class Controller:
         self.__handle_received_planet(startX, startY, Direction(startOrientation))
 
         # los gehts
-        self.run()
+        self.robot.begin()
 
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 

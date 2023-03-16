@@ -119,7 +119,7 @@ class Robot:
         self.color.color_check()
         black = self.color.greytone
         print("black = " + str(black))
-        middlegreytone = ((white + black) / 2) + 10  # 20 #50
+        middlegreytone = ((white + black) / 2) + 30 #50
         print("grey = " + str(middlegreytone))
         self.middlegreytone = middlegreytone
 
@@ -144,7 +144,10 @@ class Robot:
         middle_greytone = self.middlegreytone
         integral = 0
         lerror = 0
-        tempo = 200
+        tempo = 150
+        de = 1 * tempo
+        di = 0.06 * tempo
+        dd = 0.7 * tempo
         starttime = time.time()
 
         self.__reset_motor_pos_list()
@@ -167,13 +170,13 @@ class Robot:
                 integral = 0
 
             derivative = error - lerror
-            lenkfaktor = 170 * error + 10 * integral + 110 * derivative
+            lenkfaktor = de * error + di * integral + dd * derivative
             lenkfaktor = lenkfaktor / 100
             power_left = tempo + lenkfaktor
             power_right = tempo - lenkfaktor
 
             self.__run_motors(power_left, power_right)
-            self.__track_motor_pos()
+            #self.__track_motor_pos()
 
             lerror = error
             self.color.color_check()
@@ -199,7 +202,7 @@ class Robot:
         self.motor_left.run_timed(time_sp=312, speed_sp=65)
         self.motor_right.run_timed(time_sp=312, speed_sp=-65)
         time.sleep(0.5)
-        self.__move_distance_straight(3)
+        self.__move_distance_straight(5)
         time.sleep(1)
 
     def station_scan(self) -> bool:
@@ -239,8 +242,8 @@ class Robot:
 
     def begin(self):
         self.__calibrate()
-        self.__followline()
-        # self.__menu()
+        #self.__followline()
+        self.__menu()
 
     def __menu(self):
         while True:
@@ -250,7 +253,7 @@ class Robot:
             print("4 for quit")
             print("5 for station_scan")
             print("6 for turn90")
-            print("7 for station_scan2")
+            print("7 for turn_deg")
             i = input()
             if i == "1":
                 self.__followline()
@@ -261,19 +264,22 @@ class Robot:
             elif i == "4":
                 break
             elif i == "5":
-                t = int(input("Wie oft drehen?\n"))
-                print(self.__station_scan(t))
+                print(self.station_scan())
             elif i == "6":
                 self.__turn90()
             elif i == "7":
-                print(self.__station_scan_alternative())
+                print("Um wieviel Grad soll gedreht werden?")
+                t = input()
+                self.turn_deg(int(t))
 
     def drive_until_communication_point(self):
         """
         Drives the robot to the next communication point
         """
-        self.__followline()
-        self.__station_center()
+        self.__calibrate()
+        self.__menu()
+        #self.__followline()
+        #self.__station_center()
         # tell the controller that we reached the communication point
         self.controller.communication_point_reached()
 
