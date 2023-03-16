@@ -169,6 +169,12 @@ class Controller:
             print(
                 "Simulator: skipping drive_until_communication_point(), because we'll already be at an communication point")
 
+        """
+        if not env["GITLAB_RUNNER"]:
+            while True:
+                time.sleep(1)
+        """
+
     def run(self):
         """
         Runs the actual robot
