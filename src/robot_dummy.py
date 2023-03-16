@@ -157,33 +157,3 @@ class RobotDummy(Robot):
 def __del__(self):
     # wait for user to press any input
     time.sleep(1)
-
-
-if __name__ == "__main__":
-    r = RobotDummy()
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
-    r.turn_deg(180)
-    r.drive_until_communication_point()
-    r.turn_deg(90)
-    r.drive_until_communication_point()
-    r.turn_deg(-90)
-    r.drive_until_communication_point()
-    r.drive_until_communication_point()
