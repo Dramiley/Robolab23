@@ -63,7 +63,7 @@ class Robot:
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.DEBUG)
 
-        self.__calibrate()
+        self.calibrate()
 
     def __track_motor_pos(self):
         """
@@ -111,7 +111,7 @@ class Robot:
             print("Could not speak")
             print(e)
 
-    def __calibrate(self):
+    def calibrate(self):
 
         if self.did_calibrate:
             return
@@ -245,18 +245,19 @@ class Robot:
     def set_controller(self, controller):
         self.controller = controller
 
-    def __skip_calibrate(self):
+    def skip_calibrate(self):
         self.middlegreytone = 175
-        self.black = 35
-        self.white = 290
+        self.black = 37
+        self.white = 297
 
     def begin(self):
-        self.__calibrate()
+        self.calibrate()
 
         if self.__env('ROBIN_MODE'):
             self.__menu()
         else:
             self.__followline()
+            self.__station_center()
 
     def __menu(self):
         while True:
