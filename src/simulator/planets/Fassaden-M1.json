@@ -89,19 +89,19 @@
         {
           "x": 6,
           "y": 0,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": true
         },
         {
           "x": 5,
           "y": 0,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
           "x": 4,
           "y": 0,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         }
       ]
@@ -120,7 +120,7 @@
         {
           "x": 5,
           "y": 1,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -225,7 +225,7 @@
         {
           "x": 6,
           "y": 3,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {

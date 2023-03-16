@@ -65,7 +65,7 @@
         {
           "x": -1,
           "y": 10,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         null
@@ -90,7 +90,7 @@
         {
           "x": -1,
           "y": 11,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         null
@@ -110,7 +110,7 @@
         {
           "x": -1,
           "y": 12,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         null
@@ -160,7 +160,7 @@
         {
           "x": 0,
           "y": 11,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -179,7 +179,7 @@
         {
           "x": 1,
           "y": 13,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -191,7 +191,7 @@
         {
           "x": -1,
           "y": 13,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         }
       ]
@@ -225,7 +225,7 @@
         {
           "x": 1,
           "y": 10,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         null
@@ -245,7 +245,7 @@
         {
           "x": 1,
           "y": 11,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
@@ -270,13 +270,13 @@
         {
           "x": 1,
           "y": 12,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         },
         {
           "x": 0,
           "y": 12,
-          "orientation": 180,
+          "orientation": 1800,
           "blocked": false
         }
       ]

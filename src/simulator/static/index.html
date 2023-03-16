@@ -407,7 +407,7 @@
             },
             deploy() {
                 this.deploying = true
-                fetch('/deploy', {
+                fetch('/run/deploy', {
                     method: 'POST'
                 }).then(() => {
                     setTimeout(() => {

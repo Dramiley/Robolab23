@@ -32,14 +32,14 @@
       "paths": [
         null,
         {
-          "x": 2,
+          "x": 3,
           "y": 5,
-          "orientation": 288
+          "orientation": 90
         },
         {
           "x": 2,
           "y": 4,
-          "orientation": 288
+          "orientation": 90
         },
         null
       ]
@@ -51,7 +51,7 @@
         {
           "x": 1,
           "y": 7,
-          "orientation": 198
+          "orientation": 0
         },
         {
           "x": 2,
@@ -69,13 +69,13 @@
         {
           "x": 2,
           "y": 8,
-          "orientation": 288
+          "orientation": 90
         },
         null,
         {
           "x": 1,
           "y": 6,
-          "orientation": 180
+          "orientation": 1800
         },
         null
       ]
@@ -88,7 +88,7 @@
         {
           "x": 3,
           "y": 4,
-          "orientation": 288
+          "orientation": 90
         },
         null,
         {
@@ -106,7 +106,7 @@
         {
           "x": 3,
           "y": 5,
-          "orientation": 288
+          "orientation": 90
         },
         null,
         {
@@ -128,13 +128,13 @@
         {
           "x": 3,
           "y": 6,
-          "orientation": 288
+          "orientation": 90
         },
         null,
         {
           "x": 1,
           "y": 6,
-          "orientation": 108
+          "orientation": 270
         }
       ]
     },
@@ -151,7 +151,7 @@
         {
           "x": 2,
           "y": 6,
-          "orientation": 18
+          "orientation": 180
         },
         null
       ]
@@ -164,17 +164,17 @@
         {
           "x": 3,
           "y": 7,
-          "orientation": 180
+          "orientation": 1800
         },
         {
           "x": 2,
           "y": 7,
-          "orientation": 18
+          "orientation": 180
         },
         {
           "x": 1,
           "y": 7,
-          "orientation": 180
+          "orientation": 1800
         }
       ]
     },
@@ -200,11 +200,11 @@
         {
           "x": 3,
           "y": 7,
-          "orientation": 108
+          "orientation": 270
         },
         null,
         {
-          "x": 2,
+          "x": 1,
           "y": 5,
           "orientation": 270
         }
@@ -217,7 +217,7 @@
         {
           "x": 3,
           "y": 7,
-          "orientation": 198
+          "orientation": 0
         },
         null,
         null,
@@ -235,7 +235,7 @@
         {
           "x": 2,
           "y": 8,
-          "orientation": 108
+          "orientation": 270
         },
         {
           "x": 3,
@@ -245,7 +245,7 @@
         {
           "x": 3,
           "y": 6,
-          "orientation": 180
+          "orientation": 1800
         },
         null
       ]
