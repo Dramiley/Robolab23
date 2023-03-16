@@ -56,6 +56,8 @@ class RobotDummy(Robot):
         # check if our path is valid
         return new_path is not None
 
+    def getOrientation(self):
+        return self.__orientation
     def drive_until_communication_point(self):
         print("Driving until communication point...")
 
@@ -78,10 +80,10 @@ class RobotDummy(Robot):
 
         if "blocked" in new_path and new_path['blocked']:
             simulator_log('communication.log', {'message': "Path was blocked, turning around", 'color': 'warning'})
-            was_path_blocked = True
+            self.was_path_blocked = True
             self.__orientation += 180
         else:
-            was_path_blocked = False
+            self.was_path_blocked = False
 
             # update position
             self.__orientation = new_path['orientation']
@@ -89,7 +91,7 @@ class RobotDummy(Robot):
 
         # log
         self.__log("Pos: " + str(self.__position) + " | " + str(self.__orientation) + "° | Path blocked: " + str(
-            was_path_blocked))
+            self.was_path_blocked))
 
         # tell the controller that we reached the communication point
         self.controller.communication_point_reached()

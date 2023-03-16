@@ -348,11 +348,16 @@ class Controller:
             end_position = self.odometry.get_coords()
         else:
             end_position = self.last_position
+            # when there is no odometry, better send something than nothing
+            # but doesnt matter, the server will correct it anyways
+            # if (env["SIMULATOR"]):
+            # end_position.direction = self.robot.getOrientation()
 
         is_path_blocked = self.robot.was_path_blocked
         self.logger.debug(f"The driven path was blocked?: {is_path_blocked}")
 
         if is_path_blocked:
+            self.logger.warning(f"Sending path from {start_position} to {end_position} with status {is_path_blocked}")
             path_status = "blocked"
         else:
             path_status = "free"
@@ -365,7 +370,7 @@ class Controller:
         """
         Wird aufgerufen, wenn das Ziel erreicht wurde
         """
-        self.logger.info("I have reached my target!!!")
+        self.logger.success("I have reached my target!!!")
         self.communication.target_reached("Target reached.")
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
@@ -383,7 +388,8 @@ class Controller:
         self.odometry.set_dir(startDirection)
 
         # update odometry inside planet
-        self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
+        self.planet.add_path(((startX, startY), Direction(startDirection)), ((endX, endY), Direction(endDirection)),
+                             pathWeight)
 
         # update last position and path status
         current_dir = (endDirection + 180) % 360  # we now look at to the opposite direction than we entered the node
@@ -419,7 +425,7 @@ class Controller:
 
         self.robot.drive_until_communication_point()
 
-    def receive_target(self, x, y):
+    def receive_target(self, targetX, targetY):
         """
         Zusätzlich zu den Planetennachrichten empfängt der Roboter an Kommunikationspunkten auch Befehle vom Mutterschiff.
         Eine Nachricht vom Typ target (1) erteilt dem Roboter den Auftrag, auf kürzestem Weg die angegebenen Koordinaten anzufahren, sofern er diesen anhand seiner aktuellen Karte berechnen kann. Sollte dies nicht möglich sein, wird das Ziel vermerkt und die Erkundung normal fortgesetzt, bis eine solche Berechnung möglich ist oder das Ziel erreicht wurde.
@@ -427,7 +433,7 @@ class Controller:
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-target/
         """
         # store received info
-        self.target = (x, y)
+        self.target_pos = (targetX, targetY)
 
     def __rotate_robo_in_dir(self, target_dir: Direction):
         """
