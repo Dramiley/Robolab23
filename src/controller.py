@@ -295,6 +295,10 @@ class Controller:
         self.__handle_received_planet(startX, startY, Direction(startOrientation))
 
         # los gehts
+        if not env["SIMULATOR"]:
+            # drive from start to first communication point
+            self.robot.drive_until_communication_point()
+
         self.run()  # undo alex's change to begin()
 
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):

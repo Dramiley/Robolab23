@@ -67,7 +67,6 @@ class Robot:
         """
         motor_pos_left = self.motor_left.position
         motor_pos_right = self.motor_right.position
-        print(motor_pos_left, motor_pos_right)
         self.motor_pos_list.append([motor_pos_left, motor_pos_right])
         # self.logger.info(f"Tracked motor_pos_values: {motor_pos_left}, {motor_pos_right}")
 
@@ -249,7 +248,7 @@ class Robot:
 
     def begin(self):
         self.__calibrate()
-        
+
         if env["ROBIN_MODE"]:
             self.__menu()
         else:
