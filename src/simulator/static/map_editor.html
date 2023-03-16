@@ -34,14 +34,24 @@
         <input type="number" v-model="area.x.min"/>
         <input type="number" v-model="area.x.max"/>
 
-        {{area.x.min >= area.x.max ? 'X min must be smaller than X max' : 'Numbers are fine.'}}
+        <div>
+            {{area.x.min >= area.x.max ? 'X min must be smaller than X max' : 'Numbers are fine.'}}
+        </div>
 
         <p>Y</p>
         <input type="number" v-model="area.y.min"/>
         <input type="number" v-model="area.y.max"/>
         <br/>
 
-        {{area.y.min >= area.y.max ? 'Y min must be smaller than Y max' : 'Numbers are fine.'}}
+        <div>
+            {{area.y.min >= area.y.max ? 'Y min must be smaller than Y max' : 'Numbers are fine.'}}
+        </div>
+
+        <hr>
+        <div>
+            Links oben: {{area.x.min}}, {{area.y.max}}<br>
+            Rechts unten: {{area.x.max}}, {{area.y.min}}
+        </div>
 
         <h1>Controls</h1>
         Und jetzt:
