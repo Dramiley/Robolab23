@@ -33,6 +33,7 @@ def init_client():
                          userdata=client_id  # Pass client_id to on_connect callback
                          )
     # Setup logging directory and file
+    """
     curr_dir = os.path.abspath(os.getcwd())
     if not os.path.exists(curr_dir + '/../logs'):
         os.makedirs(curr_dir + '/../logs')
@@ -42,6 +43,7 @@ def init_client():
                         format='%(asctime)s: %(message)s'  # Define default logging format
                         )
     logger = logging.getLogger('RoboLab')
+    """
     return client
 
 
