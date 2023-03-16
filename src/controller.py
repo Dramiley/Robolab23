@@ -34,6 +34,7 @@ import time
 import os
 import sys
 import logging
+import pdb
 from typing import Optional
 
 # DONT CHANGE ANYTHING HERE, ONLY IN .env
@@ -168,6 +169,14 @@ class Controller:
         else:
             print(
                 "Simulator: skipping drive_until_communication_point(), because we'll already be at an communication point")
+
+        self.robot.begin()
+        pdb.set_trace()
+        self.run()
+
+        if not env["GITLAB_RUNNER"]:
+            while True:
+                time.sleep(1)
 
     def run(self):
         """

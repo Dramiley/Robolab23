@@ -257,6 +257,7 @@ class Robot:
             self.__menu()
         else:
             self.__followline()
+            self.__station_center()
 
     def __menu(self):
         while True:
