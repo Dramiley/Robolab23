@@ -29,6 +29,8 @@ class Robot:
     motor_left = None
     motor_right = None
 
+    did_calibrate = False
+
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
 
         self.motor_left = ev3.LargeMotor(left_port)
@@ -52,6 +54,8 @@ class Robot:
 
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.DEBUG)
+
+        self.__calibrate()
 
     def __track_motor_pos(self):
         """
@@ -106,6 +110,12 @@ class Robot:
             print(e)
 
     def __calibrate(self):
+
+        if self.did_calibrate:
+            return
+
+        self.did_calibrate = True
+
         self.__speak("Calibration started")
         self.__speak('White')
         time.sleep(5)
