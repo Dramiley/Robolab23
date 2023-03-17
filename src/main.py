@@ -7,7 +7,7 @@ import paho.mqtt.client as mqtt
 import uuid
 import signal
 
-from controller import Controller
+from controller2 import Controller
 
 """
 SETUP COMMUNICATION

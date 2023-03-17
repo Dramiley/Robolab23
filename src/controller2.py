@@ -9,25 +9,6 @@ At every communication point:
             ->if None->finished!!!
     2. contact station and tell chosen next path
     3. drive the path we are told by the mothership
-
-COMPLEX:
-- advantage: no unneccasry djikstra computation
-At every communication point:
-    0. check whether missed an incoming target request
-    1. select next path
-        - if no target, currently not following a path and not exploring -> finished!!!
-        ->if new target came in: compute shortest_path and choose next path based on it
-        - if are currently following a path: choose the path we need to take to follow that path
-        - else: choose a dir to continue exploring in (first get_next_exploring path if not already at an unexplored node)
-    2. contact station and tell chosen next path
-    3. receive path given by station and check with selected one
-        - if i am in target mode: if given one != selected one -> recompute shortest path (for the next node we'll drive to)
-        - follow given path to next communication point
-
-TODO: register unexplored dirs (when robot turns around on a node) on __get_unexplored_paths()
-
-TODO: add odometry into robot's movement??
-TODO: update dir of self.last_position everytime we tell the robot to rotate
 """
 import json
 import time
@@ -37,68 +18,11 @@ import logging
 import pdb
 from typing import Optional
 
-# DONT CHANGE ANYTHING HERE, ONLY IN .env
-# Bitte nicht hierdrinne verändern, sondern in der src/.env setzen.
-# siehe https://se-gitlab.inf.tu-dresden.de/robolab-spring/ws2022/group-046/-/blob/master/README.md#example-for-development-purposes
-env = {"SIMULATOR": False, "DEBUG": False, "GITLAB_RUNNER": False, "ODOMETRY": True, "ROBIN_MODE": False}
 
-__current_dir = os.path.dirname(os.path.realpath(__file__))
-print(__current_dir)
-if os.path.exists(__current_dir + "/.env"):
-    with open(__current_dir + "/.env") as f:
-        for line in f:
-            # if line is empty, skip it
-            if line == "\n":
-                continue
-            key, value = line.split("=")
-            value = value.replace("\n", "")
-            if value == "True" or value == "False":
-                env[key] = value == "True"
-            else:
-                env[key] = value
-
-# if script was called with a parameter, use it as the environment
-if len(sys.argv) > 1 and sys.argv[1] == "ci":
-    print("Running in CI mode")
-    env["GITLAB_RUNNER"] = True
-    env["SIMULATOR"] = True
-    env["DEBUG"] = True
-
-"""
-TODO: self.odometry.stop()
-"""
-
-__current_dir = os.path.dirname(os.path.realpath(__file__))
-
-
-def simulator_log(log_type, log_dict):
-    if not env["SIMULATOR"]:
-        return
-
-    # set payload type
-    log_dict["type"] = log_type
-
-    # append to history file (which contains an array of positions)
-    from lockfile import LockFile
-    lock = LockFile(__current_dir + "/simulator/history.json.lock")
-    with lock:
-        time.sleep(0.001)
-
-    lock.acquire()
-    with open(__current_dir + '/simulator/history.json', 'r+') as outfile:
-        try:
-            data = json.load(outfile)
-        except:
-            data = []
-
-        # append to array
-        data.append(log_dict)
-
-        # write to file
-        outfile.seek(0)
-        json.dump(data, outfile)
-    lock.release()
-
+from communication import Communication
+from communication_logger import CommunicationLogger
+from odometry import Odometry
+from planet import Planet, Direction
 
 class Position:
     x, y, direction = 0, 0, 0
@@ -107,13 +31,6 @@ class Position:
         self.x = x
         self.y = y
         self.direction = direction
-
-
-from communication import Communication
-from communication_logger import CommunicationLogger
-from odometry import Odometry
-from planet import Planet, Direction
-
 
 class Controller:
     robot = None
@@ -132,19 +49,13 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        # load test planet name from planets/current.txt
-        __current_dir = os.path.dirname(os.path.realpath(__file__))
-        with open(__current_dir + '/simulator/planets/current.txt') as f:
-            self.communication.test_planet(f.read().replace("\n", ""))
+        test_planet = "Anin"
+        self.communication.test_planet("Anin")
 
-        # for our Simulator
-        if env["SIMULATOR"]:
-            from robot_dummy import RobotDummy
-            self.robot = RobotDummy()
-        else:
-            from robot import Robot
-            self.robot = Robot()
-            self.robot.calibrate()
+
+        from robot import Robot
+        self.robot = Robot()
+        self.robot.calibrate()
         self.robot.set_controller(self)
 
         # setup callbacks
@@ -160,18 +71,14 @@ class Controller:
 
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
-        if env["SIMULATOR"]:
-            print( "Simulator: skipping drive_until_communication_point()")
-        else:
-            self.robot.begin()
+        self.robot.begin()
 
         self.communication.ready()
         time.sleep(1)
         self.select_next_dir()
 
-        if not env["GITLAB_RUNNER"]:
-            while True:
-                time.sleep(1)
+        while True:
+            time.sleep(1)
 
     def select_next_dir(self):
         """
@@ -194,6 +101,7 @@ class Controller:
 
         # let robot check paths on the node he is on and register it in planet.unexplored
         self.__check_explorable_paths()
+        pdb.set_trace()
 
         next_dir = None
         self.logger.debug("Selecting the next dir to take...")

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-from controller import simulator_log
-
 
 class CommunicationLogger:
     """
@@ -24,21 +22,16 @@ class CommunicationLogger:
         self.level = level
 
     def success(self, message):
-        simulator_log('communication.log', {'message': message, 'color': 'success'})
         print(self.bcolors.OKGREEN + message + self.bcolors.ENDC)
 
     def debug(self, message):
-        simulator_log('communication.log', {'message': message, 'color': 'debug'})
         print(self.bcolors.OKBLUE + message + self.bcolors.ENDC)
 
     def error(self, message):
-        simulator_log('communication.log', {'message': message, 'color': 'error'})
         print(self.bcolors.BOLD + self.bcolors.FAIL + message + self.bcolors.ENDC)
 
     def warning(self, message):
-        simulator_log('communication.log', {'message': message, 'color': 'warning'})
         print(self.bcolors.BOLD + self.bcolors.WARNING + message + self.bcolors.ENDC)
 
     def info(self, message):
-        simulator_log('communication.log', {'message': message, 'color': 'info'})
         print(self.bcolors.OKCYAN + message + self.bcolors.ENDC)

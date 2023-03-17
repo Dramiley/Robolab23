@@ -288,18 +288,3 @@ class Robot:
         # tell the controller that we reached the communication point
         self.controller.communication_point_reached()
 
-    def turn_deg(self, deg):
-        """
-        Turns the robot by param degrees
-        """
-        self.motor_right.reset()
-        self.motor_left.reset()
-        self.motor_left.stop_action = "brake"
-        self.motor_right.stop_action = "brake"
-        self.motor_right.position_sp = 200
-        self.motor_left.speed_sp = 100
-
-        self.motor_left.position_sp = 720
-        self.motor_right.position_sp=-720
-        self.motor_left.command = "run-to-rel-pos"
-        self.motor_right.command = "run-to-rel-pos"
