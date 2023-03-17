@@ -33,28 +33,6 @@ class Position:
         self.y = y
         self.direction = direction
 
-        Sound.play_song((
-            ('D4', 'e3'),  # intro anacrouse
-            ('D4', 'e3'),
-            ('D4', 'e3'),
-            ('G4', 'h'),  # meas 1
-            ('D5', 'h'),
-            ('C5', 'e3'),  # meas 2
-            ('B4', 'e3'),
-            ('A4', 'e3'),
-            ('G5', 'h'),
-            ('D5', 'q'),
-            ('C5', 'e3'),  # meas 3
-            ('B4', 'e3'),
-            ('A4', 'e3'),
-            ('G5', 'h'),
-            ('D5', 'q'),
-            ('C5', 'e3'),  # meas 4
-            ('B4', 'e3'),
-            ('C5', 'e3'),
-            ('A4', 'h.'),
-        ))
-
 
 class Controller:
 
@@ -257,9 +235,6 @@ class Controller:
         :return: void
         """
 
-        # play titanic.wav on ev3
-        Sound.play("sounds/titanic.wav")
-
         if (self.last_position is None):
             return
 
@@ -347,7 +322,6 @@ class Controller:
 
         self.rotate_robo_in_dir(startDirection)
         print(startDirection)
-
 
         self.robot.drive_until_communication_point()
 
