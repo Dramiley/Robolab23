@@ -244,40 +244,9 @@ class Robot:
 
     def begin(self):
         print("begin & calibrate")
-        self.calibrate()
 
-        if self.__env('ROBIN_MODE'):
-            self.__menu()
-        else:
-            self.__followline()
-            self.__station_center()
-
-    def __menu(self):
-        while True:
-            print("1 for followline")
-            print("2 for station_center")
-            print("3 for turn180")
-            print("4 for quit")
-            print("5 for station_scan")
-            print("6 for turn90")
-            print("7 for turn_deg")
-            i = input()
-            if i == "1":
-                self.__followline()
-            elif i == "2":
-                self.__station_center()
-            elif i == "3":
-                self.__turn180()
-            elif i == "4":
-                break
-            elif i == "5":
-                print(self.station_scan())
-            elif i == "6":
-                self.__turn90()
-            elif i == "7":
-                print("Um wieviel Grad soll gedreht werden?")
-                t = input()
-                self.turn_deg(int(t))
+        self.__followline()
+        self.__station_center()
 
     def turn_deg(self, deg):
         """
