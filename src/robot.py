@@ -106,8 +106,8 @@ class Robot:
         self.color.color_check()
         white = self.color.greytone
         print("white = " + str(white))
+        self.__move_distance_straight(4)
         self.__speak('Black')
-        self.__move_distance_straight(2)
         self.color.color_check()
         black = self.color.greytone
         print("black = " + str(black))

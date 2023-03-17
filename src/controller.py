@@ -64,7 +64,7 @@ class Controller:
         super().__setattr__(key, value)
 
         if key == 'last_position':
-            print("last_position changed to: " + str(value))
+            print("last_position changed to: X: " + str(value.x) + " Y: " + str(value.y) + " Direction: " + str(value.direction))
 
     def begin(self):
         print("controller.begin()")
