@@ -235,7 +235,7 @@ class Planet:
         return (list, weight)
 
     def __djikstra(self, start_coords: Tuple[int, int], target_coords: Tuple[int, int]) -> Optional[
-        Tuple[List[Tuple[int, int]], int]]:
+        Tuple[List[Tuple[Tuple[int, int], Direction]], int]]:
         """
         1. choose node1 with minimal weight out of marked nodes
         2. if this node is target->finished else continue
@@ -355,13 +355,12 @@ class Planet:
             # continue exploring that current node (->dfs)
             return next(iter(self.unexplored[current_node]))
 
-        # distances are a list of the form [(Path, weight)]
-        djikstra_paths = [self.__djikstra(current_node, target) for target in self.unexplored]
-        shortest_paths = [self.__djikstra_reconstruct_shortest_path(djikstra_paths, current_node, target) for (djikstra_path, target) in zip(djikstra_paths, self.unexplored)]
-        next_path = shortest_paths.index(
-            min(shortest_paths, key=operator.itemgetter(1)))  # itemgetter gets 2nd elem (weight)
-        next_path_without_weight = next_path[0]  # format: List[Tuple[node, Direction]]
+        # shortest_paths are a list of the form [(Path, weight)]
+        shortest_paths = [self.__djikstra(current_node, target) for target in self.unexplored]
+        shortest_path = min(shortest_paths, key=operator.itemgetter(1))
+        next_path_without_weight = shortest_path[0]  # format: List[Tuple[node, Direction]]
         # TODO: check that next_dir really accesses the direction-element!
+        # [0]=(node, weight) -> [1]=weight
         next_dir = next_path_without_weight[0][1]
         return next_dir
 
