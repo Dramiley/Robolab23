@@ -54,7 +54,6 @@ class Robot:
             print("Could not initialize object detector sensors wrapper")
             print(e)
 
-
     def __track_motor_pos(self):
         """
         Tracks motor positions of the motors in a list of tuples
@@ -122,7 +121,6 @@ class Robot:
         # play notes a, c, e, g, a, c, e, g
         ev3.Sound.tone([(100, 200, 800)] * 2).wait()
 
-
         self.was_path_blocked = True
 
         self.turn_deg(175)
@@ -151,10 +149,12 @@ class Robot:
 
             # if the integral is greater than 100, stop the robot
             if integral > 1000:
-                self.__stop()
+                # for the next 5 seconds, call every second the stop function
+                for i in range(5):
+                    self.__stop()
+                    time.sleep(1)
                 # play three error beeps
-                ev3.Sound.tone([(1000, 500, 100)] * 3).wait()
-                self.motor_left = None # lets make it crash
+                ev3.Sound.tone([(1000, 500, 100)]).wait()
                 break
 
             self.color.color_check()
@@ -208,7 +208,7 @@ class Robot:
         time.sleep(0.5)
         self.color.color_check()
         self.__drive(100, 100)
-        while self.color.name == 'red'  or self.color.name == 'blue':
+        while self.color.name == 'red' or self.color.name == 'blue':
             self.color.color_check()
         self.__stop()
         self.__move_distance_straight(2)

@@ -357,7 +357,10 @@ class Planet:
 
         # distances are a list of the form [(Path, weight)]
         djikstra_paths = [self.__djikstra(current_node, target) for target in self.unexplored]
-        shortest_paths = [self.__djikstra_reconstruct_shortest_path(djikstra_paths, current_node, target) for (djikstra_path, target) in zip(djikstra_paths, self.unexplored)]
+        print(djikstra_paths)
+        # pdb.set_trace()
+
+        shortest_paths = [self.__djikstra_reconstruct_shortest_path(djikstra_path, current_node, target) for (djikstra_path, target) in zip(djikstra_paths, self.unexplored)]
         next_path = shortest_paths.index(
             min(shortest_paths, key=operator.itemgetter(1)))  # itemgetter gets 2nd elem (weight)
         next_path_without_weight = next_path[0]  # format: List[Tuple[node, Direction]]

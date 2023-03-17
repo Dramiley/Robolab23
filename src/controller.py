@@ -73,6 +73,7 @@ class Controller:
             time.sleep(1)
 
     def select_next_dir(self):
+        print("select_next_dir")
         """
         Runs the actual robot
         ->decision-making
@@ -91,9 +92,11 @@ class Controller:
         """
 
         # let robot check paths on the node he is on and register it in planet.unexplored
+        print("will call check_explorable_paths")
         self.__check_explorable_paths()
         # pdb.set_trace()
 
+        print("now evaluating after check_explorable_paths")
         next_dir = None
         if self.target_pos != None:
             # we have a given target we need to drive to
@@ -201,6 +204,7 @@ class Controller:
         WARNING: make sure self.last_position.direction is updated before calling this func!
         TODO: don't scan nodes which are already explored completely
         """
+        print("last_position.direction: " + str(self.last_position.direction))
         start_dir = self.last_position.direction  # the direction we came from
 
         print(f"Started scan from {start_dir}, set scan dir to {self.last_position.direction} due to driving forward.")
@@ -286,8 +290,13 @@ class Controller:
         print(f"Added a path, now we know the following paths: {self.planet.paths}")
 
         # update last position and path status
+        print("last_position: " + str(self.last_position.x) + " " + str(self.last_position.y) + " " + str(
+            self.last_position.direction))
+        print("__handle_received_path: " + str(endX) + " " + str(endY) + " " + str(endDirection))
         current_dir = (endDirection + 180) % 360  # we now look at to the opposite direction than we entered the node
+        print("calculation of current_dir: (" + str(endDirection) + " + 180) % 360 = " + str(current_dir))
         self.last_position = Position(endX, endY, current_dir)
+        print("last_position set to: " + str(self.last_position.x) + " " + str(self.last_position.y) + " " + str(self.last_position.direction))
 
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
