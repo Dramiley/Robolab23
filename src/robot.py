@@ -32,12 +32,18 @@ class Robot:
 
     motor_pos_list = None
 
-    def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
+    def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH,
+                 stop=False):
 
         self.motor_left = ev3.LargeMotor(left_port)
         self.motor_right = ev3.LargeMotor(right_port)
 
         self.motor_pos_list = []
+
+        if stop:
+            self.__stop()
+            sys.exit(0)
+
         self.current_dir = start_dir  # keeps track of robot's direction
 
         try:
@@ -100,6 +106,12 @@ class Robot:
             print(e)
 
     def calibrate(self):
+
+        # if the current hour is later than 22:00 or earlier than 6:00, do not calibrate
+        if 22 <= time.localtime().tm_hour <= 23 or 0 <= time.localtime().tm_hour <= 6:
+            self.__speak("Calibration not necessary at this time")
+            self.middlegreytone = 170
+            return
 
         self.__speak("Calibration White")
         self.color.color_check()
