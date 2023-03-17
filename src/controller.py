@@ -60,6 +60,12 @@ class Controller:
         # setup callbacks
         self.__init_callbacks()
 
+    def __setattr__(self, key, value):
+        super().__setattr__(key, value)
+
+        if key == 'last_position':
+            print("last_position changed to: " + str(value))
+
     def begin(self):
         print("controller.begin()")
 

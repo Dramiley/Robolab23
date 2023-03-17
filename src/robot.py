@@ -102,14 +102,12 @@ class Robot:
 
     def calibrate(self):
 
-        self.__speak("Calibration started")
-        self.__speak('White')
-        time.sleep(5)
+        self.__speak("Calibration White")
         self.color.color_check()
         white = self.color.greytone
         print("white = " + str(white))
         self.__speak('Black')
-        time.sleep(5)
+        self.__move_distance_straight(2)
         self.color.color_check()
         black = self.color.greytone
         print("black = " + str(black))
@@ -121,7 +119,7 @@ class Robot:
         self.__stop()
         self.__move_time(500, -100)
         time.sleep(1)
-        self.__speak('Meteroit spotted')
+        self.__speak('Meteroit')
 
         self.was_path_blocked = True
 
@@ -169,7 +167,6 @@ class Robot:
             power_left = tempo + lenkfaktor
             power_right = tempo - lenkfaktor
 
-            print(f"Power left: {power_left}, Power right: {power_right}")
             self.__run_motors(power_left, power_right)
             self.__track_motor_pos()
 
