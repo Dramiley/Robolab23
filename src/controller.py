@@ -347,7 +347,7 @@ class Controller:
         current_dir = self.last_position.direction
         logging.debug(f"Rotating: From {current_dir} to {target_dir}")
         # TODO: robot currently would sometimes rotate more than necessary (e.g. target_dir=270, current_dir=0)
-        deg_to_rotate = (target_dir - current_dir) % 360
+        deg_to_rotate = -(target_dir - current_dir) % 360
 
         while deg_to_rotate > 0:
             # use station scan for rotating bc turn_deg is VERY buggy
