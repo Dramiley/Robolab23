@@ -37,8 +37,10 @@ class Robot:
         from controller import env
         return env[name]
 
-    def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
+    def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH,
+                 skip_calibration: bool = False):
 
+        self.did_calibrate = skip_calibration
 
         import odometry
         self.motor_left = ev3.LargeMotor(left_port)
@@ -95,7 +97,7 @@ class Robot:
         self.motor_left.stop()
         self.motor_right.stop()
 
-    def __scan_turn(self):
+    def scan_turn(self):
         starttime = time.time()
         self.motor_left.run_timed(time_sp=1250, speed_sp=131)
         self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
@@ -212,7 +214,7 @@ class Robot:
         self.motor_left.run_timed(time_sp=312, speed_sp=65)
         self.motor_right.run_timed(time_sp=312, speed_sp=-65)
         time.sleep(0.5)
-        self.__move_distance_straight(4)
+        self.__move_distance_straight(4.3)
         time.sleep(1)
 
     def station_scan(self) -> bool:
@@ -229,7 +231,7 @@ class Robot:
             self.__drive(131, -131)
             self.color.color_check()
         self.__stop()
-        self.__scan_turn()
+        self.scan_turn()
         if self.color.subname == 'black':
             return True
         else:

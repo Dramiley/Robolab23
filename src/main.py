@@ -33,6 +33,7 @@ def init_client():
                          userdata=client_id  # Pass client_id to on_connect callback
                          )
     # Setup logging directory and file
+    """
     curr_dir = os.path.abspath(os.getcwd())
     if not os.path.exists(curr_dir + '/../logs'):
         os.makedirs(curr_dir + '/../logs')
@@ -42,6 +43,7 @@ def init_client():
                         format='%(asctime)s: %(message)s'  # Define default logging format
                         )
     logger = logging.getLogger('RoboLab')
+    """
     return client
 
 
@@ -63,6 +65,15 @@ def signal_handler(sig=None, frame=None, raise_interrupt=True):
     if client and client.is_connected():
         client.disconnect()
     if raise_interrupt:
+        try:
+            from robot import Robot
+            robot = Robot()
+            robot.stop()
+            print("Stopped robot.")
+        except:
+            print("Could not stop robot. (This is normal if you are not running on the robot.)")
+            pass
+
         raise KeyboardInterrupt()
 
 
@@ -78,4 +89,3 @@ if __name__ == '__main__':
     except Exception as e:
         signal_handler(raise_interrupt=False)
         raise
-

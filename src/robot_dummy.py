@@ -117,6 +117,10 @@ class RobotDummy(Robot):
         # 2. scan if there is something
         return self.__has_path_ahead()
 
+    def scan_turn(self):
+        if not self.__has_path_ahead():
+            self.turn_deg(90)
+
     def set_controller(self, controller):
         self.controller = controller
 

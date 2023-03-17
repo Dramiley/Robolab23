@@ -22,6 +22,9 @@ import sys
 subprocess.call(["rm", "-rf", ".src_deploy"])
 subprocess.call(["cp", "-r", "src", ".src_deploy"])
 
+# rm .src_deploy/.env
+subprocess.call(["rm", ".src_deploy/.env"])
+
 delete_folders = ["simulator", "tests"]
 for folder in delete_folders:
     subprocess.call(["rm", "-rf", ".src_deploy/" + folder])

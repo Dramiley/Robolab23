@@ -36,6 +36,8 @@ class Communication:
     thereby solve the task according to the specifications
     """
 
+    received_since_last_path_select = 0
+
     def __init__(self, mqtt_client, logger):
         """
         Initializes communication_scripts module, connect to server, subscribe, etc.
@@ -65,7 +67,6 @@ class Communication:
         # create facade
         self.facade = CommunicationFacade(self)
 
-        self.received_since_last_path_select = 0
 
     # destructor
     def __del__(self):
@@ -315,6 +316,8 @@ class Communication:
             # reset counter
             self.received_since_last_path_select = 0
 
+            print("received_since_last_path_select: " + str(self.received_since_last_path_select))
+
             # send message
             print("waiting 3s before faking server response")
 
@@ -324,6 +327,8 @@ class Communication:
                 time.sleep(3.2)  # TODO: change to 3s
 
             print("waited 3s before faking server response")
+
+            print("received_since_last_path_select: " + str(self.received_since_last_path_select))
 
             # checking if there was a path select message in the meantime
             if self.received_since_last_path_select > 0:

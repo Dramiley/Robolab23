@@ -120,7 +120,7 @@ class Controller:
     communication = None
     odometry = None
     planet = None
-    last_position = None
+    last_position = Position(0, 0, 0)  # stores the last position we were at
 
     given_new_target = False  # tracks whether we have a target to drive to by the mothership
     target_pos = None
@@ -129,8 +129,6 @@ class Controller:
     history = []
 
     def __init__(self, client):
-        from robot import Robot
-        from robot_dummy import RobotDummy
 
         # setup communication
         self.communication = Communication(client, CommunicationLogger()).facade
@@ -145,8 +143,10 @@ class Controller:
 
         # for our Simulator
         if env["SIMULATOR"]:
+            from robot_dummy import RobotDummy
             self.robot = RobotDummy()
         else:
+            from robot import Robot
             self.robot = Robot()
         self.robot.set_controller(self)
 
@@ -169,6 +169,8 @@ class Controller:
             print(
                 "Simulator: skipping drive_until_communication_point(), because we'll already be at an communication point")
 
+        self.communication.ready()
+        time.sleep(1)
         self.select_next_dir()
 
         if not env["GITLAB_RUNNER"]:
@@ -295,10 +297,11 @@ class Controller:
         # ->because we always start from a dead end
         self.__handle_received_planet(startX, startY, Direction(startOrientation))
 
+        # TODO Robin Change: Wurde bereits in Begin aufgerufen. Dadurch hat der Roboter drive_until_communication_point() 2 mal ausgeführt
         # los gehts
-        if not env["SIMULATOR"]:
+        # if not env["SIMULATOR"]:
             # drive from start to first communication point
-            self.robot.drive_until_communication_point()
+            # self.robot.drive_until_communication_point()
 
         self.select_next_dir()  # undo alex's change to begin()
 
@@ -392,6 +395,8 @@ class Controller:
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         # pass onto handler, forget pathStatus
         self.communication.communication.received_since_last_path_select += 1
+        print("incremented received_since_last_path_select to " + str(
+            self.communication.communication.received_since_last_path_select))
         self.__handle_received_path(startX, startY, startDirection, endX, endY, endDirection, pathWeight)
 
     def __handle_received_path(self, startX, startY, startDirection, endX, endY, endDirection, pathWeight):
