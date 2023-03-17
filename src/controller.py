@@ -464,9 +464,11 @@ class Controller:
         # TODO Robin change: Er sollte sich nicht genau drehen, da das nie wirklich stimmt. scan_turn sollte das besser hinbekommen, da es perfekt 
         # links von der Linie aufhört zu drehen
         deg_to_rotate = ((target_dir - current_dir) - 90)
-        self.last_position.direction = target_dir
-        self.robot.turn_deg(deg_to_rotate)
-        self.robot.scan_turn()
+        if deg_to_rotate != -90:
+            self.last_position.direction = target_dir
+            self.robot.turn_deg(deg_to_rotate)
+            self.robot.scan_turn()
+        
     def receive_done(self, message):
         """
         Wurde das Ziel tatsächlich erreicht bzw. die gesamte Karte aufgedeckt, antwortet der Server mit einer Bestätigung vom Typ done (3) und dem Ende der Erkundung.
