@@ -94,7 +94,7 @@ class Controller:
 
         # let robot check paths on the node he is on and register it in planet.unexplored
         self.__check_explorable_paths()
-        pdb.set_trace()
+        # pdb.set_trace()
 
         next_dir = None
         if self.target_pos != None:
@@ -120,7 +120,7 @@ class Controller:
         print("Last pos: " + str(self.last_position.x) + " " + str(self.last_position.y))
 
         # NOTE: check that robo selected right path here!
-        pdb.set_trace()
+        # pdb.set_trace()
 
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
@@ -307,7 +307,7 @@ class Controller:
         """
         self.communication.communication.received_since_last_path_select = 1
         # NOTE: Make sure robo received the right path_select (ESPECIALLY NOT the fake server response)
-        pdb.set_trace()
+        print(f"I know drive to {startDirection}")
 
         # update last position and path status
         self.odometry.set_dir(startDirection)
