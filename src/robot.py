@@ -145,7 +145,6 @@ class Robot:
         self.__reset_motor_pos_list()
 
         while self.color.name == 'grey':
-            print("integral = " + str(integral))
 
             # if the integral is greater than 100, stop the robot
             if integral > 3000:

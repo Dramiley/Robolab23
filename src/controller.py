@@ -67,7 +67,6 @@ class Controller:
             print("last_position changed to: X: " + str(value.x) + " Y: " + str(value.y) + " Direction: " + str(value.direction))
 
     def begin(self):
-        print("controller.begin()")
 
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
