@@ -119,7 +119,9 @@ class Robot:
         self.__stop()
         self.__move_time(500, -100)
         time.sleep(1)
-        self.__speak('Meteroit')
+        # play notes a, c, e, g, a, c, e, g
+        ev3.Sound.tone([(100, 200, 800)] * 2).wait()
+
 
         self.was_path_blocked = True
 
@@ -130,6 +132,7 @@ class Robot:
         # folgt der Linie
         # self.communication.test_planet("Gromit")
         # reset was_path_blocked
+        print("followline start")
         self.was_path_blocked = False
 
         self.color.color_check()  # checkt die Farbe
@@ -147,10 +150,10 @@ class Robot:
         while self.color.name == 'grey':
 
             # if the integral is greater than 100, stop the robot
-            if integral > 3000:
+            if integral > 1000:
                 self.__stop()
                 # play three error beeps
-                ev3.Sound.tone([(1000, 500, 500)] * 3).wait()
+                ev3.Sound.tone([(1000, 500, 100)] * 3).wait()
                 self.motor_left = None # lets make it crash
                 break
 
@@ -182,6 +185,7 @@ class Robot:
             lerror = error
             self.color.color_check()
         self.__stop()
+        print("followline end")
 
     def __run_motors(self, power_left: float, power_right: float):
         """
@@ -250,6 +254,7 @@ class Robot:
         """
         Turns the robot by param degrees
         """
+        print("turn_deg " + str(deg))
         ROT_TIME_FACTOR = 13.88
         rot_dir = math.copysign(1, deg)
         speed = rot_dir * 133
