@@ -71,8 +71,6 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.planet.add_path(((19, 2), Direction.WEST), ((19, 3), Direction.WEST), 2)
 
         self.empty_planet = Planet()
-        # logger = logging.getLogger()
-        logging.basicConfig(filename='planet.log', filemode='w', encoding='utf-8', level=logging.DEBUG)
 
     def test_integrity(self):
         """

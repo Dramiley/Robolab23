@@ -1,4 +1,4 @@
-from controller import Controller, Position
+from controller2 import Controller, Position
 from planet import Direction
 from planet import Planet
 import main

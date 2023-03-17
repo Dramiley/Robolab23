@@ -20,7 +20,6 @@ from typing import Optional
 
 
 from communication import Communication
-from communication_logger import CommunicationLogger
 from odometry import Odometry
 from planet import Planet, Direction
 
@@ -44,7 +43,7 @@ class Controller:
     def __init__(self, client):
 
         # setup communication
-        self.communication = Communication(client, CommunicationLogger()).facade
+        self.communication = Communication(client, None).facade
 
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
@@ -60,11 +59,6 @@ class Controller:
 
         # setup callbacks
         self.__init_callbacks()
-
-        # self.logger = logging.getLogger(__name__)
-        self.logger = self.communication.communication.logger
-
-        self.logger.setLevel(logging.DEBUG)
 
     def begin(self):
         print("controller.begin()")
@@ -97,16 +91,13 @@ class Controller:
             2. contact station and tell chosen next path
             3. drive the path we are told by the mothership
         """
-        self.logger.debug("Entering run")
 
         # let robot check paths on the node he is on and register it in planet.unexplored
         self.__check_explorable_paths()
         pdb.set_trace()
 
         next_dir = None
-        self.logger.debug("Selecting the next dir to take...")
         if self.target_pos != None:
-            self.logger.debug(f"I have to drive to target at {self.target_pos}")
             # we have a given target we need to drive to
             last_pos = (self.last_position.x, self.last_position.y)
             shortest_path = self.planet.get_shortest_path(last_pos, self.target_pos)  # =List[Tuple[pos, dir]]
@@ -114,22 +105,17 @@ class Controller:
             if shortest_path == []:
                 # we are already at target
                 # TODO: check whether programs really ends here (see https://robolab.inf.tu-dresden.de/spring/task/communication/msg-complete/)
-                self.logger.debug("We are already at the target")
                 self.__target_reached()
             elif shortest_path == None:
                 # target is unreachable
                 # TODO: what if we had a target and received an unreachable one->we don't have any target anymore, right?
-                self.logger.debug(f"The given target at {self.target_pos} is unreachable.")
                 self.target_pos = None
                 next_dir = self.__explore()
             else:
                 next_dir = shortest_path[0][1]
-                self.logger.debug(f"Continuing driving towards target at {self.target_pos} in dir {next_dir}")
         else:
-            self.logger.debug("No target to drive to - continuing exploration")
             next_dir = self.__explore()
 
-        self.logger.debug(f"I decided to drive into dir {next_dir}")
         print("Next dir: " + str(next_dir))
         print("Last pos: " + str(self.last_position.x) + " " + str(self.last_position.y))
 
@@ -143,18 +129,13 @@ class Controller:
         """
         Let the robo have some fun and explore the planet on it's own
         """
-        self.logger.debug("---Entering __explore")
         next_dir = self.planet.get_next_exploration_dir((self.last_position.x, self.last_position.y))
 
         if next_dir == None:
             # planet has been explored completely->there is nothing to explore anymore
-            self.logger.debug(
-                "I have explored everything and as this method is only called of there was no target I'm finished:)")
             self.communication.exploration_completed()
-            self.logger.warning("THIS SHOULDNT BE EXECUTED, program should quit once the exploration is completed")
             return None
 
-        self.logger.debug(f"Decide to continue exploration in dir {next_dir}")
         return next_dir
 
     def __init_callbacks(self):
@@ -203,9 +184,6 @@ class Controller:
 
         # TODO Robin Change: Wurde bereits in Begin aufgerufen. Dadurch hat der Roboter drive_until_communication_point() 2 mal ausgeführt
         # los gehts
-        # if not env["SIMULATOR"]:
-        # drive from start to first communication point
-        # self.robot.drive_until_communication_point()
 
         self.select_next_dir()  # undo alex's change to begin()
 
@@ -242,7 +220,6 @@ class Controller:
                                                              self.last_position.direction)
                 except Exception as e:
                     print(f"Error while adding path to planet: {e}")
-            self.logger.debug(f"Checking {self.last_position.direction}")
 
     def communication_point_reached(self):
         """
@@ -252,35 +229,21 @@ class Controller:
         :return: void
         """
 
-        self.communication.communication.logger.debug("paths: " + str(self.planet.paths))
-        self.communication.communication.logger.debug("unexplored: " + str(self.planet.unexplored))
-
         if (self.last_position is None):
-            self.logger.debug("last_position is None")
             return
 
-        self.logger.debug("---Robo entered a communication point---")
         # calculate start and end position
         start_position = self.last_position
 
         end_position = None
-        if env["ODOMETRY"]:
-            self.odometry.calculate(self.robot.motor_pos_list)
-            end_coords = self.odometry.get_coords()
-            end_position = Position(self.odometry.get_coords()[0], self.odometry.get_coords()[1],
-                                    self.odometry.get_dir())
-        else:
-            end_position = self.last_position
-            # when there is no odometry, better send something than nothing
-            # but doesnt matter, the server will correct it anyways
-            # if (env["SIMULATOR"]):
-            # end_position.direction = self.robot.getOrientation()
+        self.odometry.calculate(self.robot.motor_pos_list)
+        end_coords = self.odometry.get_coords()
+        end_position = Position(self.odometry.get_coords()[0], self.odometry.get_coords()[1],
+                                self.odometry.get_dir())
 
         is_path_blocked = self.robot.was_path_blocked
-        self.logger.debug(f"The driven path was blocked?: {is_path_blocked}")
 
         if is_path_blocked:
-            self.logger.warning(f"Sending path from {start_position} to {end_position} with status {is_path_blocked}")
             path_status = "blocked"
         else:
             path_status = "free"
@@ -293,7 +256,6 @@ class Controller:
         """
         Wird aufgerufen, wenn das Ziel erreicht wurde
         """
-        self.logger.success("I have reached my target!!!")
         self.communication.target_reached("Target reached.")
         self.target_pos = None
 

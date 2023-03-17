@@ -34,7 +34,7 @@ class Robot:
     motor_pos_list = None
 
     def __env(self, name):
-        from controller import env
+        from controller2 import env
         return env[name]
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
@@ -59,8 +59,6 @@ class Robot:
             print("Could not initialize object detector sensors wrapper")
             print(e)
 
-        self.logger = logging.getLogger()
-        self.logger.setLevel(logging.DEBUG)
 
     def __track_motor_pos(self):
         """
@@ -69,7 +67,6 @@ class Robot:
         motor_pos_left = self.motor_left.position
         motor_pos_right = self.motor_right.position
         self.motor_pos_list.append([motor_pos_left, motor_pos_right])
-        # self.logger.info(f"Tracked motor_pos_values: {motor_pos_left}, {motor_pos_right}")
 
     def __reset_motor_pos_list(self):
         # init with current pos list

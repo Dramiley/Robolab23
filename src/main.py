@@ -33,17 +33,6 @@ def init_client():
                          userdata=client_id  # Pass client_id to on_connect callback
                          )
     # Setup logging directory and file
-    """
-    curr_dir = os.path.abspath(os.getcwd())
-    if not os.path.exists(curr_dir + '/../logs'):
-        os.makedirs(curr_dir + '/../logs')
-    log_file = curr_dir + '/../logs/project.log'
-    logging.basicConfig(filename=log_file,  # Define log file
-                        level=logging.DEBUG,  # Define default mode
-                        format='%(asctime)s: %(message)s'  # Define default logging format
-                        )
-    logger = logging.getLogger('RoboLab')
-    """
     return client
 
 
@@ -57,7 +46,6 @@ def run():
 
     controller = Controller(client)
     controller.begin()
-    # test_odo()
 
 
 # DO NOT EDIT

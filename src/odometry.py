@@ -33,8 +33,6 @@ class Odometry:
         # odometry should be running only when told so
         self.running = False
 
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
         self.tracking_thread = None
 
         self.__calc_parameters()
@@ -77,10 +75,8 @@ class Odometry:
 
         # TODO: do count_per_rot have the same value for both motors?
         tacho_c_per_rot_r = self.robot.motor_left.count_per_rot
-        self.logger.info(f"Tacho_c_per_rot_r is {tacho_c_per_rot_r}, should be 360?")
         # TODO: is distance_per_tick given somewhere??
         self.distance_per_tick = wheel_circumference / tacho_c_per_rot_r
-        self.logger.info(f"Distance per tick is {self.distance_per_tick}")
 
     def calculate(self, track_list: List[Tuple[int, int]]):
         """
@@ -117,8 +113,6 @@ class Odometry:
             # update dir
             self.current_dir += angle
 
-        self.logger.debug(f"Calculated current dir {self.current_dir}")
-        self.logger.debug(f"Calculated new pos {self.current_pos}")
         # pdb.set_trace()
 
     def __get_driven_distance(self, r: int, al: int) -> int:
