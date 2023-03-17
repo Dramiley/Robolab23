@@ -145,10 +145,10 @@ class Controller:
         if env["SIMULATOR"]:
             from robot_dummy import RobotDummy
             self.robot = RobotDummy()
-            self.robot.calibrate()
         else:
             from robot import Robot
             self.robot = Robot()
+            self.robot.calibrate()
         self.robot.set_controller(self)
 
         # setup callbacks
@@ -164,11 +164,10 @@ class Controller:
 
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
-        if not env["SIMULATOR"]:
-            self.robot.begin()
+        if env["SIMULATOR"]:
+            print( "Simulator: skipping drive_until_communication_point()")
         else:
-            print(
-                "Simulator: skipping drive_until_communication_point(), because we'll already be at an communication point")
+            self.robot.begin()
 
         self.communication.ready()
         time.sleep(1)
@@ -301,8 +300,8 @@ class Controller:
         # TODO Robin Change: Wurde bereits in Begin aufgerufen. Dadurch hat der Roboter drive_until_communication_point() 2 mal ausgeführt
         # los gehts
         # if not env["SIMULATOR"]:
-            # drive from start to first communication point
-            # self.robot.drive_until_communication_point()
+        # drive from start to first communication point
+        # self.robot.drive_until_communication_point()
 
         self.select_next_dir()  # undo alex's change to begin()
 
