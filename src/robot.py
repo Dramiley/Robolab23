@@ -30,7 +30,6 @@ class Robot:
     motor_left = None
     motor_right = None
 
-    did_calibrate = False
     motor_pos_list = None
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
@@ -171,20 +170,20 @@ class Robot:
             power_right = tempo - lenkfaktor
 
             print(f"Power left: {power_left}, Power right: {power_right}")
-            self.__run_motors(int(power_left), int(power_right))
+            self.__run_motors(power_left, power_right)
             self.__track_motor_pos()
 
             lerror = error
             self.color.color_check()
         self.__stop()
 
-    def __run_motors(self, power_left: int, power_right: int):
+    def __run_motors(self, power_left: float, power_right: float):
         """
         Starts the motor
         """
-        self.motor_left.speed_sp = power_left
+        self.motor_left.speed_sp = int(power_left)
         self.motor_left.command = "run-forever"
-        self.motor_right.speed_sp = power_right
+        self.motor_right.speed_sp = int(power_right)
         self.motor_right.command = "run-forever"
 
     def __station_center(self):

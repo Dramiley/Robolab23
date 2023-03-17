@@ -221,6 +221,8 @@ class Controller:
                 except Exception as e:
                     print(f"Error while adding path to planet: {e}")
 
+        print(f"Currently unexplored: {self.planet.unexplored}")
+
     def communication_point_reached(self):
         """
         An jedem weiteren Kommunikationspunkt übermittelt der Roboter zu Beginn der Übertragung den gefahrenen Pfad.
@@ -278,6 +280,7 @@ class Controller:
         # update odometry inside planet
         self.planet.add_path(((startX, startY), Direction(startDirection)), ((endX, endY), Direction(endDirection)),
                              pathWeight)
+        print(f"Added a path, now we now the following paths: {self.planet.paths}")
 
         # update last position and path status
         current_dir = (endDirection + 180) % 360  # we now look at to the opposite direction than we entered the node
@@ -311,6 +314,8 @@ class Controller:
 
         # update last position and path status
         self.odometry.set_dir(startDirection)
+
+        print(f"Start dir: {self.last_position.direction}, Rotating to: {startDirection}")
 
         self.rotate_robo_in_dir(startDirection)
 
