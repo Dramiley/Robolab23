@@ -40,32 +40,33 @@ class Robot:
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH,
                  skip_calibration: bool = False):
 
-        self.did_calibrate = skip_calibration
-
-        import odometry
-        self.motor_left = ev3.LargeMotor(left_port)
-        self.motor_right = ev3.LargeMotor(right_port)
-        self.motor_pos_list = []
-        self.current_dir = start_dir  # keeps track of robot's direction
-
-        try:
-            self.color = ms.ColorDetector()
-            print("Color Okay")
-        except Exception as e:
-            print("Could not initialize color sensors wrapper ")
-            print(e)
-
-        try:
-            self.obj_detec = ms.ObjectDetector()
-            print("Object Detector Okay")
-        except Exception as e:
-            print("Could not initialize object detector sensors wrapper")
-            print(e)
-
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.DEBUG)
 
-        self.calibrate()
+        self.motor_left = ev3.LargeMotor(left_port)
+        self.motor_right = ev3.LargeMotor(right_port)
+
+        self.did_calibrate = skip_calibration
+        if not skip_calibration:
+
+            self.motor_pos_list = []
+            self.current_dir = start_dir  # keeps track of robot's direction
+
+            try:
+                self.color = ms.ColorDetector()
+                print("Color Okay")
+            except Exception as e:
+                print("Could not initialize color sensors wrapper ")
+                print(e)
+
+            try:
+                self.obj_detec = ms.ObjectDetector()
+                print("Object Detector Okay")
+            except Exception as e:
+                print("Could not initialize object detector sensors wrapper")
+                print(e)
+
+            self.calibrate()
 
     def __track_motor_pos(self):
         """
