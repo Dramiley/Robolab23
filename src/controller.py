@@ -293,10 +293,11 @@ class Controller:
         # ->because we always start from a dead end
         self.__handle_received_planet(startX, startY, Direction(startOrientation))
 
+        # TODO Robin Change: Wurde bereits in Begin aufgerufen. Dadurch hat der Roboter drive_until_communication_point() 2 mal ausgeführt
         # los gehts
-        if not env["SIMULATOR"]:
+        # if not env["SIMULATOR"]:
             # drive from start to first communication point
-            self.robot.drive_until_communication_point()
+            # self.robot.drive_until_communication_point()
 
         self.select_next_dir()  # undo alex's change to begin()
 
@@ -460,10 +461,15 @@ class Controller:
         current_dir = self.last_position.direction
         logging.debug(f"Rotating: From {current_dir} to {target_dir}")
         # TODO: robot currently would sometimes rotate more than necessary (e.g. target_dir=270, current_dir=0)
-        deg_to_rotate = target_dir - current_dir
+        #deg_to_rotate = target_dir - current_dir
+        #self.last_position.direction = target_dir
+        #self.robot.turn_deg(deg_to_rotate)
+        # TODO Robin change: Er sollte sich nicht genau drehen, da das nie wirklich stimmt. scan_turn sollte das besser hinbekommen, da es perfekt 
+        # links von der Linie aufhört zu drehen
+        turn_to_rotate = ((target_dir - current_dir) % 90)
         self.last_position.direction = target_dir
-        self.robot.turn_deg(deg_to_rotate)
-
+        self.robot.turn_deg(turn_to_rotate)
+        self.robot.scan_turn()
     def receive_done(self, message):
         """
         Wurde das Ziel tatsächlich erreicht bzw. die gesamte Karte aufgedeckt, antwortet der Server mit einer Bestätigung vom Typ done (3) und dem Ende der Erkundung.
