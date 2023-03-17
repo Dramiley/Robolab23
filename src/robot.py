@@ -24,7 +24,7 @@ class Robot:
     controller = None
     color: ms.ColorDetector = None
     obj_detec: ms.ObjectDetector = None
-    middlegreytone = 200
+    middlegreytone = 170
     was_path_blocked = False  # stores whether last path driven was blocked or not->set when obstacle is detected
 
     motor_left = None
@@ -91,8 +91,8 @@ class Robot:
 
     def scan_turn(self):
         starttime = time.time()
-        self.motor_left.run_timed(time_sp=1250, speed_sp=131)
-        self.motor_right.run_timed(time_sp=1250, speed_sp=-131)
+        self.motor_left.run_timed(time_sp=1400, speed_sp=131)
+        self.motor_right.run_timed(time_sp=1400, speed_sp=-131)
 
         while self.color.subname != 'black' and time.time() - starttime <= 2:
             self.color.color_check()
@@ -111,6 +111,7 @@ class Robot:
         if 22 <= time.localtime().tm_hour <= 23 or 0 <= time.localtime().tm_hour <= 6:
             self.__speak("Calibration not necessary at this time")
             self.middlegreytone = 170
+            self.__move_distance_straight(4)
             return
 
         self.__speak("Calibration White")

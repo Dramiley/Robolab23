@@ -191,7 +191,8 @@ class Controller:
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
         # startOrientation is the dir the robot is pointing towards after entering the node
-        came_from_dir = Direction((startOrientation + 180) % 360)
+        # came_from_dir = Direction((startOrientation + 180) % 360)
+        came_from_dir = Direction((startOrientation) % 360)
         # mark start path as blocked (is always a dead end)
         self.planet.add_path(((startX, startY), came_from_dir), ((startX, startY), came_from_dir), -1)
 
@@ -210,6 +211,11 @@ class Controller:
         print(f"Started scan from {start_dir}, set scan dir to {self.last_position.direction} due to driving forward.")
         # check all paths
         for i in range(0, 4):  # 1 because there must be a path on the one we came from
+
+            if i == 2:
+                # we already know that there is a path on the one we came from
+                continue
+
             # TODO: 2nd rotation scans the path we came from (not needed!)
             # update current orientation by 90deg
             self.last_position.direction = (self.last_position.direction + 90) % 360
@@ -293,10 +299,11 @@ class Controller:
         print("last_position: " + str(self.last_position.x) + " " + str(self.last_position.y) + " " + str(
             self.last_position.direction))
         print("__handle_received_path: " + str(endX) + " " + str(endY) + " " + str(endDirection))
-        current_dir = (endDirection + 180) % 360  # we now look at to the opposite direction than we entered the node
+        current_dir = (endDirection ) % 360  # we now look at to the opposite direction than we entered the node
         print("calculation of current_dir: (" + str(endDirection) + " + 180) % 360 = " + str(current_dir))
         self.last_position = Position(endX, endY, current_dir)
-        print("last_position set to: " + str(self.last_position.x) + " " + str(self.last_position.y) + " " + str(self.last_position.direction))
+        print("last_position set to: " + str(self.last_position.x) + " " + str(self.last_position.y) + " " + str(
+            self.last_position.direction))
 
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
