@@ -279,6 +279,19 @@ class Robot:
                 t = input()
                 self.turn_deg(int(t))
 
+    def turn_deg(self, deg):
+        """
+        Turns the robot by param degrees
+        """
+        ROT_TIME_FACTOR = 13.88
+        rot_dir = math.copysign(1, deg)
+        speed = rot_dir * 133
+        # so time isnt negative
+        deg = abs(deg)
+        self.motor_left.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=speed)
+        self.motor_right.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=-speed)
+        time.sleep(ROT_TIME_FACTOR * 10 ** -3 * deg)
+
     def drive_until_communication_point(self):
         """
         Drives the robot to the next communication point
@@ -287,4 +300,3 @@ class Robot:
         self.__station_center()
         # tell the controller that we reached the communication point
         self.controller.communication_point_reached()
-
