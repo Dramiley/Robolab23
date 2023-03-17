@@ -48,8 +48,8 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        test_planet = "Anin"
-        self.communication.test_planet("Anin")
+        test_planet = "Schoko"
+        self.communication.test_planet(test_planet)
 
 
         from robot import Robot
@@ -213,12 +213,12 @@ class Controller:
         for i in range(0, 4):  # 1 because there must be a path on the one we came from
             # TODO: 2nd rotation scans the path we came from (not needed!)
             # update current orientation by 90deg
-            current_dir = self.last_position.direction
             self.last_position.direction = (self.last_position.direction + 90) % 360
+            current_dir = self.last_position.direction
             # check whether there is a path
             possible_path = self.robot.station_scan()
             
-            time.sleep(2.1)
+            time.sleep(3)
 
             if possible_path:
                 print("found possible path in dir " + str(current_dir))
@@ -351,7 +351,7 @@ class Controller:
         current_dir = self.last_position.direction
         logging.debug(f"Rotating: From {current_dir} to {target_dir}")
         # TODO: robot currently would sometimes rotate more than necessary (e.g. target_dir=270, current_dir=0)
-        deg_to_rotate = -(target_dir - current_dir) % 360
+        deg_to_rotate = (target_dir - current_dir) % 360
 
         while deg_to_rotate > 0:
             # use station scan for rotating bc turn_deg is VERY buggy

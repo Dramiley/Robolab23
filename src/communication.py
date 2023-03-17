@@ -182,7 +182,6 @@ class Communication:
         except:
             import traceback
             traceback.print_exc()
-            raise ValueError('Error in on_message handler')
 
     def set_callback(self, message_type, callback):
         self.callbacks[message_type] = callback
