@@ -73,8 +73,6 @@ class Controller:
         self.robot.begin()
 
         self.communication.ready()
-        time.sleep(1)
-        self.select_next_dir()
 
         while True:
             time.sleep(1)
@@ -215,16 +213,22 @@ class Controller:
         for i in range(0, 4):  # 1 because there must be a path on the one we came from
             # TODO: 2nd rotation scans the path we came from (not needed!)
             # update current orientation by 90deg
+            current_dir = self.last_position.direction
             self.last_position.direction = (self.last_position.direction + 90) % 360
             # check whether there is a path
             possible_path = self.robot.station_scan()
+            
+            time.sleep(2.1)
 
             if possible_path:
+                print("found possible path in dir " + str(current_dir))
                 try:
                     self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y),
-                                                             self.last_position.direction)
+                                                            current_dir)
                 except Exception as e:
                     print(f"Error while adding path to planet: {e}")
+            else:
+                print("found no path in dir " + str(current_dir))
 
         print(f"Currently unexplored: {self.planet.unexplored}")
 
@@ -245,6 +249,7 @@ class Controller:
         end_position = None
         self.odometry.calculate(self.robot.motor_pos_list)
         end_coords = self.odometry.get_coords()
+        print("Odometrie says we are at " + str(end_coords[0]) + " " + str(end_coords[1]))
         end_position = Position(self.odometry.get_coords()[0], self.odometry.get_coords()[1],
                                 self.odometry.get_dir())
 
@@ -268,8 +273,6 @@ class Controller:
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         # pass onto handler, forget pathStatus
-        print("incremented received_since_last_path_select to " + str(
-            self.communication.communication.received_since_last_path_select))
         self.__handle_received_path(startX, startY, startDirection, endX, endY, endDirection, pathWeight)
 
     def __handle_received_path(self, startX, startY, startDirection, endX, endY, endDirection, pathWeight):
@@ -323,6 +326,8 @@ class Controller:
         print(f"Start dir: {self.last_position.direction}, Rotating to: {startDirection}")
 
         self.rotate_robo_in_dir(startDirection)
+        print(startDirection)
+        
 
         self.robot.drive_until_communication_point()
 
