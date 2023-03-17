@@ -56,7 +56,7 @@ class CommunicationFacade:
             "endDirection": %s,
             "pathStatus": "%s"
           }
-        }''' % (startX, startY, startDirection, endX, endY, endDirection, pathStatus))
+        }''' % (startX, startY, int(startDirection) % 360, endX, endY, int(endDirection) % 360, pathStatus))
 
     def path_select(self, startX, startY, startDirection):
         """
@@ -75,9 +75,9 @@ class CommunicationFacade:
             "startY": %s,
             "startDirection": %s
           }
-        }''' % (startX, startY, startDirection))
+        }''' % (startX, startY, int(startDirection) % 360))
 
-        self.communication.prepare_fallback_path_select_message(startDirection)
+        self.communication.prepare_fallback_path_select_message(int(startDirection) % 360)
 
     def path_unveiled(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         """
@@ -105,7 +105,7 @@ class CommunicationFacade:
             "pathStatus": "%s",
             "pathWeight": %s
           }
-        }''' % (startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight))
+        }''' % (startX, startY, int(startDirection) % 360, endX, endY, int(endDirection) % 360, pathStatus, pathWeight))
 
     def target_reached(self, message):
         """
