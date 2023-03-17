@@ -110,11 +110,6 @@ class Robot:
 
     def calibrate(self):
 
-        if self.did_calibrate:
-            return
-
-        self.did_calibrate = True
-
         self.__speak("Calibration started")
         self.__speak('White')
         time.sleep(5)
