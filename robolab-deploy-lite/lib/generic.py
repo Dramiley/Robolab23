@@ -180,7 +180,7 @@ class Generic:
              '-i', str(self.tempdir_ssh_key),
              '-o', 'StrictHostKeyChecking=no',
              'robot@{}'.format(self.settings['ip']),
-             'rm -rf /home/robot/src && mkdir /home/robot/src && mv /home/robot/.src_deploy/* /home/robot/src/ && touch /home/robot/.trigger && rm /home/robot/src/.env'
+             'rm -rf /home/robot/src && mkdir /home/robot/src && mv /home/robot/.src_deploy/* /home/robot/src/ && touch /home/robot/.trigger; rm /home/robot/src/.env'
              ])
         print('Done.')
 

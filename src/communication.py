@@ -36,6 +36,8 @@ class Communication:
     thereby solve the task according to the specifications
     """
 
+    received_since_last_path_select = 0
+
     def __init__(self, mqtt_client, logger):
         """
         Initializes communication_scripts module, connect to server, subscribe, etc.
@@ -65,7 +67,6 @@ class Communication:
         # create facade
         self.facade = CommunicationFacade(self)
 
-        self.received_since_last_path_select = 0
 
     # destructor
     def __del__(self):
