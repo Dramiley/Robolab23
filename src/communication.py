@@ -328,6 +328,8 @@ class Communication:
 
             print("waited 3s before faking server response")
 
+            print("received_since_last_path_select: " + str(self.received_since_last_path_select))
+
             # checking if there was a path select message in the meantime
             if self.received_since_last_path_select > 0:
                 print("received a path select message in the meantime, not sending fake server response")
