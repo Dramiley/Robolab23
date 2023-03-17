@@ -316,6 +316,8 @@ class Communication:
             # reset counter
             self.received_since_last_path_select = 0
 
+            print("received_since_last_path_select: " + str(self.received_since_last_path_select))
+
             # send message
             print("waiting 3s before faking server response")
 

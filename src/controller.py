@@ -120,7 +120,7 @@ class Controller:
     communication = None
     odometry = None
     planet = None
-    last_position = None
+    last_position = Position(0, 0, 0)  # stores the last position we were at
 
     given_new_target = False  # tracks whether we have a target to drive to by the mothership
     target_pos = None
@@ -129,7 +129,6 @@ class Controller:
     history = []
 
     def __init__(self, client):
-
 
         # setup communication
         self.communication = Communication(client, CommunicationLogger()).facade
@@ -170,6 +169,8 @@ class Controller:
             print(
                 "Simulator: skipping drive_until_communication_point(), because we'll already be at an communication point")
 
+        self.communication.ready()
+        time.sleep(1)
         self.select_next_dir()
 
         if not env["GITLAB_RUNNER"]:
@@ -389,6 +390,8 @@ class Controller:
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         # pass onto handler, forget pathStatus
         self.communication.communication.received_since_last_path_select += 1
+        print("incremented received_since_last_path_select to " + str(
+            self.communication.communication.received_since_last_path_select))
         self.__handle_received_path(startX, startY, startDirection, endX, endY, endDirection, pathWeight)
 
     def __handle_received_path(self, startX, startY, startDirection, endX, endY, endDirection, pathWeight):
