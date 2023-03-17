@@ -18,6 +18,8 @@ import logging
 import pdb
 from typing import Optional
 
+from ev3dev.core import Sound
+
 from communication import Communication
 from odometry import Odometry
 from planet import Planet, Direction
@@ -30,6 +32,28 @@ class Position:
         self.x = x
         self.y = y
         self.direction = direction
+
+        Sound.play_song((
+            ('D4', 'e3'),  # intro anacrouse
+            ('D4', 'e3'),
+            ('D4', 'e3'),
+            ('G4', 'h'),  # meas 1
+            ('D5', 'h'),
+            ('C5', 'e3'),  # meas 2
+            ('B4', 'e3'),
+            ('A4', 'e3'),
+            ('G5', 'h'),
+            ('D5', 'q'),
+            ('C5', 'e3'),  # meas 3
+            ('B4', 'e3'),
+            ('A4', 'e3'),
+            ('G5', 'h'),
+            ('D5', 'q'),
+            ('C5', 'e3'),  # meas 4
+            ('B4', 'e3'),
+            ('C5', 'e3'),
+            ('A4', 'h.'),
+        ))
 
 
 class Controller:
@@ -232,6 +256,9 @@ class Controller:
         Mithilfe der Odometrie schätzt er dabei seine neue Position ab.
         :return: void
         """
+
+        # play titanic.wav on ev3
+        Sound.play("sounds/titanic.wav")
 
         if (self.last_position is None):
             return
