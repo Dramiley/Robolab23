@@ -226,6 +226,10 @@ class Controller:
         self.logger.debug(f"I decided to drive into dir {next_dir}")
         print("Next dir: " + str(next_dir))
         print("Last pos: " + str(self.last_position.x) + " " + str(self.last_position.y))
+
+        # NOTE: check that robo selected right path here!
+        pdb.set_trace()
+
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
 
@@ -431,6 +435,9 @@ class Controller:
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-select/
         """
 
+        # NOTE: Make sure robo received the right path_select (ESPECIALLY NOT the fake server response)
+        pdb.set_trace()
+
         # update last position and path status
         self.odometry.set_dir(startDirection)
 
@@ -459,6 +466,9 @@ class Controller:
         deg_to_rotate = target_dir - current_dir
         self.last_position.direction = target_dir
         self.robot.turn_deg(deg_to_rotate)
+
+        # NOTE: make sure robo rotate into right direction
+        pdb.set_trace()
 
     def receive_done(self, message):
         """
