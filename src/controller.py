@@ -235,7 +235,6 @@ class Controller:
 
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
-        self.communication.communication.prepare_fallback_path_select_message()
 
     def __explore(self) -> Optional[Direction]:
         """
@@ -472,10 +471,14 @@ class Controller:
         current_dir = self.last_position.direction
         logging.debug(f"Rotating: From {current_dir} to {target_dir}")
         # TODO: robot currently would sometimes rotate more than necessary (e.g. target_dir=270, current_dir=0)
-        deg_to_rotate = target_dir - current_dir
-        self.last_position.direction = target_dir
-        self.robot.turn_deg(deg_to_rotate)
+        deg_to_rotate = (target_dir - current_dir) % 360
 
+        while deg_to_rotate > 0:
+            # use station scan for rotating bc turn_deg is VERY buggy
+            self.robot.station_scan()
+            deg_to_rotate -= 90
+
+        self.last_position.direction = target_dir
         # NOTE: make sure robo rotate into right direction
         pdb.set_trace()
 
