@@ -145,6 +145,7 @@ class Controller:
         if env["SIMULATOR"]:
             from robot_dummy import RobotDummy
             self.robot = RobotDummy()
+            self.robot.calibrate()
         else:
             from robot import Robot
             self.robot = Robot()
