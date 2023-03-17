@@ -467,8 +467,7 @@ class Controller:
         if deg_to_rotate != -90:
             self.last_position.direction = target_dir
             self.robot.turn_deg(deg_to_rotate)
-            self.robot.scan_turn()
-        
+            self.robot.station_scan()
     def receive_done(self, message):
         """
         Wurde das Ziel tatsächlich erreicht bzw. die gesamte Karte aufgedeckt, antwortet der Server mit einer Bestätigung vom Typ done (3) und dem Ende der Erkundung.
