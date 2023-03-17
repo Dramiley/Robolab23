@@ -164,21 +164,18 @@ class Controller:
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
         if not env["SIMULATOR"]:
-            # TODO: replace with self.robot.calibrate()
-            self.robot.skip_calibrate()
+            self.robot.begin()
         else:
             print(
                 "Simulator: skipping drive_until_communication_point(), because we'll already be at an communication point")
 
-        self.robot.begin()
-        pdb.set_trace()
-        self.run()
+        self.select_next_dir()
 
         if not env["GITLAB_RUNNER"]:
             while True:
                 time.sleep(1)
 
-    def run(self):
+    def select_next_dir(self):
         """
         Runs the actual robot
         ->decision-making
@@ -299,7 +296,7 @@ class Controller:
             # drive from start to first communication point
             self.robot.drive_until_communication_point()
 
-        self.run()  # undo alex's change to begin()
+        self.select_next_dir()  # undo alex's change to begin()
 
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
@@ -413,7 +410,7 @@ class Controller:
 
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
-        self.run()
+        self.select_next_dir()
 
     def receive_path_unveiled(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus,
                               pathWeight):
