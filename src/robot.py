@@ -206,7 +206,12 @@ class Robot:
         self.motor_left.run_timed(time_sp=312, speed_sp=65)
         self.motor_right.run_timed(time_sp=312, speed_sp=-65)
         time.sleep(0.5)
-        self.__move_distance_straight(5.3)
+        self.color.color_check()
+        self.__drive(100, 100)
+        while self.color.name == 'red'  or self.color.name == 'blue':
+            self.color.color_check()
+        self.__stop()
+        self.__move_distance_straight(2)
         time.sleep(1)
 
     def station_scan(self) -> bool:
