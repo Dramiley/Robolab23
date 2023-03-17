@@ -217,7 +217,7 @@ class Controller:
             self.last_position.direction = (self.last_position.direction + 90) % 360
             # check whether there is a path
             possible_path = self.robot.station_scan()
-            
+
             time.sleep(2.1)
 
             if possible_path:
@@ -327,7 +327,7 @@ class Controller:
 
         self.rotate_robo_in_dir(startDirection)
         print(startDirection)
-        
+
 
         self.robot.drive_until_communication_point()
 
@@ -349,7 +349,6 @@ class Controller:
         """
         # TODO: make sure robot.turn_deg deals appropriately with neg. values
         current_dir = self.last_position.direction
-        logging.debug(f"Rotating: From {current_dir} to {target_dir}")
         # TODO: robot currently would sometimes rotate more than necessary (e.g. target_dir=270, current_dir=0)
         deg_to_rotate = -(target_dir - current_dir) % 360
 
