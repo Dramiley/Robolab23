@@ -145,6 +145,16 @@ class Robot:
         self.__reset_motor_pos_list()
 
         while self.color.name == 'grey':
+            print("integral = " + str(integral))
+
+            # if the integral is greater than 100, stop the robot
+            if integral > 3000:
+                self.__stop()
+                # play three error beeps
+                ev3.Sound.tone([(1000, 500, 500)] * 3).wait()
+                self.motor_left = None # lets make it crash
+                break
+
             self.color.color_check()
             greytone = self.color.greytone
             if time.time() - starttime >= 1:
