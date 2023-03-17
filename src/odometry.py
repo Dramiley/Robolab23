@@ -53,7 +53,7 @@ class Odometry:
 
         new_coords_x = int(self.start_pos_coords[0] + sign_x * delta_coords_x)
         new_coords_y = int(self.start_pos_coords[1] + sign_y * delta_coords_y)
-        print(f"New coords x: {new_coords_x}, New coords y: {new_coords_y}")
+        # print(f"New coords x: {new_coords_x}, New coords y: {new_coords_y}")
 
         return (new_coords_x, new_coords_y)
 

@@ -18,10 +18,10 @@ import logging
 import pdb
 from typing import Optional
 
-
 from communication import Communication
 from odometry import Odometry
 from planet import Planet, Direction
+
 
 class Position:
     x, y, direction = 0, 0, 0
@@ -31,16 +31,16 @@ class Position:
         self.y = y
         self.direction = direction
 
-class Controller:
-    robot = None
-    communication = None
-    odometry = None
-    planet = None
-    last_position = None  # stores the last position we were at
 
-    target_pos = None
+class Controller:
 
     def __init__(self, client):
+        self.robot = None
+        self.communication = None
+        self.odometry = None
+        self.planet = None
+        self.last_position = None  # stores the last position we were at
+        self.target_pos = None
 
         # setup communication
         self.communication = Communication(client, None).facade
@@ -48,9 +48,8 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        test_planet = "Anin"
-        self.communication.test_planet("Anin")
-
+        test_planet = "Schoko"
+        self.communication.test_planet(test_planet)
 
         from robot import Robot
         self.robot = Robot()
@@ -59,12 +58,6 @@ class Controller:
 
         # setup callbacks
         self.__init_callbacks()
-
-    def __setattr__(self, key, value):
-        super().__setattr__(key, value)
-
-        if key == 'last_position':
-            print("last_position changed to: X: " + str(value.x) + " Y: " + str(value.y) + " Direction: " + str(value.direction))
 
     def begin(self):
 
@@ -213,18 +206,18 @@ class Controller:
         for i in range(0, 4):  # 1 because there must be a path on the one we came from
             # TODO: 2nd rotation scans the path we came from (not needed!)
             # update current orientation by 90deg
-            current_dir = self.last_position.direction
             self.last_position.direction = (self.last_position.direction + 90) % 360
+            current_dir = self.last_position.direction
             # check whether there is a path
             possible_path = self.robot.station_scan()
 
-            time.sleep(2.1)
+            time.sleep(3)
 
             if possible_path:
                 print("found possible path in dir " + str(current_dir))
                 try:
                     self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y),
-                                                            current_dir)
+                                                             current_dir)
                 except Exception as e:
                     print(f"Error while adding path to planet: {e}")
             else:
@@ -288,7 +281,7 @@ class Controller:
         # update odometry inside planet
         self.planet.add_path(((startX, startY), Direction(startDirection)), ((endX, endY), Direction(endDirection)),
                              pathWeight)
-        print(f"Added a path, now we now the following paths: {self.planet.paths}")
+        print(f"Added a path, now we know the following paths: {self.planet.paths}")
 
         # update last position and path status
         current_dir = (endDirection + 180) % 360  # we now look at to the opposite direction than we entered the node
@@ -318,7 +311,7 @@ class Controller:
         """
         self.communication.communication.received_since_last_path_select = 1
         # NOTE: Make sure robo received the right path_select (ESPECIALLY NOT the fake server response)
-        print(f"I know drive to {startDirection}")
+        print(f"Driving to {startDirection}")
 
         # update last position and path status
         self.odometry.set_dir(startDirection)
@@ -350,7 +343,7 @@ class Controller:
         # TODO: make sure robot.turn_deg deals appropriately with neg. values
         current_dir = self.last_position.direction
         # TODO: robot currently would sometimes rotate more than necessary (e.g. target_dir=270, current_dir=0)
-        deg_to_rotate = -(target_dir - current_dir) % 360
+        deg_to_rotate = (target_dir - current_dir) % 360
 
         while deg_to_rotate > 0:
             # use station scan for rotating bc turn_deg is VERY buggy

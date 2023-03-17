@@ -9,15 +9,9 @@ class ColorDetector:
 
         try:
             self.cs = ev3.ColorSensor()
-            print("Color Sensor Okay")
-        except Exception as e:
-            print("Could not initialize color sensors: {e}")
-
-        try:
             self.us = ev3.UltrasonicSensor()
-            print("Object Sensor Okay")
         except Exception as e:
-            print("Could not initialize object detector sensors: {e}")
+            print(e)
 
     def color_check(self):
         try:
