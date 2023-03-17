@@ -310,38 +310,29 @@ class Communication:
 
     def prepare_fallback_path_select_message(self, startDirection):
 
-        # have a async function
-        def async_fake(a):
+        # reset counter
+        self.received_since_last_path_select = 0
 
-            # reset counter
-            self.received_since_last_path_select = 0
+        print("received_since_last_path_select: " + str(self.received_since_last_path_select))
 
-            print("received_since_last_path_select: " + str(self.received_since_last_path_select))
+        # send message
+        print("waiting 3s before faking server response")
 
-            # send message
-            print("waiting 3s before faking server response")
+        if env["SIMULATOR"]:
+            time.sleep(1)  # TODO: change to 3s
+        else:
+            time.sleep(3.2)  # TODO: change to 3s
 
-            if env["SIMULATOR"]:
-                time.sleep(1)  # TODO: change to 3s
-            else:
-                time.sleep(3.2)  # TODO: change to 3s
+        print("waited 3s before faking server response")
 
-            print("waited 3s before faking server response")
+        print("received_since_last_path_select: " + str(self.received_since_last_path_select))
 
-            print("received_since_last_path_select: " + str(self.received_since_last_path_select))
+        # checking if there was a path select message in the meantime
+        if self.received_since_last_path_select > 0:
+            print("received a path select message in the meantime, not sending fake server response")
+            return
+        else:
+            print("sending fake server response")
+            self.callback('pathSelect', {'startDirection': startDirection})
+            print(str(startDirection) + " " + str(type(startDirection)))
 
-            # checking if there was a path select message in the meantime
-            if self.received_since_last_path_select > 0:
-                print("received a path select message in the meantime, not sending fake server response")
-                return
-            else:
-                print("var " + str(a))
-                print("sending fake server response")
-                self.callback('pathSelect', {'startDirection': startDirection})
-                print(str(startDirection) + " " + str(type(startDirection)))
-
-        # start async function
-        the_controller = self.controller
-        thread = threading.Thread(target=async_fake, args=(3,))
-        thread.start()
-        print("started async function, now continuing")

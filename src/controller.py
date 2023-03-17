@@ -120,7 +120,7 @@ class Controller:
     communication = None
     odometry = None
     planet = None
-    last_position = Position(0, 0, 0)  # stores the last position we were at
+    last_position = None  # stores the last position we were at
 
     given_new_target = False  # tracks whether we have a target to drive to by the mothership
     target_pos = None
@@ -235,6 +235,7 @@ class Controller:
 
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
+        self.communication.communication.prepare_fallback_path_select_message()
 
     def __explore(self) -> Optional[Direction]:
         """
@@ -243,7 +244,7 @@ class Controller:
         self.logger.debug("---Entering __explore")
         next_dir = self.planet.get_next_exploration_dir((self.last_position.x, self.last_position.y))
 
-        if next_dir is None:
+        if next_dir == None:
             # planet has been explored completely->there is nothing to explore anymore
             self.logger.debug(
                 "I have explored everything and as this method is only called of there was no target I'm finished:)")
@@ -392,10 +393,10 @@ class Controller:
         """
         self.logger.success("I have reached my target!!!")
         self.communication.target_reached("Target reached.")
+        self.target_pos = None
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         # pass onto handler, forget pathStatus
-        self.communication.communication.received_since_last_path_select += 1
         print("incremented received_since_last_path_select to " + str(
             self.communication.communication.received_since_last_path_select))
         self.__handle_received_path(startX, startY, startDirection, endX, endY, endDirection, pathWeight)
@@ -440,7 +441,7 @@ class Controller:
         Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-select/
         """
-
+        self.communication.communication.received_since_last_path_select = 1
         # NOTE: Make sure robo received the right path_select (ESPECIALLY NOT the fake server response)
         pdb.set_trace()
 
@@ -450,6 +451,8 @@ class Controller:
         self.__rotate_robo_in_dir(startDirection)
 
         self.robot.drive_until_communication_point()
+
+        self.communication.communication.received_since_last_path_select = 0
 
     def receive_target(self, targetX, targetY):
         """
