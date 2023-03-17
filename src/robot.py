@@ -37,8 +37,10 @@ class Robot:
         from controller import env
         return env[name]
 
-    def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
+    def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH,
+                 skip_calibration: bool = False):
 
+        self.did_calibrate = skip_calibration
 
         import odometry
         self.motor_left = ev3.LargeMotor(left_port)
