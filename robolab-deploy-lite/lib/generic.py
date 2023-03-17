@@ -170,7 +170,7 @@ class Generic:
              '-o', 'StrictHostKeyChecking=no',
              '-r', ".src_deploy",
              # this file must be copied last, it triggers the reloader on the brick
-              ".trigger",
+              # ".trigger",
              'robot@{}:/home/robot/'.format(self.settings['ip'])
              ], cwd=str(self.tempdir.name), stdout=subprocess.DEVNULL)
 
@@ -180,7 +180,7 @@ class Generic:
              '-i', str(self.tempdir_ssh_key),
              '-o', 'StrictHostKeyChecking=no',
              'robot@{}'.format(self.settings['ip']),
-             'rm -rf /home/robot/src && mkdir /home/robot/src && mv /home/robot/.src_deploy/* /home/robot/src/ && touch /home/robot/.trigger'
+             'rm -rf /home/robot/src && mkdir /home/robot/src && mv /home/robot/.src_deploy/* /home/robot/src/ && touch /home/robot/.trigger && rm /home/robot/src/.env'
              ])
         print('Done.')
 
