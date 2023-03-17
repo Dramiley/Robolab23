@@ -34,7 +34,7 @@ class Robot:
     motor_pos_list = None
 
     def __env(self, name):
-        from controller2 import env
+        from controller import env
         return env[name]
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH):
