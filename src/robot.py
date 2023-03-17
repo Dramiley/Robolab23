@@ -292,11 +292,14 @@ class Robot:
         """
         Turns the robot by param degrees
         """
-        ROT_TIME_FACTOR = 13.88
-        rot_dir = math.copysign(1, deg)
-        speed = rot_dir * 133
-        # so time isnt negative
-        deg = abs(deg)
-        self.motor_left.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=speed)
-        self.motor_right.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=-speed)
-        time.sleep(ROT_TIME_FACTOR * 10 ** -3 * deg)
+        self.motor_right.reset()
+        self.motor_left.reset()
+        self.motor_left.stop_action = "brake"
+        self.motor_right.stop_action = "brake"
+        self.motor_right.position_sp = 200
+        self.motor_left.speed_sp = 100
+
+        self.motor_left.position_sp = 720
+        self.motor_right.position_sp=-720
+        self.motor_left.command = "run-to-rel-pos"
+        self.motor_right.command = "run-to-rel-pos"
