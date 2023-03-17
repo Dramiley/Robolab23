@@ -129,8 +129,7 @@ class Controller:
     history = []
 
     def __init__(self, client):
-        from robot import Robot
-        from robot_dummy import RobotDummy
+
 
         # setup communication
         self.communication = Communication(client, CommunicationLogger()).facade
@@ -145,8 +144,10 @@ class Controller:
 
         # for our Simulator
         if env["SIMULATOR"]:
+            from robot_dummy import RobotDummy
             self.robot = RobotDummy()
         else:
+            from robot import Robot
             self.robot = Robot()
         self.robot.set_controller(self)
 
