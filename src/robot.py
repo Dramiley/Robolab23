@@ -21,12 +21,11 @@ class Robot:
 
     """
 
-
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH,
                  stop=False):
 
         # DEFS
-        self.SPEED = 165 # speed of the motors, 150 is working
+        self.SPEED = 165  # speed of the motors, 150 is working
 
         self.controller = None
         self.color: ms.ColorDetector = None
@@ -93,6 +92,15 @@ class Robot:
         starttime = time.time()
         self.motor_left.run_timed(time_sp=1400, speed_sp=131)
         self.motor_right.run_timed(time_sp=1400, speed_sp=-131)
+
+        while self.color.subname != 'black' and time.time() - starttime <= 2:
+            self.color.color_check()
+        self.__stop()
+
+    def scan_turn_back(self):
+        starttime = time.time()
+        self.motor_left.run_timed(time_sp=1400, speed_sp=-131)
+        self.motor_right.run_timed(time_sp=1400, speed_sp=131)
 
         while self.color.subname != 'black' and time.time() - starttime <= 2:
             self.color.color_check()
@@ -216,7 +224,7 @@ class Robot:
         self.__move_distance_straight(4.4)
         time.sleep(1)
 
-    def station_scan(self) -> bool:
+    def station_scan(self, forward=True) -> bool:
         """
         1. rotate 90deg
         2. scan if there is something
@@ -227,7 +235,10 @@ class Robot:
         self.color.color_check()
         while self.color.subname != 'white':
             # rotating until not on path anymore
-            self.__drive(131, -131)
+            if forward:
+                self.__drive(131, -131)
+            else:
+                self.__drive(-131, 131)
             self.color.color_check()
         self.__stop()
         self.scan_turn()
