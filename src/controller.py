@@ -226,7 +226,7 @@ class Controller:
             # remove the direction we came from
             remove = (self.last_position.direction + 180) % 360
             print("My current direction is " + str(
-                self.last_position.direction) + " therefor I'll remove " + remove + ". Is that right?")
+                self.last_position.direction) + " therefor I'll remove " + str(remove) + ". Is that right?")
 
             # add each direction of the previous scan station to the possible paths
             for direction in previous_scan_station:
