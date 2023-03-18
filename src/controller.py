@@ -216,13 +216,22 @@ class Controller:
         # check all paths
 
         # get scan_station
-        print("I think I am at " + str(self.last_position.x) + " " + str(self.last_position.y)+". Is that right?")
+        print("I think I am at " + str(self.last_position.x) + " " + str(self.last_position.y) + ". Is that right?")
+
+        # trying to remember last scan_station
         previous_scan_station = self.planet.get_scan_station((self.last_position.x, self.last_position.y))
-        previous_scan_station = None
 
         if previous_scan_station is not None:
+
+            # remove the direction we came from
+            remove = (self.last_position.direction + 180) % 360
+            print("My current direction is " + str(
+                self.last_position.direction) + " therefor I'll remove " + remove + ". Is that right?")
+
             # add each direction of the previous scan station to the possible paths
             for direction in previous_scan_station:
+                if direction == remove:
+                    continue
                 self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), direction)
 
             print("found previous scan station: " + str(previous_scan_station))
