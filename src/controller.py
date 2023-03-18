@@ -223,9 +223,11 @@ class Controller:
             for direction in previous_scan_station.possible_paths:
                 self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), direction)
 
-        else:
-            for i in range(0, 4):  # 1 because there must be a path on the one we came from
+            print("found previous scan station: " + str(previous_scan_station))
 
+        else:
+            directions = []
+            for i in range(0, 4):  # 1 because there must be a path on the one we came from
                 # TODO: 2nd rotation scans the path we came from (not needed!)
                 # update current orientation by 90deg
                 self.last_position.direction = (self.last_position.direction + 90) % 360
@@ -233,7 +235,7 @@ class Controller:
                 # check whether there is a path
                 possible_path = self.robot.station_scan()
 
-                # time.sleep(3)
+                directions.append(current_dir)
 
                 if i == 1:
                     # we already know that there is a path on the one we came from
@@ -242,6 +244,8 @@ class Controller:
                 if possible_path:
                     self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y),
                                                              current_dir)
+            self.planet.set_scan_station((self.last_position.x, self.last_position.y), directions)
+            print("set scan station: " + str(directions))
 
         print(f"unexplored: {self.planet.unexplored}")
 
