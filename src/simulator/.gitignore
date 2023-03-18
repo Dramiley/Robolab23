@@ -1,0 +1,4 @@
+node_modules/
+yarn.lock
+position.json
+history.json

@@ -1,0 +1,392 @@
+<script src="vue.js"></script>
+
+<div id="app">
+    <div id="editor">
+        <h1>Edit {{name}}</h1>
+        <img :src="'/' + name + '.svg'"/>
+        <div id="overlay">
+            <img class="robot" src="robot.png"
+                 :style="{top: r[0].top + 'px', left: r[0].left + 'px', transform: 'rotate(' + r[0].rotation + 'deg)'}">
+            <img class="robot" src="robot.png"
+                 :style="{top: r[1].top + 'px', left: r[1].left + 'px', transform: 'rotate(' + r[1].rotation + 'deg)'}">
+        </div>
+        <div id="clickable" @click="click"></div>
+        <div id="points" v-if="points.length > 0" :style="{opacity: translucent ? 0.5 : 1}">
+            <div v-for="({x,y,paths}) in points"
+                 :style="{top: def.top.offsetPx + def.top.factor * (area.y.max - y) + 'px', left: def.left.offsetPx + def.left.factor * (x - area.x.min) + 'px'}"
+                 class="point">
+                <template v-for="(path,o) in paths">
+                    <div
+                            :class="{connector:true, connected: path != null, active: (connectStart?.x === x && connectStart?.y === y && connectStart?.o === o), blocked: connectStart?.blocked   }"
+                            @click="connectorClicked(x,y,o)"></div>
+                </template>
+            </div>
+        </div>
+    </div>
+    <div id="controls">
+
+        <h1>Planet</h1>
+        <input type="text" v-model="name"/>
+
+        <div v-if="currentVar < 2">
+            <h1>Area</h1>
+            <p>Please type in:</p>
+            <p>X</p>
+            <input type="number" v-model="area.x.min"/>
+            <input type="number" v-model="area.x.max"/>
+
+            <div>
+                {{area.x.min >= area.x.max ? 'X min must be smaller than X max' : 'Numbers are fine.'}}
+            </div>
+
+            <p>Y</p>
+            <input type="number" v-model="area.y.min"/>
+            <input type="number" v-model="area.y.max"/>
+            <br/>
+
+            <div>
+                {{area.y.min >= area.y.max ? 'Y min must be smaller than Y max' : 'Numbers are fine.'}}
+            </div>
+
+            <hr>
+            <div>
+                Links oben: {{area.x.min}}, {{area.y.max}}<br>
+                Rechts unten: {{area.x.max}}, {{area.y.min}}
+            </div>
+
+            <h1>Controls</h1>
+            Und jetzt:
+            <pre>{{vars[currentVar].title}}</pre>
+            <p>Offset Position</p>
+            <input type="number" v-model="def.left.offsetPos"/>
+            <input type="number" v-model="def.top.offsetPos"/>
+            <p>Offset Pixel</p>
+            <input type="number" v-model="def.left.offsetPx"/>
+            <input type="number" v-model="def.top.offsetPx"/>
+            <p>Factor</p>
+            <input type="number" v-model="def.left.factor"/>
+            <input type="number" v-model="def.top.factor"/>
+            <p>Start Position</p>
+            <input type="number" v-model="def.startPosition.x"/>
+            <input type="number" v-model="def.startPosition.y"/>
+            <input type="number" v-model="def.startPosition.orientation"/>
+
+        </div>
+
+        <div v-if="connectStart != null">
+            <h1>Manipulate connecting</h1>
+            <button :class="{red:connectStart.blocked}" @click="connectStart.blocked = !connectStart.blocked">Toggle blocked</button>
+            <button @click="connectStart = null">Reset selected connector</button>
+            <button @click="translucent=!translucent">Toggle translucent</button>
+        </div>
+
+        <h1>Finish connecting</h1>
+        <button @click="setStartConnector">Set current edge as start</button>
+    </div>
+    <div id="output">
+        <h1>{{name}}.json</h1>
+        <textarea>{{JSON.stringify({version:1,area,...def,paths:pointsWithPaths}, null, 2)}}</textarea>
+    </div>
+</div>
+
+<script>
+    const {createApp} = Vue
+
+    createApp({
+        data() {
+            return {
+                translucent: true,
+                vars: [
+                    {
+                        title: "Bitte klicke auf den linken obersten Punkt der Karte",
+                        set: (x, y) => {
+                            y -= 25
+                            x -= 25
+                            this.def.left.offsetPx = x
+                            this.def.top.offsetPx = y
+                        }
+                    },
+                    {
+                        title: "Bitte klicke auf den rechten untersten Punkt der Karte",
+                        set: (x, y) => {
+                            y -= 25
+                            x -= 25
+                            this.def.left.factor = (x - this.def.left.offsetPx) / (this.area.x.max - this.area.x.min)
+                            this.def.top.factor = (y - this.def.top.offsetPx) / (this.area.y.max - this.area.y.min)
+                            this.calcPoints()
+                        }
+                    },
+                    {
+                        title: "Du bist fertig mit Vermessung!"
+                    }
+                ],
+                currentVar: 0,
+                name: 'John',
+                area: {
+                    "x": {
+                        "min": 1,
+                        "max": 4
+                    },
+                    "y": {
+                        "min": 4,
+                        "max": 8
+                    }
+                },
+                def: {
+                    "version": 1,
+                    "left": {
+                        "offsetPos": 0,
+                        "offsetPx": 0,
+                        "factor": 0
+                    },
+                    "top": {
+                        "offsetPos": 0,
+                        "offsetPx": 0,
+                        "factor": 0
+                    },
+                    "startPosition": {
+                        "x": 1,
+                        "y": 4,
+                        "orientation": 0
+                    }
+                },
+                points: [],
+                connectStart: null
+            }
+        },
+        computed: {
+            r() {
+                return [
+                    {
+                        top: this.def.top.offsetPx + this.def.top.factor * (this.area.y.max - this.area.y.min),
+                        left: this.def.left.offsetPx,
+                        rotation: 0
+                    },
+                    {
+                        top: this.def.top.offsetPx,
+                        left: this.def.left.offsetPx + this.def.left.factor * (this.area.x.max - this.area.x.min),
+                        rotation: 0
+                    }
+                ]
+            },
+            pointsWithPaths() {
+                // return only points that have at least one path
+                return this.points.filter(p => p.paths.some(p => p != null))
+            }
+        },
+        methods: {
+            click(e) {
+                console.log("click at", e.offsetX, e.offsetY)
+                const x = e.offsetX
+                const y = e.offsetY
+                this.vars[this.currentVar].set(x, y)
+                this.currentVar++
+            },
+            calcPoints() {
+                this.points = []
+                for (let x = this.area.x.min; x <= this.area.x.max; x++) {
+                    for (let y = this.area.y.min; y <= this.area.y.max; y++) {
+                        this.points.push({
+                            x: x,
+                            y: y,
+                            paths: [
+                                null, null, null, null
+                            ],
+                        })
+                    }
+                }
+            },
+            connectorClicked(x, y, o) {
+                // if we have a start point
+                if (this.connectStart) {
+                    // if we have a start point and the same end point, its a loop, also valid
+                    /*
+                    if (this.connectStart.x === x && this.connectStart.y === y && this.connectStart.o === o) {
+                        this.connectStart = null
+                        return
+                    }
+                    */
+                    // if we have a start point and a different end point, connect them
+                    this.points.find(p => p.x === this.connectStart.x && p.y === this.connectStart.y).paths[this.connectStart.o] = {
+                        x: x,
+                        y: y,
+                        orientation: (o * 90 + 180) % 360,
+                        blocked: this.connectStart.blocked
+                    }
+                    this.points.find(p => p.x === x && p.y === y).paths[o] = {
+                        x: this.connectStart.x,
+                        y: this.connectStart.y,
+                        orientation: (this.connectStart.o * 90 + 180) % 360,
+                        blocked: this.connectStart.blocked
+                    }
+                    this.connectStart = null
+                } else {
+                    this.connectStart = {
+                        x: x,
+                        y: y,
+                        o: o,
+                        blocked: false
+                    }
+                }
+            },
+            setStartConnector() {
+                this.def.startPosition = {
+                    x: this.connectStart.x,
+                    y: this.connectStart.y,
+                    orientation: (this.connectStart.o * 90 + 180) % 360
+                }
+            }
+        },
+        mounted() {
+            return
+            this.click({offsetX: 123, offsetY: 168})
+            this.click({offsetX: 506, offsetY: 676})
+            this.connectorClicked(3, 4, 1)
+            this.setStartConnector()
+        },
+    }).mount('#app')
+</script>
+
+<style>
+    #app {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    #editor {
+        position: relative;
+        width: 800px;
+        height: 800px;
+    }
+
+    #editor > * {
+        height: 800px;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .robot {
+        position: absolute;
+        width: 50px;
+        top: 50px;
+        left: 50px;
+        z-index: 99;
+        transition: .5s;
+    }
+
+    #overlay {
+        z-index: 100;
+    }
+
+    #clickable {
+        z-index: 101;
+        width: 100%;
+        height: 100%;
+    }
+
+    .point {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        transform: translate(0, 0);
+        background-color: #ffffff;
+        z-index: 100;
+        transition: .5s;
+    }
+
+    .connector {
+        position: absolute;
+        background: #c7c7c7;
+        height: 10px;
+        width: 10px;
+    }
+
+    .connector:nth-of-type(1) {
+        width: 100%;
+        transform: translate(0, -10px);
+    }
+
+    .connector:nth-of-type(2) {
+        height: 100%;
+        margin-left: 100%;
+    }
+
+    .connector:nth-of-type(3) {
+        width: 100%;
+        margin-top: 100%;
+    }
+
+    .connector:nth-of-type(4) {
+        transform: translate(-10px, 0px);
+        height: 100%;
+    }
+
+    .connector.connected, .connector:hover {
+        background: black;
+        cursor: pointer;
+    }
+
+    .connector.active {
+        background: #0d6efd;
+    }
+
+    .connector.active.blocked {
+        background: #e32a12;
+    }
+
+
+    #points {
+        z-index: 120;
+    }
+
+    #output {
+        flex: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #output textarea {
+        flex: 1;
+        width: 100%;
+        height: 100%;
+    }
+
+    body, html {
+        margin: 0px;
+        padding: 0px;
+        font-family: sans-serif;
+    }
+
+    button {
+        /* have nice bigger buttons */
+        font-size: 1.5em;
+        padding: 0.5em 1em;
+        border: 1px solid #ccc;
+        border-radius: 0.5em;
+        background: #eee;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #ddd;
+    }
+
+    button:active {
+        background: #ccc;
+    }
+
+    button.disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+
+    button.disabled:hover {
+        background: #ccc;
+    }
+
+    button.red {
+        background: #e32a12;
+        color: white;
+    }
+</style>

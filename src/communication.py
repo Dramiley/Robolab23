@@ -9,6 +9,7 @@ import time
 
 # import communication_facade
 from communication_facade import CommunicationFacade
+from communication_logger import CommunicationLogger
 
 
 class Communication:
@@ -119,6 +120,8 @@ class Communication:
                 payload = json.loads(message.payload.decode('utf-8'))
         except:
             raise ValueError('payload is not a valid json string')
+
+        CommunicationLogger().info(message.payload.decode('utf-8'))
 
         # if "from" is the client itself, ignore the message
         if 'from' in payload and payload['from'] == "client":

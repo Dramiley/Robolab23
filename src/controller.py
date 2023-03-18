@@ -24,6 +24,7 @@ from ev3dev.core import Sound
 from communication import Communication
 from odometry import Odometry
 from planet import Planet, Direction
+from simulator import env
 
 
 class Position:
@@ -53,12 +54,25 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        test_planet = "Schoko"
-        self.communication.test_planet(test_planet)
+        # if file __current_dir + "/../simulator/planets/current.txt exists, load planet from there
+        # else load planet from __current_dir + "/../simulator/planets/planet.json"
 
-        from robot import Robot
-        self.robot = Robot()
-        self.robot.calibrate()
+        __current_dir = os.path.dirname(os.path.realpath(__file__))
+        planet_name = "Anin"
+        if os.path.exists(__current_dir + "/simulator/planets/current.txt"):
+            with open(__current_dir + '/simulator/planets/current.txt') as outfile:
+                planet_name = outfile.read()
+
+        self.communication.test_planet(planet_name)
+
+        print("Simulator: " + str(env["SIMULATOR"]))
+        if env["SIMULATOR"]:
+            from robot_dummy import RobotDummy
+            self.robot = RobotDummy()
+        else:
+            from robot import Robot
+            self.robot = Robot()
+            self.robot.calibrate()
         self.robot.set_controller(self)
 
         # setup callbacks
@@ -130,9 +144,11 @@ class Controller:
         # actual movement is performed on receive_path_select :)
 
         self.next_dir = next_dir
-        time.sleep(3.2)
+        if not env["SIMULATOR"]:
+            time.sleep(3.2)
+        else:
+            time.sleep(0.2)
         self.drive_to_next_dir()
-
 
     def __explore(self) -> Optional[Direction]:
 
@@ -231,7 +247,8 @@ class Controller:
             # check whether there is a path
             possible_path = self.robot.station_scan()
 
-            time.sleep(3)
+            if not env["SIMULATOR"]:
+                time.sleep(3)
 
             if i == 1:
                 # we already know that there is a path on the one we came from
