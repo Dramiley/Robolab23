@@ -19,6 +19,7 @@ import logging
 import pdb
 from typing import Optional
 
+from ev3dev import ev3
 from ev3dev.core import Sound
 
 from communication import Communication
@@ -198,6 +199,10 @@ class Controller:
 
         # call self.select_next_dir() in new thread
         threading.Thread(target=self.select_next_dir).start()
+        threading.Thread(target=self.__sayPlanetName, args=(planetName,)).start()
+
+    def __sayPlanetName(self, planetName):
+        ev3.Sound.speak("Planet "+planetName).wait()
 
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
