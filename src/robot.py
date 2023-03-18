@@ -47,14 +47,12 @@ class Robot:
 
         try:
             self.color = ms.ColorDetector()
-            print("Color Okay")
         except Exception as e:
             print("Could not initialize color sensors wrapper ")
             print(e)
 
         try:
             self.obj_detec = ms.ObjectDetector()
-            print("Object Detector Okay")
         except Exception as e:
             print("Could not initialize object detector sensors wrapper")
             print(e)
@@ -113,17 +111,13 @@ class Robot:
             self.__move_distance_straight(4)
             return
 
-        self.__speak("Calibration White")
+        self.__speak("Calibration")
         self.color.color_check()
         white = self.color.greytone
-        print("white = " + str(white))
         self.__move_distance_straight(4)
-        self.__speak('Black')
         self.color.color_check()
         black = self.color.greytone
-        print("black = " + str(black))
         middlegreytone = ((white + black) / 2) + 10  # 50
-        print("grey = " + str(middlegreytone))
         self.middlegreytone = middlegreytone
 
     def __obstacle_in_way(self):
@@ -141,7 +135,7 @@ class Robot:
         # folgt der Linie
         # self.communication.test_planet("Gromit")
         # reset was_path_blocked
-        print("followline start")
+        print("followline")
         self.was_path_blocked = False
 
         self.color.color_check()  # checkt die Farbe
@@ -196,7 +190,6 @@ class Robot:
             lerror = error
             self.color.color_check()
         self.__stop()
-        print("followline end")
 
     def __run_motors(self, power_left: float, power_right: float):
         """
@@ -256,8 +249,6 @@ class Robot:
         self.white = 297
 
     def begin(self):
-        print("begin & calibrate")
-
         self.__followline()
         self.__station_center()
 
@@ -265,7 +256,6 @@ class Robot:
         """
         Turns the robot by param degrees
         """
-        print("turn_deg " + str(deg))
         ROT_TIME_FACTOR = 13.88
         rot_dir = math.copysign(1, deg)
         speed = rot_dir * 133

@@ -76,7 +76,6 @@ class Controller:
             time.sleep(1)
 
     def select_next_dir(self):
-        print("select_next_dir")
         """
         Runs the actual robot
         ->decision-making
@@ -95,11 +94,9 @@ class Controller:
         """
 
         # let robot check paths on the node he is on and register it in planet.unexplored
-        print("will call check_explorable_paths")
         self.__check_explorable_paths()
         # pdb.set_trace()
 
-        print("now evaluating after check_explorable_paths")
         next_dir = None
         if self.target_pos != None:
             # we have a given target we need to drive to
@@ -120,13 +117,7 @@ class Controller:
         else:
             next_dir = self.__explore()
 
-        print("Next dir: " + str(next_dir))
-        print("Last pos: " + str(self.last_position.x) + " " + str(self.last_position.y))
-
-        # NOTE: check that robo selected right path here!
-        # pdb.set_trace()
-
-        print("will publish path_select/")
+        print("next dir: " + str(next_dir) + ". will publish path_select/")
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
 
@@ -178,7 +169,6 @@ class Controller:
         """
 
         # remember last position
-        print("settings last position to " + str(startX) + " " + str(startY) + " " + str(startOrientation))
         self.last_position = Position(startX, startY, startOrientation)
 
         # setup planet
@@ -189,7 +179,8 @@ class Controller:
         self.odometry.set_coords((startX, startY))
         self.odometry.set_dir(startOrientation)
 
-        print("Init position: " + str(startX) + " " + str(startY) + " " + str(startOrientation))
+        print("Planet: " + planetName + ", init position: " + str(startX) + " " + str(startY) + " " + str(
+            startOrientation))
         # aktuelle position um 180 grad gedreht als blockiert merken
         # ->because we always start from a dead end
         self.__handle_received_planet(startX, startY, Direction(startOrientation))
@@ -202,7 +193,7 @@ class Controller:
         threading.Thread(target=self.__sayPlanetName, args=(planetName,)).start()
 
     def __sayPlanetName(self, planetName):
-        ev3.Sound.speak("Planet "+planetName).wait()
+        ev3.Sound.speak("Planet " + planetName).wait()
 
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
@@ -221,10 +212,7 @@ class Controller:
         WARNING: make sure self.last_position.direction is updated before calling this func!
         TODO: don't scan nodes which are already explored completely
         """
-        print("last_position.direction: " + str(self.last_position.direction))
         start_dir = self.last_position.direction  # the direction we came from
-
-        print(f"Started scan from {start_dir}, set scan dir to {self.last_position.direction} due to driving forward.")
         # check all paths
         for i in range(0, 4):  # 1 because there must be a path on the one we came from
 
@@ -251,7 +239,7 @@ class Controller:
             else:
                 print("found no path in dir " + str(current_dir))
 
-        print(f"Currently unexplored: {self.planet.unexplored}")
+        print(f"unexplored: {self.planet.unexplored}")
 
     def communication_point_reached(self):
         """
@@ -270,7 +258,6 @@ class Controller:
         end_position = None
         self.odometry.calculate(self.robot.motor_pos_list)
         end_coords = self.odometry.get_coords()
-        print("Odometrie says we are at " + str(end_coords[0]) + " " + str(end_coords[1]))
         end_position = Position(self.odometry.get_coords()[0], self.odometry.get_coords()[1],
                                 self.odometry.get_dir())
 
@@ -285,7 +272,6 @@ class Controller:
             path_status = "free"
 
         # send path to mothership for verification
-        print("will publish path/")
         self.communication.path(start_position.x, start_position.y, start_position.direction, end_position.x,
                                 end_position.y, end_position.direction, path_status)
 
@@ -316,17 +302,11 @@ class Controller:
         # update odometry inside planet
         self.planet.add_path(((startX, startY), Direction(startDirection)), ((endX, endY), Direction(endDirection)),
                              pathWeight)
-        print(f"Added a path, now we know the following paths: {self.planet.paths}")
+        print(f"added path, now we have paths: {self.planet.paths}")
 
         # update last position and path status
-        print("last_position: " + str(self.last_position.x) + " " + str(self.last_position.y) + " " + str(
-            self.last_position.direction))
-        print("__handle_received_path: " + str(endX) + " " + str(endY) + " " + str(endDirection))
         current_dir = (endDirection + 180) % 360  # we now look at to the opposite direction than we entered the node
-        print("calculation of current_dir: (" + str(endDirection) + " + 180) % 360 = " + str(current_dir))
         self.last_position = Position(endX, endY, current_dir)
-        print("last_position set to: " + str(self.last_position.x) + " " + str(self.last_position.y) + " " + str(
-            self.last_position.direction))
 
         # don't drive to next communication point yet, because we want to receive path select messages first
         # instead find paths and ask mothership to select one
@@ -339,29 +319,28 @@ class Controller:
         Dies ermöglicht es Eurem Roboter, schneller mit der Erkundung fertig zu werden, da er die empfangenen Pfade direkt in seine Karte aufnimmt und nicht erkunden muss.
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-unveiled/
         """
-        self.__handle_receive_path_unveiled(startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight)
+        self.__handle_receive_path_unveiled(startX, startY, startDirection, endX, endY, endDirection, pathStatus,
+                                            pathWeight)
 
-    def __handle_receive_path_unveiled(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
+    def __handle_receive_path_unveiled(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus,
+                                       pathWeight):
         # TODO: check
         start = (startX, startY)
         end = (endX, endY)
+
+        # directions which shouldn't be explored anymore are automatically removed from self.planet.unexplored in add_path :)
+        self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
+
         if start not in self.planet.paths.keys():
             # we have to check all dirs of that node if we dont know it yet
             all_directions = [Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST]
             [self.planet.add_possible_unexplored_path(start, dire) for dire in all_directions]
 
-        # directions which shouldn't be explored anymore are automatically removed from self.planet.unexplored in add_path :)
-        self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
-
     def receive_path_select(self, startDirection: Direction):
-        print("received path select: " + str(startDirection) + " at current time: " + str(time.time()))
         self.next_dir = startDirection
-        print("Variable self.next_dir set to " + str(self.next_dir))
 
     def drive_to_next_dir(self):
         startDirection = self.next_dir
-
-        print("received path select: " + str(startDirection) + " at current time: " + str(time.time()))
 
         """
         Drive into given dir
@@ -372,32 +351,14 @@ class Controller:
         self.communication.communication.received_since_last_path_select = 1
         # NOTE: Make sure robo received the right path_select (ESPECIALLY NOT the fake server response)
 
-        print(f"Driving to {startDirection}")
-
         # update last position and path status
         self.odometry.set_dir(startDirection)
 
-        print(f"Start dir: {self.last_position.direction}, Rotating to: {startDirection}")
+        print(f"next dir. move from {self.last_position.direction} to: {startDirection}")
 
         self.rotate_robo_in_dir(Direction(startDirection))
         print(startDirection)
         self.robot.drive_until_communication_point()
-
-        print("Done with receive_path_select")
-
-    """
-        self.__handle_receive_path_select(startDirection)
-
-    def __handle_receive_path_select(self, startDirection):
-        def async_please():
-            self.rotate_robo_in_dir(startDirection)
-            print(startDirection)
-            self.robot.drive_until_communication_point()
-            print("Done with receive_path_select > async_please")
-
-        self.thread = threading.Thread(target=async_please, args=())
-        self.thread.start()
-    """
 
     def receive_target(self, targetX, targetY):
         """
@@ -429,7 +390,6 @@ class Controller:
         """
         Wurde das Ziel tatsächlich erreicht bzw. die gesamte Karte aufgedeckt, antwortet der Server mit einer Bestätigung vom Typ done (3) und dem Ende der Erkundung.
         """
-        print("Done.")
-        print("Message: " + message)
+        print("Tadaaa!!! " + message)
         self.robot.__stop()
         self.communication.done()

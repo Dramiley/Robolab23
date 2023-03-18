@@ -63,8 +63,7 @@ def signal_handler(sig=None, frame=None, raise_interrupt=True):
             pass
 
         # exit program
-        sys.exit(0)
-        # raise KeyboardInterrupt
+        raise KeyboardInterrupt
 
 
 """
