@@ -107,10 +107,6 @@ class Planet:
         if not (start_coords in self.paths.keys()):
             # if no path is yet known for start_coords
             self.paths[start_coords] = {}
-        elif start_entry_dir in self.paths[start_coords]:
-            # path is already registered -> same for target_coords
-            # should also be registered for target_coords then
-            return
 
         self.add_new_path(start, target, weight)
 
@@ -159,6 +155,7 @@ class Planet:
         Calling this function allows to register already explored paths as blocked
 
         WARNINGS: make sure that path is explored (calling is_path_explored() )
+        NOTE: maybe leave this func out and just call add_path() again?
         """
         the_blocked_path = self.paths[start][start_dir]  # format (node, dir, weight)
         end_dir = the_blocked_path[1]
@@ -193,17 +190,18 @@ class Planet:
         logging.debug(f'Expanding node {node}')
         # pdb.set_trace()
         for (coords, _, weight) in outgoing_paths.values():
-            new_weight = weight + weight0
-            if coords in unvisited:
-                # TODO: check that this ensures that blocked path (with weight -1!!!) are not added to shortest path
-                marked[coords] = (new_weight, node)
-            else:
-                # check whether this path is shorter
-
-                prev_weight = shortest_paths[coords][0]
-
-                if prev_weight > new_weight:
+            if weight != -1:
+                new_weight = weight + weight0
+                if coords in unvisited:
+                    # TODO: check that this ensures that blocked path (with weight -1!!!) are not added to shortest path
                     marked[coords] = (new_weight, node)
+                else:
+                    # check whether this path is shorter
+
+                    prev_weight = shortest_paths[coords][0]
+
+                    if prev_weight > new_weight:
+                        marked[coords] = (new_weight, node)
         return marked
 
     def __djikstra_reconstruct_shortest_path(self,
