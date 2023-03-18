@@ -329,7 +329,7 @@ class Planet:
             return next(iter(self.unexplored[current_node]))
 
         # shortest_paths are a list of the form [(Path, weight)]
-        shortest_paths = [self.__djikstra_old(current_node, target) for target in self.unexplored]
+        shortest_paths = [self.__djikstra(current_node, target) for target in self.unexplored]
         shortest_path = min(shortest_paths, key=operator.itemgetter(1))
         next_path_without_weight = shortest_path[0]  # format: List[Tuple[node, Direction]]
         # TODO: check that next_dir really accesses the direction-element!
