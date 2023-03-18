@@ -72,6 +72,35 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         self.empty_planet = Planet()
 
+        self.set_up_schoko_till_148_120()
+
+    def set_up_schoko_till_148_120(self):
+        self.schoko = Planet()
+
+        self.schoko.add_path(((150, 120), Direction.SOUTH), ((150, 120), Direction.SOUTH), -1)
+        # simulate scan of (150, 120)
+        self.schoko.add_possible_unexplored_path((150, 120), Direction.WEST)
+
+        # go to (149, 120)
+        self.schoko.add_path(((150, 120), Direction.WEST), ((149, 120), Direction.EAST), 1)
+
+        # simulate scan of (149, 120)
+        self.schoko.add_possible_unexplored_path((149, 120), Direction.EAST)
+        self.schoko.add_possible_unexplored_path((149, 120), Direction.WEST)
+        self.schoko.add_possible_unexplored_path((149, 120), Direction.NORTH)
+
+        # get Path C
+        self.schoko.add_path(((148, 120), Direction.NORTH), ((149, 121), Direction.WEST), 1)
+        # go to (148, 120)
+        self.schoko.add_path(((149, 120), Direction.WEST), ((148, 120), Direction.EAST), 2)
+
+        # simulate scan at (148, 120)
+        self.schoko.add_possible_unexplored_path((148, 120), Direction.NORTH)
+
+        # Path C is now blocked (A)
+        self.schoko.add_path(((148, 120), Direction.NORTH), ((148, 120), Direction.NORTH), -1)
+        self.schoko.add_path(((149, 121), Direction.WEST), ((149, 121), Direction.WEST), -1)
+
     def test_integrity(self):
         """
         This test should check that the dictionary returned by "planet.get_paths()" matches the expected structure
@@ -117,21 +146,6 @@ class TestRoboLabPlanet(unittest.TestCase):
             }
 
         }
-        # print(paths_should)
-        # print(self.planet.get_paths())
-
-        # for coords in self.node_coords:
-        #     equal = paths_should[coords] == self.planet.get_paths()[coords]
-        #     print(equal, " ", coords)
-
-        # pdb.set_trace()
-        # inp = input("Coords:") # input as e.g. "19 1"
-        # while inp != "q":
-        #     coords = inp.split(" ")
-        #     coords = (int(coords[0]), int(coords[1]))
-        #     print(paths_should[coords])
-        #     print(self.planet.get_paths()[coords])
-        #     inp = input("Coords:")
 
         self.assertDictEqual(paths_should, self.planet.get_paths())
         # self.fail('implement me!')
@@ -202,18 +216,13 @@ class TestRoboLabPlanet(unittest.TestCase):
         """
         self.fail('implement me!')
 
-    def test_sorting_triple_set(self):
+    def test_next_exploration_dir(self):
         """
-        Sorts a given set of triples based on their 2nd elem
-        using the python function sorted()
-        - sorted: returns sorted LIST
+        Checks that next exploration target is handed over correctly
         """
-        d = set([
-            (9,5,3), (4,1,6), (7,89,5)
-        ])
-        d_sorted = sorted(d, key=lambda x: x[1])
-        self.assertEqual(d_sorted, [(4,1,6), (9,5,3), (7,89,5)])
-
+        current_node = (148, 120)
+        next_dir = self.schoko.get_next_exploration_dir(current_node)
+        self.assertEqual(next_dir, Direction.EAST)
 
 if __name__ == "__main__":
     unittest.main()
