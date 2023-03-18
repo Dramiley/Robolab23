@@ -241,7 +241,10 @@ class Robot:
                 self.__drive(-131, 131)
             self.color.color_check()
         self.__stop()
-        self.scan_turn()
+        if forward:
+            self.scan_turn()
+        else:
+            self.scan_turn_back()
         if self.color.subname == 'black':
             return True
         else:
