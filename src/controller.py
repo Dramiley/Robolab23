@@ -133,7 +133,6 @@ class Controller:
         time.sleep(3.2)
         self.drive_to_next_dir()
 
-
     def __explore(self) -> Optional[Direction]:
 
         # TODO fix it
@@ -273,6 +272,9 @@ class Controller:
         is_path_blocked = self.robot.was_path_blocked
 
         if is_path_blocked:
+            # bugfix bug described in telegram audio memo from 2023-03-18 10:24 @Dominik
+            end_position.x = start_position.x
+            end_position.y = start_position.y
             path_status = "blocked"
         else:
             path_status = "free"
