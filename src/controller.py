@@ -220,7 +220,7 @@ class Controller:
 
         if previous_scan_station is not None:
             # add each direction of the previous scan station to the possible paths
-            for direction in previous_scan_station.possible_paths:
+            for direction in previous_scan_station:
                 self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y), direction)
 
             print("found previous scan station: " + str(previous_scan_station))
