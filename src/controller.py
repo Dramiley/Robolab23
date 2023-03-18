@@ -214,6 +214,8 @@ class Controller:
         """
         start_dir = self.last_position.direction  # the direction we came from
         # check all paths
+
+        print_possible_paths = []
         for i in range(0, 4):  # 1 because there must be a path on the one we came from
 
             # TODO: 2nd rotation scans the path we came from (not needed!)
@@ -230,15 +232,14 @@ class Controller:
                 continue
 
             if possible_path:
-                print("found possible path in dir " + str(current_dir))
+                print_possible_paths.append(current_dir)
                 try:
                     self.planet.add_possible_unexplored_path((self.last_position.x, self.last_position.y),
                                                              current_dir)
                 except Exception as e:
                     print(f"Error while adding path to planet: {e}")
-            else:
-                print("found no path in dir " + str(current_dir))
 
+        print(f"possible paths: {print_possible_paths}")
         print(f"unexplored: {self.planet.unexplored}")
 
     def communication_point_reached(self):
@@ -302,7 +303,7 @@ class Controller:
         # update odometry inside planet
         self.planet.add_path(((startX, startY), Direction(startDirection)), ((endX, endY), Direction(endDirection)),
                              pathWeight)
-        print(f"added path, now we have paths: {self.planet.paths}")
+        print(f"added path, now we have paths: {self.planet.paths} \r\n")
 
         # update last position and path status
         current_dir = (endDirection + 180) % 360  # we now look at to the opposite direction than we entered the node

@@ -25,6 +25,9 @@ class Robot:
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH,
                  stop=False):
 
+        # DEFS
+        self.SPEED = 165 # speed of the motors, 150 is working
+
         self.controller = None
         self.color: ms.ColorDetector = None
         self.obj_detec: ms.ObjectDetector = None
@@ -142,7 +145,7 @@ class Robot:
         middle_greytone = self.middlegreytone
         integral = 0
         lerror = 0
-        tempo = 150
+        tempo = self.SPEED
         de = 0.80 * tempo
         di = 0.05 * tempo
         dd = 0.60 * tempo
@@ -153,7 +156,7 @@ class Robot:
         while self.color.name == 'grey':
 
             # if the integral is greater than 100, stop the robot
-            if integral > 1000:
+            if integral > 5000:
                 # for the next 5 seconds, call every second the stop function
                 for i in range(5):
                     self.__stop()
