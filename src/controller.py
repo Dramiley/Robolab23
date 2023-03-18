@@ -383,9 +383,15 @@ class Controller:
         # TODO: robot currently would sometimes rotate more than necessary (e.g. target_dir=270, current_dir=0)
         deg_to_rotate = (target_dir - current_dir) % 360
 
+        # instead of three times right, go left once
+        if deg_to_rotate >= 270:
+            self.robot.station_scan(forward=False)
+            deg_to_rotate += 90
+            deg_to_rotate = deg_to_rotate % 360
+
         while deg_to_rotate > 0:
             # use station scan for rotating bc turn_deg is VERY buggy
-            self.robot.station_scan()
+            self.robot.station_scan(forward=True)
             deg_to_rotate -= 90
 
         self.last_position.direction = target_dir
