@@ -212,17 +212,12 @@ class Robot:
         Center the robot on the station
         """
 
-        self.motor_left.run_timed(time_sp=1000, speed_sp=60)
-        time.sleep(1)
+        self.motor_left.run_timed(time_sp=800, speed_sp=60)
+        time.sleep(0.8)
         self.motor_left.run_timed(time_sp=312, speed_sp=65)
         self.motor_right.run_timed(time_sp=312, speed_sp=-65)
         time.sleep(0.5)
-        self.color.color_check()
-        self.__drive(100, 100)
-        while self.color.name == 'red' or self.color.name == 'blue':
-            self.color.color_check()
-        self.__stop()
-        self.__move_distance_straight(2)
+        self.__move_distance_straight(4.4)
         time.sleep(1)
 
     def station_scan(self) -> bool:
