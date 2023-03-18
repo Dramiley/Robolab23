@@ -216,7 +216,9 @@ class Controller:
         # check all paths
 
         # get scan_station
+        print("I think I am at " + str(self.last_position.x) + " " + str(self.last_position.y)+". Is that right?")
         previous_scan_station = self.planet.get_scan_station((self.last_position.x, self.last_position.y))
+        previous_scan_station = None
 
         if previous_scan_station is not None:
             # add each direction of the previous scan station to the possible paths
