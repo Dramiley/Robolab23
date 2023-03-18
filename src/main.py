@@ -62,7 +62,9 @@ def signal_handler(sig=None, frame=None, raise_interrupt=True):
             print("Could not stop robot. (This is normal if you are not running on the robot.)")
             pass
 
-        raise KeyboardInterrupt()
+        # exit program
+        sys.exit(0)
+        # raise KeyboardInterrupt
 
 
 """

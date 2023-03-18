@@ -21,19 +21,18 @@ class Robot:
 
     """
 
-    controller = None
-    color: ms.ColorDetector = None
-    obj_detec: ms.ObjectDetector = None
-    middlegreytone = 170
-    was_path_blocked = False  # stores whether last path driven was blocked or not->set when obstacle is detected
-
-    motor_left = None
-    motor_right = None
-
-    motor_pos_list = None
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH,
                  stop=False):
+
+        self.controller = None
+        self.color: ms.ColorDetector = None
+        self.obj_detec: ms.ObjectDetector = None
+        self.middlegreytone = 170
+        self.was_path_blocked = False  # stores whether last path driven was blocked or not->set when obstacle is detected
+        self.motor_left = None
+        self.motor_right = None
+        self.motor_pos_list = None
 
         self.motor_left = ev3.LargeMotor(left_port)
         self.motor_right = ev3.LargeMotor(right_port)
@@ -224,7 +223,7 @@ class Robot:
         while self.color.name == 'red' or self.color.name == 'blue':
             self.color.color_check()
         self.__stop()
-        self.__move_distance_straight(2)
+        self.__move_distance_straight(3)
         time.sleep(1)
 
     def station_scan(self) -> bool:

@@ -11,6 +11,7 @@ At every communication point:
     3. drive the path we are told by the mothership
 """
 import json
+import threading
 import time
 import os
 import sys
@@ -37,6 +38,8 @@ class Position:
 class Controller:
 
     def __init__(self, client):
+        self.next_dir = None
+
         self.robot = None
         self.communication = None
         self.odometry = None
@@ -123,13 +126,22 @@ class Controller:
         # NOTE: check that robo selected right path here!
         # pdb.set_trace()
 
+        print("will publish path_select/")
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
 
+        self.next_dir = next_dir
+        time.sleep(3.2)
+        self.drive_to_next_dir()
+
+
     def __explore(self) -> Optional[Direction]:
+
+        # TODO fix it
         """
         Let the robo have some fun and explore the planet on it's own
         """
+        print("self.planet.unexplored: " + str(self.planet.unexplored))
         next_dir = self.planet.get_next_exploration_dir((self.last_position.x, self.last_position.y))
 
         if next_dir == None:
@@ -191,8 +203,8 @@ class Controller:
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
         # startOrientation is the dir the robot is pointing towards after entering the node
-        # came_from_dir = Direction((startOrientation + 180) % 360)
-        came_from_dir = Direction((startOrientation) % 360)
+        came_from_dir = Direction((startOrientation + 180) % 360)
+        # came_from_dir = Direction((startOrientation) % 360)
         # mark start path as blocked (is always a dead end)
         self.planet.add_path(((startX, startY), came_from_dir), ((startX, startY), came_from_dir), -1)
 
@@ -212,10 +224,6 @@ class Controller:
         # check all paths
         for i in range(0, 4):  # 1 because there must be a path on the one we came from
 
-            if i == 2:
-                # we already know that there is a path on the one we came from
-                continue
-
             # TODO: 2nd rotation scans the path we came from (not needed!)
             # update current orientation by 90deg
             self.last_position.direction = (self.last_position.direction + 90) % 360
@@ -224,6 +232,10 @@ class Controller:
             possible_path = self.robot.station_scan()
 
             time.sleep(3)
+
+            if i == 1:
+                # we already know that there is a path on the one we came from
+                continue
 
             if possible_path:
                 print("found possible path in dir " + str(current_dir))
@@ -266,6 +278,7 @@ class Controller:
             path_status = "free"
 
         # send path to mothership for verification
+        print("will publish path/")
         self.communication.path(start_position.x, start_position.y, start_position.direction, end_position.x,
                                 end_position.y, end_position.direction, path_status)
 
@@ -278,7 +291,10 @@ class Controller:
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         # pass onto handler, forget pathStatus
-        self.__handle_received_path(startX, startY, startDirection, endX, endY, endDirection, pathWeight)
+        # self.__handle_received_path(startX, startY, startDirection, endX, endY, endDirection, pathWeight)
+        # call __handle_received_path in own thread
+        threading.Thread(target=self.__handle_received_path,
+                         args=(startX, startY, startDirection, endX, endY, endDirection, pathWeight)).start()
 
     def __handle_received_path(self, startX, startY, startDirection, endX, endY, endDirection, pathWeight):
         """
@@ -299,7 +315,7 @@ class Controller:
         print("last_position: " + str(self.last_position.x) + " " + str(self.last_position.y) + " " + str(
             self.last_position.direction))
         print("__handle_received_path: " + str(endX) + " " + str(endY) + " " + str(endDirection))
-        current_dir = (endDirection ) % 360  # we now look at to the opposite direction than we entered the node
+        current_dir = (endDirection + 180) % 360  # we now look at to the opposite direction than we entered the node
         print("calculation of current_dir: (" + str(endDirection) + " + 180) % 360 = " + str(current_dir))
         self.last_position = Position(endX, endY, current_dir)
         print("last_position set to: " + str(self.last_position.x) + " " + str(self.last_position.y) + " " + str(
@@ -321,6 +337,13 @@ class Controller:
         self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
     def receive_path_select(self, startDirection: Direction):
+        self.next_dir = startDirection
+
+    def drive_to_next_dir(self):
+        startDirection = self.next_dir
+
+        print("received path select: " + str(startDirection) + " at current time: " + str(time.time()))
+
         """
         Drive into given dir
 
@@ -329,6 +352,7 @@ class Controller:
         """
         self.communication.communication.received_since_last_path_select = 1
         # NOTE: Make sure robo received the right path_select (ESPECIALLY NOT the fake server response)
+
         print(f"Driving to {startDirection}")
 
         # update last position and path status
@@ -336,12 +360,25 @@ class Controller:
 
         print(f"Start dir: {self.last_position.direction}, Rotating to: {startDirection}")
 
-        self.rotate_robo_in_dir(startDirection)
+        self.rotate_robo_in_dir(Direction(startDirection))
         print(startDirection)
-
         self.robot.drive_until_communication_point()
 
-        self.communication.communication.received_since_last_path_select = 0
+        print("Done with receive_path_select")
+
+    """
+        self.__handle_receive_path_select(startDirection)
+
+    def __handle_receive_path_select(self, startDirection):
+        def async_please():
+            self.rotate_robo_in_dir(startDirection)
+            print(startDirection)
+            self.robot.drive_until_communication_point()
+            print("Done with receive_path_select > async_please")
+
+        self.thread = threading.Thread(target=async_please, args=())
+        self.thread.start()
+    """
 
     def receive_target(self, targetX, targetY):
         """

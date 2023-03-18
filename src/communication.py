@@ -12,32 +12,33 @@ from communication_facade import CommunicationFacade
 
 
 class Communication:
-    # setup secrets
-    group_id = '046'
-    password = 'PwQ3lFHkEl'
-
-    # setup MQTT client
-    client = None
-    facade = None  # use the facade to send messages more eloquently
-
-    # short term memory
-    planet_name = None
-
-    # callbacks
-    """
-    Dictionary to hold the callbacks for the different message types
-    """
-    callbacks = {}
-
-    """
-    Class to hold the MQTT client communication_scripts
-    Feel free to add functions and update the constructor to satisfy your requirements and
-    thereby solve the task according to the specifications
-    """
-
-    received_since_last_path_select = 0
 
     def __init__(self, mqtt_client, logger):
+
+        # setup secrets
+        self.group_id = '046'
+        self.password = 'PwQ3lFHkEl'
+
+        # setup MQTT client
+        self.client = None
+        self.facade = None  # use the facade to send messages more eloquently
+
+        # short term memory
+        self.planet_name = None
+
+        # callbacks
+        """
+        Dictionary to hold the callbacks for the different message types
+        """
+        self.callbacks = {}
+
+        """
+        Class to hold the MQTT client communication_scripts
+        Feel free to add functions and update the constructor to satisfy your requirements and
+        thereby solve the task according to the specifications
+        """
+
+        self.received_since_last_path_select = 0
         """
         Initializes communication_scripts module, connect to server, subscribe, etc.
         :param mqtt_client: paho.mqtt.client.Client
