@@ -54,7 +54,7 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        test_planet = "Conway"
+        test_planet = "Anin"
         self.communication.test_planet(test_planet)
 
         from robot import Robot
@@ -228,10 +228,10 @@ class Controller:
 
             # TODO: 2nd rotation scans the path we came from (not needed!)
             # update current orientation by 90deg
-            self.last_position.direction = (self.last_position.direction + 90) % 360
-            current_dir = self.last_position.direction
+                self.last_position.direction = (self.last_position.direction + 90) % 360
+                current_dir = self.last_position.direction
             # check whether there is a path
-            possible_path = self.robot.station_scan()
+                possible_path = self.robot.station_scan()
 
                 if i == 1:
                     # we already know that there is a path on the one we came from
