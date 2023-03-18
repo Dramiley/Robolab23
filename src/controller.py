@@ -53,7 +53,7 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        test_planet = "Chadwick"
+        test_planet = "Conway"
         self.communication.test_planet(test_planet)
 
         from robot import Robot
