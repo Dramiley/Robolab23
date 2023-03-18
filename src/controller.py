@@ -334,8 +334,18 @@ class Controller:
         Dies ermöglicht es Eurem Roboter, schneller mit der Erkundung fertig zu werden, da er die empfangenen Pfade direkt in seine Karte aufnimmt und nicht erkunden muss.
         siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-unveiled/
         """
+        self.__handle_receive_path_unveiled(startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight)
 
+    def __handle_receive_path_unveiled(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
         # TODO: check
+        start = (startX, startY)
+        end = (endX, endY)
+        if start not in self.planet.paths.keys():
+            # we have to check all dirs of that node if we dont know it yet
+            all_directions = [Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST]
+            [self.planet.add_possible_unexplored_path(start, dire) for dire in all_directions]
+
+        # directions which shouldn't be explored anymore are automatically removed from self.planet.unexplored in add_path :)
         self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
     def receive_path_select(self, startDirection: Direction):
