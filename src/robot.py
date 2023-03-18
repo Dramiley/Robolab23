@@ -136,7 +136,6 @@ class Robot:
         self.was_path_blocked = True
 
         self.turn_deg(175)
-        self.__followline()
 
     def __followline(self):
         # folgt der Linie
