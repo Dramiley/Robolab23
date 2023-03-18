@@ -25,6 +25,9 @@ class Robot:
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH,
                  stop=False):
 
+        # DEFS
+        self.SPEED = 165 # speed of the motors, 150 is working
+
         self.controller = None
         self.color: ms.ColorDetector = None
         self.obj_detec: ms.ObjectDetector = None
@@ -47,14 +50,12 @@ class Robot:
 
         try:
             self.color = ms.ColorDetector()
-            print("Color Okay")
         except Exception as e:
             print("Could not initialize color sensors wrapper ")
             print(e)
 
         try:
             self.obj_detec = ms.ObjectDetector()
-            print("Object Detector Okay")
         except Exception as e:
             print("Could not initialize object detector sensors wrapper")
             print(e)
@@ -113,17 +114,13 @@ class Robot:
             self.__move_distance_straight(4)
             return
 
-        self.__speak("Calibration White")
+        self.__speak("Calibration")
         self.color.color_check()
         white = self.color.greytone
-        print("white = " + str(white))
         self.__move_distance_straight(4)
-        self.__speak('Black')
         self.color.color_check()
         black = self.color.greytone
-        print("black = " + str(black))
         middlegreytone = ((white + black) / 2) + 10  # 50
-        print("grey = " + str(middlegreytone))
         self.middlegreytone = middlegreytone
 
     def __obstacle_in_way(self):
@@ -141,14 +138,14 @@ class Robot:
         # folgt der Linie
         # self.communication.test_planet("Gromit")
         # reset was_path_blocked
-        print("followline start")
+        print("followline")
         self.was_path_blocked = False
 
         self.color.color_check()  # checkt die Farbe
         middle_greytone = self.middlegreytone
         integral = 0
         lerror = 0
-        tempo = 150
+        tempo = self.SPEED
         de = 0.80 * tempo
         di = 0.05 * tempo
         dd = 0.60 * tempo
@@ -159,7 +156,7 @@ class Robot:
         while self.color.name == 'grey':
 
             # if the integral is greater than 100, stop the robot
-            if integral > 1000:
+            if integral > 5000:
                 # for the next 5 seconds, call every second the stop function
                 for i in range(5):
                     self.__stop()
@@ -196,7 +193,6 @@ class Robot:
             lerror = error
             self.color.color_check()
         self.__stop()
-        print("followline end")
 
     def __run_motors(self, power_left: float, power_right: float):
         """
@@ -256,8 +252,6 @@ class Robot:
         self.white = 297
 
     def begin(self):
-        print("begin & calibrate")
-
         self.__followline()
         self.__station_center()
 
@@ -265,7 +259,6 @@ class Robot:
         """
         Turns the robot by param degrees
         """
-        print("turn_deg " + str(deg))
         ROT_TIME_FACTOR = 13.88
         rot_dir = math.copysign(1, deg)
         speed = rot_dir * 133

@@ -69,6 +69,20 @@ class Planet:
         self.unexplored = {}  # dict keeping track of unexplored paths of the format node: Set[Direction] which are the unexplored directions
         self.computations_uptodate = False
 
+        self.__scan_stations = {}  # dict keeping track of scan stations of the format node: Set[Direction] which are the scanned true directions
+
+    def set_scan_station(self, coords: Tuple[int, int], directions: List[Direction]):
+        """
+        Sets the coordinates of the scan station
+        """
+        self.__scan_stations[coords] = directions
+
+    def get_scan_station(self, coords: Tuple[int, int]) -> List[Direction] or None:
+        """
+        Returns the directions of the scan station
+        """
+        return self.__scan_stations.get(coords)
+
     def __is_node_known(self, node: Tuple[int, int]) -> bool:
         """
         Returns true if node has already been explored, else false
@@ -323,14 +337,19 @@ class Planet:
         Tracks unexplored path (node, direction)
             ->adds path to self.unexplored if it is not explored
         """
-        if dir in self.paths[node].keys():
-            # there is already a path registered for this dir
-            return
 
-        if node not in self.unexplored.keys():
-            self.unexplored[node] = set()
+        try:
+            if dir in self.paths[node].keys():
+                # there is already a path registered for this dir
+                return
 
-        self.unexplored[node].add(dir)
+            if node not in self.unexplored.keys():
+                self.unexplored[node] = set()
+
+            self.unexplored[node].add(dir)
+
+        except Exception as e:
+            print(f"Error while adding path to planet: {e}")
 
     def get_next_exploration_dir(self, current_node: Tuple[int, int]) -> Direction or None:
         """
