@@ -75,7 +75,9 @@
 
         <div v-if="connectStart != null">
             <h1>Manipulate connecting</h1>
-            <button :class="{red:connectStart.blocked}" @click="connectStart.blocked = !connectStart.blocked">Toggle blocked</button>
+            <button :class="{red:connectStart.blocked}" @click="connectStart.blocked = !connectStart.blocked">Toggle
+                blocked
+            </button>
             <button @click="connectStart = null">Reset selected connector</button>
             <button @click="translucent=!translucent">Toggle translucent</button>
         </div>
@@ -85,7 +87,9 @@
     </div>
     <div id="output">
         <h1>{{name}}.json</h1>
-        <textarea>{{JSON.stringify({version:1,area,...def,paths:pointsWithPaths}, null, 2)}}</textarea>
+        <textarea>{{JSON.stringify({version,name,area,...def,paths:pointsWithPaths}, null, 2)}}</textarea>
+        <textarea v-model="importJson" placeholder="Import JSON"></textarea>
+        <button @click="importJsonBtn">Import</button>
     </div>
 </div>
 
@@ -95,6 +99,8 @@
     createApp({
         data() {
             return {
+                version: 2,
+                importJson: '',
                 translucent: true,
                 vars: [
                     {
@@ -121,7 +127,7 @@
                     }
                 ],
                 currentVar: 0,
-                name: 'John',
+                name: 'John', // added in version 2
                 area: {
                     "x": {
                         "min": 1,
@@ -175,6 +181,21 @@
             }
         },
         methods: {
+            importJsonBtn() {
+                // y({version:1,area,...def,paths:pointsWithPaths}, null, 2)}}</te
+                const json = JSON.parse(this.importJson)
+                this.area = json.area
+                this.vars[0].set(json.area.x.min, json.area.y.max)
+                this.vars[1].set(json.area.x.max, json.area.y.min)
+                this.def = json
+                this.calcPoints()
+                this.points = json.paths
+                // try to set name
+                if (json.name) {
+                    this.name = json.name
+                }
+                this.version = json.version
+            },
             click(e) {
                 console.log("click at", e.offsetX, e.offsetY)
                 const x = e.offsetX
