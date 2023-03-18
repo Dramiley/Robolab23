@@ -25,7 +25,7 @@ class Robot:
                  stop=False):
 
         # DEFS
-        self.SPEED = 165  # speed of the motors, 150 is working
+        self.SPEED = 150  # speed of the motors, 150 is working
 
         self.controller = None
         self.color: ms.ColorDetector = None
