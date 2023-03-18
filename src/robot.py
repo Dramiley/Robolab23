@@ -212,8 +212,8 @@ class Robot:
         Center the robot on the station
         """
 
-        self.motor_left.run_timed(time_sp=700, speed_sp=60)
-        time.sleep(0.7)
+        self.motor_left.run_timed(time_sp=1000, speed_sp=60)
+        time.sleep(1)
         self.motor_left.run_timed(time_sp=312, speed_sp=65)
         self.motor_right.run_timed(time_sp=312, speed_sp=-65)
         time.sleep(0.5)
