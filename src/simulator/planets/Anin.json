@@ -1,5 +1,6 @@
 {
-  "version": 1,
+  "version": 2,
+  "name": "Anin",
   "area": {
     "x": {
       "min": 12,
