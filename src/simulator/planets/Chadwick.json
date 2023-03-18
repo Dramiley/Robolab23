@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "name": "Chadwick",
   "area": {
     "x": {
@@ -209,26 +209,6 @@
         },
         null,
         null,
-        null
-      ]
-    },
-    {
-      "x": 1,
-      "y": 11,
-      "paths": [
-        {
-          "x": 1,
-          "y": 12,
-          "orientation": 0,
-          "blocked": false
-        },
-        null,
-        {
-          "x": 1,
-          "y": 10,
-          "orientation": 1800,
-          "blocked": false
-        },
         null
       ]
     },

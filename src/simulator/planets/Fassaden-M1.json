@@ -1,5 +1,6 @@
 {
-  "version": 1,
+  "version": 2,
+  "name": "Fassaden-M1",
   "area": {
     "x": {
       "min": 4,
@@ -47,10 +48,10 @@
       "paths": [
         null,
         {
-          "x": 5,
+          "x": 6,
           "y": 4,
           "orientation": 90,
-          "blocked": true
+          "blocked": false
         },
         {
           "x": 5,
@@ -157,26 +158,6 @@
       ]
     },
     {
-      "x": 5,
-      "y": 4,
-      "paths": [
-        null,
-        {
-          "x": 6,
-          "y": 4,
-          "orientation": 90,
-          "blocked": false
-        },
-        null,
-        {
-          "x": 4,
-          "y": 4,
-          "orientation": 270,
-          "blocked": true
-        }
-      ]
-    },
-    {
       "x": 6,
       "y": 0,
       "paths": [
@@ -229,7 +210,7 @@
           "blocked": false
         },
         {
-          "x": 5,
+          "x": 4,
           "y": 4,
           "orientation": 270,
           "blocked": false

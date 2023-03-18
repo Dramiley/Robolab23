@@ -85,6 +85,7 @@
             </button>
             <button @click="connectStart = null">Reset selected connector</button>
             <button @click="translucent=!translucent">Toggle translucent</button>
+            <button @click="deleteConnector">Delete connector</button>
         </div>
 
         <h1>Finish connecting</h1>
@@ -93,7 +94,7 @@
     <div id="output">
         <h1>{{name}}.json</h1>
         <textarea
-                style="flex:10">{{JSON.stringify({version,name,area,...def,paths:pointsWithPaths}, null, 2)}}</textarea>
+                style="flex:10">{{JSON.stringify({name,area,...def,paths:pointsWithPaths}, null, 2)}}</textarea>
         <textarea style="height: 50px;flex:1" v-model="importJson" @change="importJsonBtn"
                   placeholder="Past JSON to import "></textarea>
     </div>
@@ -106,7 +107,6 @@
         data() {
             return {
                 planets: [],
-                version: 2,
                 importJson: '',
                 translucent: true,
                 vars: [
@@ -146,7 +146,7 @@
                     }
                 },
                 def: {
-                    "version": 1,
+                    "version": 2,
                     "left": {
                         "offsetPos": 0,
                         "offsetPx": 0,
@@ -194,14 +194,19 @@
                 this.area = json.area
                 this.vars[0].set(json.area.x.min, json.area.y.max)
                 this.vars[1].set(json.area.x.max, json.area.y.min)
+
+                let current_version = this.def.version
+                if (json.version !== this.def.version) {
+                    alert("This map was created with an older version of the map editor. Please check if everything is correct.")
+                }
                 this.def = json
+                this.def.version = current_version
                 this.calcPoints()
                 this.points = json.paths
                 // try to set name
                 if (json.name) {
                     this.name = json.name
                 }
-                this.version = json.version
                 this.currentVar = 2
                 this.importJson = ''
             },
@@ -211,6 +216,11 @@
                 const y = e.offsetY
                 this.vars[this.currentVar].set(x, y)
                 this.currentVar++
+            },
+            deleteConnector() {
+                const {x, y, o} = this.connectStart
+                this.points.find(p => p.x === x && p.y === y).paths[o] = null
+                this.connectStart = null
             },
             calcPoints() {
                 this.points = []
