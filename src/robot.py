@@ -136,7 +136,6 @@ class Robot:
         self.was_path_blocked = True
 
         self.turn_deg(175)
-        self.__followline()
 
     def __followline(self):
         # folgt der Linie
@@ -223,7 +222,7 @@ class Robot:
         while self.color.name == 'red' or self.color.name == 'blue':
             self.color.color_check()
         self.__stop()
-        self.__move_distance_straight(3)
+        self.__move_distance_straight(2)
         time.sleep(1)
 
     def station_scan(self) -> bool:
