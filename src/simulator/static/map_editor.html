@@ -26,50 +26,55 @@
     <div id="controls">
 
         <h1>Planet</h1>
+        <select v-model="name">
+            <option v-for="planet in planets" :value="planet">{{planet}}</option>
+        </select>
         <input type="text" v-model="name"/>
 
         <div v-if="currentVar < 2">
             <h1>Area</h1>
-            <p>Please type in:</p>
-            <p>X</p>
-            <input type="number" v-model="area.x.min"/>
-            <input type="number" v-model="area.x.max"/>
+            <p>Horizontal
+                <input type="number" v-model="area.x.min"/>
+                <input type="number" v-model="area.x.max"/>
+            </p>
 
             <div>
-                {{area.x.min >= area.x.max ? 'X min must be smaller than X max' : 'Numbers are fine.'}}
+                {{area.x.min >= area.x.max ? 'X min must be smaller than X max!!' : 'Numbers are fine.'}}
             </div>
 
-            <p>Y</p>
-            <input type="number" v-model="area.y.min"/>
-            <input type="number" v-model="area.y.max"/>
-            <br/>
+            <p>Vertical
+                <input type="number" v-model="area.y.min"/>
+                <input type="number" v-model="area.y.max"/>
+            </p>
 
             <div>
-                {{area.y.min >= area.y.max ? 'Y min must be smaller than Y max' : 'Numbers are fine.'}}
+                {{area.y.min >= area.y.max ? 'Y min must be smaller than Y max!!' : 'Numbers are fine.'}}
             </div>
-
-            <hr>
             <div>
-                Links oben: {{area.x.min}}, {{area.y.max}}<br>
+                Links oben: {{area.x.min}}, {{area.y.max}} &emsp;
                 Rechts unten: {{area.x.max}}, {{area.y.min}}
             </div>
 
             <h1>Controls</h1>
             Und jetzt:
             <pre>{{vars[currentVar].title}}</pre>
-            <p>Offset Position</p>
-            <input type="number" v-model="def.left.offsetPos"/>
-            <input type="number" v-model="def.top.offsetPos"/>
-            <p>Offset Pixel</p>
-            <input type="number" v-model="def.left.offsetPx"/>
-            <input type="number" v-model="def.top.offsetPx"/>
-            <p>Factor</p>
-            <input type="number" v-model="def.left.factor"/>
-            <input type="number" v-model="def.top.factor"/>
-            <p>Start Position</p>
-            <input type="number" v-model="def.startPosition.x"/>
-            <input type="number" v-model="def.startPosition.y"/>
-            <input type="number" v-model="def.startPosition.orientation"/>
+            <p>Offset Position
+                <input type="number" v-model="def.left.offsetPos"/>
+                <input type="number" v-model="def.top.offsetPos"/>
+            </p>
+            <p>Offset Pixel
+                <input type="number" v-model="def.left.offsetPx"/>
+                <input type="number" v-model="def.top.offsetPx"/>
+            </p>
+            <p>Factor
+                <input type="number" v-model="def.left.factor"/>
+                <input type="number" v-model="def.top.factor"/>
+            </p>
+            <p>Start Position
+                <input type="number" v-model="def.startPosition.x"/>
+                <input type="number" v-model="def.startPosition.y"/>
+                <input type="number" v-model="def.startPosition.orientation"/>
+            </p>
 
         </div>
 
@@ -87,9 +92,10 @@
     </div>
     <div id="output">
         <h1>{{name}}.json</h1>
-        <textarea>{{JSON.stringify({version,name,area,...def,paths:pointsWithPaths}, null, 2)}}</textarea>
-        <textarea v-model="importJson" placeholder="Import JSON"></textarea>
-        <button @click="importJsonBtn">Import</button>
+        <textarea
+                style="flex:10">{{JSON.stringify({version,name,area,...def,paths:pointsWithPaths}, null, 2)}}</textarea>
+        <textarea style="height: 50px;flex:1" v-model="importJson" @change="importJsonBtn"
+                  placeholder="Past JSON to import "></textarea>
     </div>
 </div>
 
@@ -99,6 +105,7 @@
     createApp({
         data() {
             return {
+                planets: [],
                 version: 2,
                 importJson: '',
                 translucent: true,
@@ -258,14 +265,18 @@
                     y: this.connectStart.y,
                     orientation: (this.connectStart.o * 90 + 180) % 360
                 }
-            }
+            },
+            tryLoadPlanets() {
+                fetch('/planets').then(r => r.json()).then(
+                    planets => {
+                        console.log('planets loaded')
+                        this.planets = planets
+                    }
+                )
+            },
         },
         mounted() {
-            return
-            this.click({offsetX: 123, offsetY: 168})
-            this.click({offsetX: 506, offsetY: 676})
-            this.connectorClicked(3, 4, 1)
-            this.setStartConnector()
+            this.tryLoadPlanets()
         },
     }).mount('#app')
 </script>
@@ -365,6 +376,7 @@
 
     #output {
         flex: 0;
+        padding: 10px;
         display: flex;
         flex-direction: column;
     }
@@ -411,5 +423,9 @@
     button.red {
         background: #e32a12;
         color: white;
+    }
+
+    input[type=number] {
+        width: 4em;
     }
 </style>
