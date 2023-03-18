@@ -69,7 +69,6 @@ class Controller:
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
         self.robot.begin()
-
         self.communication.ready()
 
         while True:
@@ -198,7 +197,8 @@ class Controller:
         # TODO Robin Change: Wurde bereits in Begin aufgerufen. Dadurch hat der Roboter drive_until_communication_point() 2 mal ausgeführt
         # los gehts
 
-        self.select_next_dir()  # undo alex's change to begin()
+        # call self.select_next_dir() in new thread
+        threading.Thread(target=self.select_next_dir).start()
 
     def __handle_received_planet(self, startX: int, startY: int, startOrientation: Direction):
 
@@ -337,7 +337,9 @@ class Controller:
         self.planet.add_path(((startX, startY), startDirection), ((endX, endY), endDirection), pathWeight)
 
     def receive_path_select(self, startDirection: Direction):
+        print("received path select: " + str(startDirection) + " at current time: " + str(time.time()))
         self.next_dir = startDirection
+        print("Variable self.next_dir set to " + str(self.next_dir))
 
     def drive_to_next_dir(self):
         startDirection = self.next_dir

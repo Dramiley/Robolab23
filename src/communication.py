@@ -245,6 +245,9 @@ class Communication:
 
     def prepare_fallback_path_select_message(self, startDirection):
 
+        print("ignoring prepare_fallback_path_select_message")
+
+        """
         # reset counter
         self.received_since_last_path_select = 0
 
@@ -256,3 +259,5 @@ class Communication:
 
         # faking callback
         self.callback('pathSelect', {'startDirection': startDirection})
+        """
+
