@@ -230,8 +230,6 @@ class Controller:
             # check whether there is a path
             possible_path = self.robot.station_scan()
 
-            # time.sleep(3)
-
             if i == 1:
                 # we already know that there is a path on the one we came from
                 continue
