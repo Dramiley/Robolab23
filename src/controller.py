@@ -54,7 +54,7 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        test_planet = "Chadwick"
+        test_planet = "John"
         self.communication.test_planet(test_planet)
 
         from robot import Robot
@@ -117,12 +117,12 @@ class Controller:
         else:
             next_dir = self.__explore()
 
+        if next_dir == None:
+            self.communication.target_reached()
         print("next dir: " + str(next_dir) + ". will publish path_select/")
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
 
-        if next_dir == None:
-            self.communication.target_reached()
 
         self.next_dir = next_dir
         time.sleep(3.2) # wait for possible change of self.next_dir by path_select msg from server
