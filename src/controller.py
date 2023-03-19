@@ -95,9 +95,10 @@ class Controller:
 
         # let robot check paths on the node he is on and register it in planet.unexplored
         current_node = (self.last_position.x, self.last_position.y)
-        if not (current_node in self.planet.paths.keys() and current_node not in self.planet.unexplored_nodes):
-            # ->we havent scanned that node yet
-            self.__check_explorable_paths()
+        # if not (current_node in self.planet.paths.keys() and current_node not in self.planet.unexplored_nodes):
+        #     # ->we havent scanned that node yet
+        #     self.__check_explorable_paths()
+        self.__check_explorable_paths()
         # pdb.set_trace()
 
         next_dir = None
@@ -117,8 +118,6 @@ class Controller:
                 # TODO: what if we had a target and received an unreachable one->we don't have any target anymore, right?
                 print("Target unreachable at the moment")
                 next_dir = self.__explore()
-                if next_dir == None:
-                    return
             else:
                 next_dir = shortest_path[0][1]
         else:
@@ -408,4 +407,4 @@ class Controller:
         """
         print("Tadaaa!!! " + message)
         self.robot.stop()
-        self.communication.communication.done()
+        self.communication.done()
