@@ -117,6 +117,8 @@ class Controller:
                 # TODO: what if we had a target and received an unreachable one->we don't have any target anymore, right?
                 print("Target unreachable at the moment")
                 next_dir = self.__explore()
+                if next_dir == None:
+                    return
             else:
                 next_dir = shortest_path[0][1]
         else:
@@ -406,4 +408,4 @@ class Controller:
         """
         print("Tadaaa!!! " + message)
         self.robot.stop()
-        self.communication.done()
+        self.communication.communication.done()
