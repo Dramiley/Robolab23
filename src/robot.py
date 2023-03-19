@@ -43,7 +43,7 @@ class Robot:
         self.motor_pos_list = []
 
         if stop:
-            self.__stop()
+            self.stop()
             sys.exit(0)
 
         self.current_dir = start_dir  # keeps track of robot's direction
@@ -85,7 +85,7 @@ class Robot:
         self.motor_right.speed_sp = speedright
         self.motor_right.command = "run-forever"
 
-    def __stop(self):  # Stoppen
+    def stop(self):  # Stoppen
         self.motor_left.stop()
         self.motor_right.stop()
 
@@ -96,7 +96,7 @@ class Robot:
 
         while self.color.subname != 'black' and time.time() - starttime <= 2:
             self.color.color_check()
-        self.__stop()
+        self.stop()
 
     def __speak(self, text):
         try:
@@ -124,7 +124,7 @@ class Robot:
         self.middlegreytone = middlegreytone
 
     def __obstacle_in_way(self):
-        self.__stop()
+        self.stop()
         self.__move_time(500, -100)
         time.sleep(1)
         # play notes a, c, e, g, a, c, e, g
@@ -159,7 +159,7 @@ class Robot:
             if integral > 5000:
                 # for the next 5 seconds, call every second the stop function
                 for i in range(5):
-                    self.__stop()
+                    self.stop()
                     time.sleep(1)
                 # play three error beeps
                 ev3.Sound.tone([(1000, 500, 100)]).wait()
@@ -192,7 +192,7 @@ class Robot:
 
             lerror = error
             self.color.color_check()
-        self.__stop()
+        self.stop()
 
     def __run_motors(self, power_left: float, power_right: float):
         """
@@ -229,7 +229,7 @@ class Robot:
             # rotating until not on path anymore
             self.__drive(131, -131)
             self.color.color_check()
-        self.__stop()
+        self.stop()
         self.scan_turn()
         if self.color.subname == 'black':
             return True
@@ -279,5 +279,5 @@ class Robot:
 
     def deadly_stop(self):
         while True:
-            self.__stop()
+            self.stop()
             time.sleep(0.1)
