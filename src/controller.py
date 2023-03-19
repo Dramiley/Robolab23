@@ -70,8 +70,6 @@ class Controller:
 
     def begin(self):
 
-        ev3.Sound.tone([(1000, 300, 300)] * 3).wait()
-
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
         self.robot.begin()
