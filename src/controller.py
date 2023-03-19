@@ -110,8 +110,7 @@ class Controller:
             elif shortest_path == None:
                 # target is unreachable
                 # TODO: what if we had a target and received an unreachable one->we don't have any target anymore, right?
-                self.target_pos = None
-                print("Target unreachable")
+                print("Target unreachable at the moment")
                 next_dir = self.__explore()
             else:
                 next_dir = shortest_path[0][1]
