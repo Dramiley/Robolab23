@@ -65,6 +65,9 @@ class CommunicationFacade:
         :return: void
         """
 
+        if startDirection is None:
+            return
+
         self.communication.send_planet_message('pathSelect', '''{
           "from": "client",
           "type": "pathSelect",
