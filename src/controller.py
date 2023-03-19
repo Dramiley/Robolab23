@@ -54,7 +54,7 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        test_planet = "John"
+        test_planet = "Anin"
         self.communication.test_planet(test_planet)
 
         from robot import Robot
@@ -95,9 +95,10 @@ class Controller:
 
         # let robot check paths on the node he is on and register it in planet.unexplored
         current_node = (self.last_position.x, self.last_position.y)
-        if not (current_node in self.planet.paths.keys() and current_node not in self.planet.unexplored_nodes):
-            # ->we havent scanned that node yet
-            self.__check_explorable_paths()
+        # if not (current_node in self.planet.paths.keys() and current_node not in self.planet.unexplored_nodes):
+        #     # ->we havent scanned that node yet
+        #     self.__check_explorable_paths()
+        self.__check_explorable_paths()
         # pdb.set_trace()
 
         next_dir = None
@@ -408,4 +409,4 @@ class Controller:
         """
         print("Tadaaa!!! " + message)
         self.robot.stop()
-        self.communication.communication.done()
+        self.communication.done()
