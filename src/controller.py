@@ -70,7 +70,7 @@ class Controller:
 
     def begin(self):
 
-        ev3.Sound.tone([1000, 300, 300] * 3).wait()
+        ev3.Sound.tone([(1000, 300, 300)] * 3).wait()
 
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
@@ -312,7 +312,7 @@ class Controller:
             self.communication.exploration_completed()
 
         # make a short high beep
-        ev3.Sound.tone([1000, 300, 300] * number_of_beeps).wait()
+        ev3.Sound.tone([(1000, 300, 300)] * number_of_beeps).wait()
 
         self.target_pos = None
 
