@@ -70,6 +70,8 @@ class Controller:
 
     def begin(self):
 
+        ev3.Sound.beep([1000, 300, 300] * 3).wait()
+
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
         self.robot.begin()
@@ -295,6 +297,8 @@ class Controller:
         Wird aufgerufen, wenn das Ziel erreicht wurde
         """
 
+        number_of_beeps = 1
+
         if self.target_pos is None:
             print("Never got a target position! But we're done!")
             self.communication.exploration_completed()
@@ -302,9 +306,14 @@ class Controller:
         if self.target_pos[0] == self.last_position.x and self.target_pos[1] == self.last_position.y:
             print("Current position is target position!")
             self.communication.target_reached()
+            number_of_beeps = 2
         else:
             print("Current position is not target position!")
             self.communication.exploration_completed()
+
+        # make a short high beep
+        ev3.Sound.beep([1000, 300, 300] * number_of_beeps).wait()
+
         self.target_pos = None
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
