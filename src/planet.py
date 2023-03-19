@@ -336,6 +336,10 @@ class Planet:
         # remove all None values bc they cant be compared in min function
         shortest_paths = list(filter(lambda x: x != None, shortest_paths))
 
+        if not shortest_path:
+            # nothing to explore anymore
+            return None
+
         shortest_path = min(shortest_paths, key=operator.itemgetter(1))
         next_path_without_weight = shortest_path[0]  # format: List[Tuple[node, Direction]]
         # TODO: check that next_dir really accesses the direction-element!

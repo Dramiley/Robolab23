@@ -111,6 +111,7 @@ class Controller:
                 # target is unreachable
                 # TODO: what if we had a target and received an unreachable one->we don't have any target anymore, right?
                 self.target_pos = None
+                print("Target unreachable")
                 next_dir = self.__explore()
             else:
                 next_dir = shortest_path[0][1]
