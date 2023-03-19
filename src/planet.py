@@ -336,7 +336,7 @@ class Planet:
         # remove all None values bc they cant be compared in min function
         shortest_paths = list(filter(lambda x: x != None, shortest_paths))
 
-        if not shortest_path:
+        if not shortest_paths:
             # nothing to explore anymore
             return None
 
