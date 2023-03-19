@@ -54,7 +54,7 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        test_planet = "Conway"
+        test_planet = "Chadwick"
         self.communication.test_planet(test_planet)
 
         from robot import Robot
@@ -296,6 +296,9 @@ class Controller:
          Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
          siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
          """
+        # when arrived at a node that has been unveiled by server but not explored yet, remove it from unexplored_nodes
+        if (startX, startY) in self.planet.unexplored_nodes:
+            self.planet.unexplored_nodes.remove((endX, endY))
 
         # init odometry
         self.odometry.set_coords((startX, startY))
