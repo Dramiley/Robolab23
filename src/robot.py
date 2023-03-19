@@ -25,6 +25,9 @@ class Robot:
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH,
                  stop=False):
 
+        # DEFS
+        self.SPEED = 150 # speed of the motors, 150 is working
+
         self.controller = None
         self.color: ms.ColorDetector = None
         self.obj_detec: ms.ObjectDetector = None
@@ -40,21 +43,19 @@ class Robot:
         self.motor_pos_list = []
 
         if stop:
-            self.__stop()
+            self.stop()
             sys.exit(0)
 
         self.current_dir = start_dir  # keeps track of robot's direction
 
         try:
             self.color = ms.ColorDetector()
-            print("Color Okay")
         except Exception as e:
             print("Could not initialize color sensors wrapper ")
             print(e)
 
         try:
             self.obj_detec = ms.ObjectDetector()
-            print("Object Detector Okay")
         except Exception as e:
             print("Could not initialize object detector sensors wrapper")
             print(e)
@@ -84,7 +85,7 @@ class Robot:
         self.motor_right.speed_sp = speedright
         self.motor_right.command = "run-forever"
 
-    def __stop(self):  # Stoppen
+    def stop(self):  # Stoppen
         self.motor_left.stop()
         self.motor_right.stop()
 
@@ -95,7 +96,7 @@ class Robot:
 
         while self.color.subname != 'black' and time.time() - starttime <= 2:
             self.color.color_check()
-        self.__stop()
+        self.stop()
 
     def __speak(self, text):
         try:
@@ -113,21 +114,17 @@ class Robot:
             self.__move_distance_straight(4)
             return
 
-        self.__speak("Calibration White")
+        self.__speak("Calibration")
         self.color.color_check()
         white = self.color.greytone
-        print("white = " + str(white))
         self.__move_distance_straight(4)
-        self.__speak('Black')
         self.color.color_check()
         black = self.color.greytone
-        print("black = " + str(black))
         middlegreytone = ((white + black) / 2) + 10  # 50
-        print("grey = " + str(middlegreytone))
         self.middlegreytone = middlegreytone
 
     def __obstacle_in_way(self):
-        self.__stop()
+        self.stop()
         self.__move_time(500, -100)
         time.sleep(1)
         # play notes a, c, e, g, a, c, e, g
@@ -141,14 +138,14 @@ class Robot:
         # folgt der Linie
         # self.communication.test_planet("Gromit")
         # reset was_path_blocked
-        print("followline start")
+        print("followline")
         self.was_path_blocked = False
 
         self.color.color_check()  # checkt die Farbe
         middle_greytone = self.middlegreytone
         integral = 0
         lerror = 0
-        tempo = 150
+        tempo = self.SPEED
         de = 0.80 * tempo
         di = 0.05 * tempo
         dd = 0.60 * tempo
@@ -159,10 +156,10 @@ class Robot:
         while self.color.name == 'grey':
 
             # if the integral is greater than 100, stop the robot
-            if integral > 1000:
+            if integral > 5000:
                 # for the next 5 seconds, call every second the stop function
                 for i in range(5):
-                    self.__stop()
+                    self.stop()
                     time.sleep(1)
                 # play three error beeps
                 ev3.Sound.tone([(1000, 500, 100)]).wait()
@@ -195,8 +192,7 @@ class Robot:
 
             lerror = error
             self.color.color_check()
-        self.__stop()
-        print("followline end")
+        self.stop()
 
     def __run_motors(self, power_left: float, power_right: float):
         """
@@ -233,7 +229,7 @@ class Robot:
             # rotating until not on path anymore
             self.__drive(131, -131)
             self.color.color_check()
-        self.__stop()
+        self.stop()
         self.scan_turn()
         if self.color.subname == 'black':
             return True
@@ -256,8 +252,6 @@ class Robot:
         self.white = 297
 
     def begin(self):
-        print("begin & calibrate")
-
         self.__followline()
         self.__station_center()
 
@@ -265,7 +259,6 @@ class Robot:
         """
         Turns the robot by param degrees
         """
-        print("turn_deg " + str(deg))
         ROT_TIME_FACTOR = 13.88
         rot_dir = math.copysign(1, deg)
         speed = rot_dir * 133
@@ -283,3 +276,8 @@ class Robot:
         self.__station_center()
         # tell the controller that we reached the communication point
         self.controller.communication_point_reached()
+
+    def deadly_stop(self):
+        while True:
+            self.stop()
+            time.sleep(0.1)

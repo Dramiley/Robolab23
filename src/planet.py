@@ -67,7 +67,7 @@ class Planet:
         self.nodes = []
 
         self.unexplored = {}  # dict keeping track of unexplored paths of the format node: Set[Direction] which are the unexplored directions
-        self.computations_uptodate = False
+        self.unexplored_nodes = [] # list of unexplored nodes (dont know in which dir, result from unveiling paths with unexplored nodes)
 
     def __is_node_known(self, node: Tuple[int, int]) -> bool:
         """
@@ -125,6 +125,9 @@ class Planet:
 
         if start_coords in self.unexplored.keys() and start_exit_dir in self.unexplored[start_coords]:
             self.__mark_dir_explored(start_coords, start_exit_dir)
+        if target_coords in self.unexplored.keys() and target_entry_dir in self.unexplored[target_coords]:
+            self.__mark_dir_explored(target_coords, target_entry_dir)
+
 
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
         """
@@ -169,123 +172,93 @@ class Planet:
         self.paths[start][start_dir] = (start, start_dir, -1)
         self.paths[end][end_dir] = (end, end_dir, -1)
 
-    def __expand_node(
-            self, node: Tuple[int, int],
-            weight0: int,
-            unvisited: List[Tuple[int, int]],
-            shortest_paths: Dict[int, Tuple[int, int]]
-    ) -> Dict[Tuple[int, int], Tuple[int, Tuple[int, int]]]:
-        """
-        Expands node given by its coordinates and returns neighbor paths as list of (node, weight, parent)
+    def __djikstra(
+            self, start: Tuple[int, int], target: Tuple[int, int]
+    ) -> Optional[ Tuple[ List[Tuple[ Tuple[int, int], Direction]], int] ]:
+        """"
+        Computes shortest path and its weight btw start and end based on self.paths
+        ->Easier implementation based on wikipedia article https://en.wikipedia.org/wiki/Dijkstra's_algorithm
 
-        Args:
-            node: node to expand
-            weight0: weight which was necessary to get to that node
-            unvisited: list of unvisited nodes
-        """
-        print(f'Expanding node {node}')
-        outgoing_paths = self.paths[node]  # outgoing_paths is of form {Direction: (coords, dir, weight)}
-        # outgoing_paths = self.paths[node[0]][node[1]]  # outgoing_paths is of form (coords, dir, weight)
-        marked = {}  # dict with keys=nodes, values=(weight, parent_node)
-        logging.debug(f'Expanding node {node}')
-        # pdb.set_trace()
-        for (coords, _, weight) in outgoing_paths.values():
-            if weight != -1:
-                new_weight = weight + weight0
-                if coords in unvisited:
-                    # TODO: check that this ensures that blocked path (with weight -1!!!) are not added to shortest path
-                    marked[coords] = (new_weight, node)
-                else:
-                    # check whether this path is shorter
-
-                    prev_weight = shortest_paths[coords][0]
-
-                    if prev_weight > new_weight:
-                        marked[coords] = (new_weight, node)
-        return marked
-
-    def __djikstra_reconstruct_shortest_path(self,
-                                             shortest_paths: Dict[Tuple[int, int], Tuple[int, Tuple[int, int]]],
-                                             start: Tuple[int, int], target: Tuple[int, int]
-                                             ) -> Tuple[List[Tuple[Tuple[int, int], Direction]], int]:
-        """
-        Returns path as list of nodes based on given shortest_paths and its weight
-
-        Args:
-            shortest_paths: Dict of structure {node: (weight, parent_node)}
         Returns:
-            (List[(node direction)], weight)
+            - (path, weight), None if target is unreachable
         """
-        list = [(target, None)]
-        weight = shortest_paths[target][0]
-        current_node = target
-        while current_node != start:
-            end_node = current_node
-            current_node = shortest_paths[current_node][1]
-            dir = None
-            outgoing_paths = self.paths[current_node]
-            for d in outgoing_paths.keys():
-                connected_node = outgoing_paths[d][0]
-                if connected_node == end_node:
-                    dir = d
-            list.append((current_node, dir))
-        list.reverse()  # bc appeding started from target towards start
-        return (list, weight)
+        dist = {start: 0}
+        prev = {start: None}
+        unvisited = list(self.paths.keys())
 
-    def __djikstra(self, start_coords: Tuple[int, int], target_coords: Tuple[int, int]) -> Optional[
-        Tuple[List[Tuple[Tuple[int, int], Direction]], int]]:
-        """
-        1. choose node1 with minimal weight out of marked nodes
-        2. if this node is target->finished else continue
-        3. expand node1 updating marked nodes
-        4. continue with 1
+        # init values
+        for node in self.paths.keys():
+            if node != start:
+                dist[node] = math.inf
+                prev[node] = None
 
-        Args:
-            - start_coords, target_coords: coords of start/target
-        Returns:
-            - If exists: List of nodes denoting shortest path between start and target and its weight
-            - if no path between start and target: None
-
-        TODO: shortest path has to include list of directions to traverse!!!
-        TODO: does it make sense to start search from target node? (for if it's isolated?)
-        TODO: test sorted(marked.items(), key=lambda x: x[1][0]) on marked
-        TODO: save calculated shortest paths so they dont have to be recalculated
-        """
-        # stay on node if it is already the target
-        if start_coords == target_coords:
-            return []
-
-        # init data structures
-        unvisited = set(self.paths.keys())  # set of unvivisted nodes
-        marked = {start_coords: (0, None)}  # dict with keys=nodes, values=(weight, parent_node)
-        shortest_paths = {start_coords: (0, None)}  # dict with key=nodes, values=(weight, parent_node)
-
-        # actual algorithm
-        next_node = start_coords
-        weight0 = 0
         while unvisited:
-            shortest_paths[next_node] = marked[next_node]
-            marked.pop(next_node)
+                # get node n_min with min dist (taken from https://stackoverflow.com/a/3282904/20675205)
+                n_min = min(unvisited, key=lambda n: dist[n])
 
-            # expand node
-            print(f'Expanding node {next_node} with weight {weight0}')
-            new_marked_nodes = self.__expand_node(next_node, weight0, unvisited, shortest_paths)
-            unvisited.remove(next_node)
+                if n_min == target:
+                    # we only care about shorest path to target
+                    break
 
-            # TODO: Problem; start_coords ist in markeds
-            marked.update(new_marked_nodes)
-            sorted_marked = sorted(marked.items(), key=lambda x: x[1][0])  # x=[(start_coords,(weight, target_coords))]
-            # logging.debug(f"Sorted marked: {sorted_marked}")
-            next_path = sorted_marked[0]
-            (next_node, (weight0, _)) = next_path
-            # next_node = sorted_marked[0][0] # sorted_marked = list of (start_coords, (weight, target_coords))
-            if next_node == target_coords:
-                # return shortest path based on shortest_paths
-                shortest_paths[next_node] = marked[next_node]
-                return self.__djikstra_reconstruct_shortest_path(shortest_paths, start_coords, target_coords)
-            # next_node has been explored->shortest path
+                # remove n_min from unvisited
+                unvisited.remove(n_min)
+                # for each neighbor of n_min in unvisited compare edge dist over n_min to current one
+                neighbors_dict = self.__get_neighbors(n_min) # dict of format neighbor: (direction, weight)
 
-        return None
+                for neighbor in neighbors_dict.keys():
+                    weight = neighbors_dict[neighbor][1]
+                    if weight > 0:
+                        # dont include blocked paths (weight=-1) into computation
+                        direction = neighbors_dict[neighbor][0]
+
+                        new = dist[n_min] + weight
+
+                        if new < dist[neighbor]:
+                            dist[neighbor] = new
+                            prev[neighbor] = (n_min, direction)
+
+        if dist[target] == math.inf:
+            return None
+
+        shortest_path = self.__dijkstra_reconstruct_path(start, target, dist, prev)
+        return shortest_path
+
+    def __dijkstra_reconstruct_path(
+            self, start: Tuple[int, int], target: Tuple[int, int], dist: Dict[Tuple[int, int], int], prev: Dict[Tuple[int, int], Optional[Tuple[Tuple[int, int], Direction]]]
+    ) -> Tuple[List[ Tuple[ Tuple[int, int], Direction ]], int]:
+        """
+        Parameters:
+            - start, end: nodes of wanted path
+            - dist[node] = min_dist from start to node
+            - prev[node] = (prev_node, dir) with dir=direction which should be taken from prev_node in order to reach target
+
+        Returns:
+            - tuple of (path, weight) with path given as list of node and direction in which the path should be followed
+        """
+
+        path = [(target, None)]
+        current_node = target
+
+        while current_node != start:
+            path.insert(0, prev[current_node])
+            current_node = prev[current_node][0]
+
+        return (path, dist[target])
+
+    def __get_neighbors(self, node: Tuple[int, int]) -> Dict[Tuple[int, int], Tuple[Direction, int]]:
+        """
+        Returns Dict of neighbor nodes of 'node' and corresponding (Direction, weight)
+        """
+        neighbor_dict = {}
+        for outgoing_path in self.paths[node].items():
+            # outgoing_path format = {dir: (end, end_entry, weight)}
+            direc = outgoing_path[0]
+            node = outgoing_path[1][0]
+            weight = outgoing_path[1][2]
+            neighbor_dict[node] = (direc, weight)
+        return neighbor_dict
+
+
 
     def get_shortest_path(self, start: Tuple[int, int], target: Tuple[int, int]) -> Optional[
         List[Tuple[Tuple[int, int], Direction]]]:
@@ -304,7 +277,11 @@ class Planet:
 
         if self.__is_node_known(target):
             # perform djikstra and return shortest path
-            shortest_path = self.__djikstra(start, target)[0]
+            result = self.__djikstra(start, target)
+            if result is None:
+                return None
+            # else we want only path, not the weight
+            shortest_path = result[0]
             return shortest_path
         else:
             # continue exploration until target is found
@@ -332,7 +309,7 @@ class Planet:
 
         self.unexplored[node].add(dir)
 
-    def get_next_exploration_dir(self, current_node: Tuple[int, int]) -> Direction or None:
+    def get_next_exploration_dir(self, current_node: Tuple[int, int]) -> Optional[Direction]:
         """
 
         Continue exploring planet by going to the nextnearest node which has an unexplored dir
@@ -345,7 +322,7 @@ class Planet:
             - None if whole map has been explored
 
         """
-        if not self.unexplored:
+        if not self.unexplored and not self.unexplored_nodes:
             # planet is fully explored!!!
             return None
 
@@ -353,8 +330,16 @@ class Planet:
             # continue exploring that current node (->dfs)
             return next(iter(self.unexplored[current_node]))
 
+        all_unexplored_nodes = list(self.unexplored.keys())+self.unexplored_nodes
         # shortest_paths are a list of the form [(Path, weight)]
-        shortest_paths = [self.__djikstra(current_node, target) for target in self.unexplored]
+        shortest_paths = [self.__djikstra(current_node, target) for target in all_unexplored_nodes]
+        # remove all None values bc they cant be compared in min function
+        shortest_paths = list(filter(lambda x: x != None, shortest_paths))
+
+        if not shortest_paths:
+            # nothing to explore anymore
+            return None
+
         shortest_path = min(shortest_paths, key=operator.itemgetter(1))
         next_path_without_weight = shortest_path[0]  # format: List[Tuple[node, Direction]]
         # TODO: check that next_dir really accesses the direction-element!
