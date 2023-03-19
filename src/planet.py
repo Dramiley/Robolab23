@@ -125,6 +125,9 @@ class Planet:
 
         if start_coords in self.unexplored.keys() and start_exit_dir in self.unexplored[start_coords]:
             self.__mark_dir_explored(start_coords, start_exit_dir)
+        if target_coords in self.unexplored.keys() and target_entry_dir in self.unexplored[target_coords]:
+            self.__mark_dir_explored(target_coords, target_entry_dir)
+
 
     def get_paths(self) -> Dict[Tuple[int, int], Dict[Direction, Tuple[Tuple[int, int], Direction, Weight]]]:
         """
