@@ -297,7 +297,7 @@ class Controller:
          siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
          """
         # when arrived at a node that has been unveiled by server but not explored yet, remove it from unexplored_nodes
-        if (startX, startY) in self.planet.unexplored_nodes:
+        if (endX, endY) in self.planet.unexplored_nodes:
             self.planet.unexplored_nodes.remove((endX, endY))
 
         # init odometry
