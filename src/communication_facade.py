@@ -105,7 +105,7 @@ class CommunicationFacade:
           }
         }''' % (startX, startY, int(startDirection) % 360, endX, endY, int(endDirection) % 360, pathStatus, pathWeight))
 
-    def target_reached(self, message):
+    def target_reached(self, message="I'm home!"):
         """
         Sends a targetReached message to the server
         :param message: The message

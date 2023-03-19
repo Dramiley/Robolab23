@@ -292,7 +292,7 @@ class Controller:
         """
         Wird aufgerufen, wenn das Ziel erreicht wurde
         """
-        self.communication.target_reached("Target reached.")
+        self.communication.target_reached()
         print("Target reached.")
         self.target_pos = None
 
@@ -409,4 +409,4 @@ class Controller:
         """
         print("Tadaaa!!! " + message)
         self.robot.stop()
-        self.communication.done()
+        self.communication.communication.done()
