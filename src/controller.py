@@ -290,6 +290,7 @@ class Controller:
         Wird aufgerufen, wenn das Ziel erreicht wurde
         """
         self.communication.target_reached("Target reached.")
+        print("Target reached.")
         self.target_pos = None
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
