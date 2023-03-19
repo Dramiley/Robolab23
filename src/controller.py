@@ -122,7 +122,7 @@ class Controller:
         # actual movement is performed on receive_path_select :)
 
         self.next_dir = next_dir
-        time.sleep(3.2)
+        time.sleep(3.2) # wait for possible change of self.next_dir by path_select msg from server
         self.drive_to_next_dir()
 
     def __explore(self) -> Optional[Direction]:
@@ -135,7 +135,7 @@ class Controller:
         next_dir = self.planet.get_next_exploration_dir((self.last_position.x, self.last_position.y))
 
         if next_dir == None:
-            # planet has been explored completely->there is nothing to explore anymore
+            # planet has been explored completely or unexplored nodes are unreachable->there is nothing to explore anymore
             self.communication.exploration_completed()
             return None
 

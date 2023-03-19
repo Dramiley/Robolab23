@@ -68,7 +68,6 @@ class Planet:
 
         self.unexplored = {}  # dict keeping track of unexplored paths of the format node: Set[Direction] which are the unexplored directions
         self.unexplored_nodes = [] # list of unexplored nodes (dont know in which dir, result from unveiling paths with unexplored nodes)
-        self.computations_uptodate = False
 
     def __is_node_known(self, node: Tuple[int, int]) -> bool:
         """
@@ -307,7 +306,7 @@ class Planet:
 
         self.unexplored[node].add(dir)
 
-    def get_next_exploration_dir(self, current_node: Tuple[int, int]) -> Direction or None:
+    def get_next_exploration_dir(self, current_node: Tuple[int, int]) -> Optional[Direction]:
         """
 
         Continue exploring planet by going to the nextnearest node which has an unexplored dir
@@ -320,7 +319,7 @@ class Planet:
             - None if whole map has been explored
 
         """
-        if not self.unexplored:
+        if not self.unexplored and not self.unexplored_nodes:
             # planet is fully explored!!!
             return None
 
@@ -328,8 +327,9 @@ class Planet:
             # continue exploring that current node (->dfs)
             return next(iter(self.unexplored[current_node]))
 
+        all_unexplored_nodes = list(self.unexplored.keys())+self.unexplored_nodes
         # shortest_paths are a list of the form [(Path, weight)]
-        shortest_paths = [self.__djikstra(current_node, target) for target in self.unexplored]
+        shortest_paths = [self.__djikstra(current_node, target) for target in all_unexplored_nodes]
         shortest_path = min(shortest_paths, key=operator.itemgetter(1))
         next_path_without_weight = shortest_path[0]  # format: List[Tuple[node, Direction]]
         # TODO: check that next_dir really accesses the direction-element!
