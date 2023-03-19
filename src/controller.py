@@ -94,7 +94,10 @@ class Controller:
         """
 
         # let robot check paths on the node he is on and register it in planet.unexplored
-        self.__check_explorable_paths()
+        current_node = (self.last_position.x, self.last_position.y)
+        if not (current_node in self.paths.keys() and current_node not in self.unexplored_nodes):
+            # ->we havent scanned that node yet
+            self.__check_explorable_paths()
         # pdb.set_trace()
 
         next_dir = None
@@ -107,6 +110,8 @@ class Controller:
                 # we are already at target
                 # TODO: check whether programs really ends here (see https://robolab.inf.tu-dresden.de/spring/task/communication/msg-complete/)
                 self.__target_reached()
+                # end program
+                return
             elif shortest_path == None:
                 # target is unreachable
                 # TODO: what if we had a target and received an unreachable one->we don't have any target anymore, right?
@@ -399,5 +404,5 @@ class Controller:
         Wurde das Ziel tatsächlich erreicht bzw. die gesamte Karte aufgedeckt, antwortet der Server mit einer Bestätigung vom Typ done (3) und dem Ende der Erkundung.
         """
         print("Tadaaa!!! " + message)
-        self.robot.__stop()
+        self.robot.stop()
         self.communication.done()
