@@ -121,6 +121,9 @@ class Controller:
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
 
+        if next_dir == None:
+            self.communication.target_reached()
+
         self.next_dir = next_dir
         time.sleep(3.2) # wait for possible change of self.next_dir by path_select msg from server
         self.drive_to_next_dir()
