@@ -132,6 +132,7 @@ class Controller:
         Let the robo have some fun and explore the planet on it's own
         """
         print("self.planet.unexplored: " + str(self.planet.unexplored))
+        print(f"self.planet.unexplored_nodes: {self.planet.unexplored_nodes} ")
         next_dir = self.planet.get_next_exploration_dir((self.last_position.x, self.last_position.y))
 
         if next_dir == None:
