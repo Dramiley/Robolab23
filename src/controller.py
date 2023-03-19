@@ -126,14 +126,13 @@ class Controller:
             next_dir = self.__explore()
 
         if next_dir == None:
-            self.communication.target_reached()
+            self.__target_reached()
         print("next dir: " + str(next_dir) + ". will publish path_select/")
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
 
-
         self.next_dir = next_dir
-        time.sleep(3.2) # wait for possible change of self.next_dir by path_select msg from server
+        time.sleep(3.2)  # wait for possible change of self.next_dir by path_select msg from server
         self.drive_to_next_dir()
 
     def __explore(self) -> Optional[Direction]:
@@ -148,7 +147,7 @@ class Controller:
 
         if next_dir == None:
             # planet has been explored completely or unexplored nodes are unreachable->there is nothing to explore anymore
-            self.communication.exploration_completed()
+            self.__target_reached()
             return None
 
         return next_dir
@@ -292,8 +291,10 @@ class Controller:
         """
         Wird aufgerufen, wenn das Ziel erreicht wurde
         """
-        self.communication.target_reached()
-        print("Target reached.")
+        if self.target_pos[0] == self.last_position.x and self.target_pos[1] == self.last_position.y:
+            self.communication.target_reached()
+        else:
+            self.communication.exploration_completed()
         self.target_pos = None
 
     def receive_path(self, startX, startY, startDirection, endX, endY, endDirection, pathStatus, pathWeight):
