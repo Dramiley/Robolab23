@@ -294,9 +294,16 @@ class Controller:
         """
         Wird aufgerufen, wenn das Ziel erreicht wurde
         """
+
+        if self.target_pos is None:
+            print("Never got a target position! But we're done!")
+            self.communication.exploration_completed()
+
         if self.target_pos[0] == self.last_position.x and self.target_pos[1] == self.last_position.y:
+            print("Current position is target position!")
             self.communication.target_reached()
         else:
+            print("Current position is not target position!")
             self.communication.exploration_completed()
         self.target_pos = None
 
