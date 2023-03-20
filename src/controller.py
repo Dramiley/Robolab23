@@ -145,7 +145,7 @@ class Controller:
         time.sleep(3.2)  # wait for possible change of self.next_dir by path_select msg from server
 
         # make a really short beep to indicate that the communication for this point is done
-        ev3.Sound.tone([(2000, 100, 50)]).wait()
+        ev3.Sound.tone([(1400, 200, 150)]).wait()
 
         self.drive_to_next_dir()
 
@@ -276,7 +276,7 @@ class Controller:
         """
 
         # make a really short beep to indicate that we reached a communication point
-        ev3.Sound.tone([(2000, 100, 50)]).wait()
+        ev3.Sound.tone([(1500, 100, 150)]).wait()
 
         if (self.last_position is None):
             return
@@ -284,9 +284,6 @@ class Controller:
         # calculate start and end position
         start_position = self.last_position
 
-        self.odometry.set_position((start_position.x, start_position.y))
-        self.odometry.set_direction(start_position.direction)
-        end_position = None
         self.odometry.calculatePosition(self.robot.motor_pos_list, lastNodeColor=self.last_node_color,
                                         currentNodeColor=self.current_node_color)
         self.last_node_color = self.current_node_color
