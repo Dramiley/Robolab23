@@ -49,7 +49,7 @@ class Robot:
         self.current_dir = start_dir  # keeps track of robot's direction
 
         try:
-            self.color = ms.ColorDetector()
+            self.color = ms.ColorDetector(self.controller)
         except Exception as e:
             print("Could not initialize color sensors wrapper ")
             print(e)

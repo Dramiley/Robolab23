@@ -1,11 +1,15 @@
 import ev3dev.ev3 as ev3
 
+from src.odometry import Color
+
 
 class ColorDetector:
-    def __init__(self):
+    def __init__(self, controller):
         self.name = ''
         self.greytone = 0
         self.subname = ''
+
+        self.controller = controller
 
         try:
             self.cs = ev3.ColorSensor()
@@ -20,10 +24,12 @@ class ColorDetector:
             if self.cs.red > 120 and self.cs.blue < 80 and self.cs.green < 80:
                 self.name = 'red'
                 self.subname = 'red'
+                self.controller.last_node_color = Color.RED
                 # print(self.name)
             elif self.cs.red < 60 and self.cs.blue > 100 and self.cs.green > 90:
                 self.name = 'blue'
                 self.subname = 'blue'
+                self.controller.last_node_color = Color.BLUE
             else:
                 self.name = 'grey'
                 self.greytone = (self.cs.red + self.cs.blue + self.cs.green) // 3

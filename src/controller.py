@@ -23,7 +23,7 @@ from ev3dev import ev3
 from ev3dev.core import Sound
 
 from communication import Communication
-from odometry import Odometry
+from odometry import Odometry, Color
 from planet import Planet, Direction
 
 
@@ -47,6 +47,9 @@ class Controller:
         self.planet = None
         self.last_position = None  # stores the last position we were at
         self.target_pos = None
+
+        self.last_node_color = Color.UNDEFINED
+        self.current_node_color = Color.UNDEFINED
 
         # setup communication
         self.communication = Communication(client, None).facade
@@ -190,8 +193,8 @@ class Controller:
 
         # setup odometry
         self.odometry = Odometry(self.robot)
-        self.odometry.set_coords((startX, startY))
-        self.odometry.set_dir(startOrientation)
+        self.odometry.set_position((startX, startY))
+        self.odometry.set_direction(startOrientation)
 
         print("Planet: " + planetName + ", init position: " + str(startX) + " " + str(startY) + " " + str(
             startOrientation))
@@ -271,10 +274,11 @@ class Controller:
         start_position = self.last_position
 
         end_position = None
-        self.odometry.calculate(self.robot.motor_pos_list)
-        end_coords = self.odometry.get_coords()
-        end_position = Position(self.odometry.get_coords()[0], self.odometry.get_coords()[1],
-                                self.odometry.get_dir())
+        self.odometry.calculatePosition(self.robot.motor_pos_list, lastNodeColor=self.last_node_color, currentNodeColor=self.current_node_color)
+        self.last_node_color = self.current_node_color
+        end_coords = self.odometry.get_position()
+        end_position = Position(self.odometry.get_position()[0], self.odometry.get_position()[1],
+                                self.odometry.get_direction())
 
         is_path_blocked = self.robot.was_path_blocked
 
@@ -331,8 +335,8 @@ class Controller:
             self.planet.unexplored_nodes.remove((endX, endY))
 
         # init odometry
-        self.odometry.set_coords((startX, startY))
-        self.odometry.set_dir(startDirection)
+        self.odometry.set_position((startX, startY))
+        self.odometry.set_direction(startDirection)
 
         # update odometry inside planet
         self.planet.add_path(((startX, startY), Direction(startDirection)), ((endX, endY), Direction(endDirection)),
@@ -387,7 +391,7 @@ class Controller:
         # NOTE: Make sure robo received the right path_select (ESPECIALLY NOT the fake server response)
 
         # update last position and path status
-        self.odometry.set_dir(startDirection)
+        self.odometry.set_direction(startDirection)
 
         print(f"next dir. move from {self.last_position.direction} to: {startDirection}")
 

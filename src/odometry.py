@@ -93,3 +93,9 @@ class Odometry:
     def set_direction(self, direct: Direction):
         self.direction = direct
 
+    def get_position(self):
+        return (self.x_position, self.y_position)
+
+    def get_direction(self):
+        return self.direction
+
