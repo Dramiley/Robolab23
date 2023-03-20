@@ -57,8 +57,8 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        # if we are before 2023-03-20 04:00:00 GMT, we are in the test phase
-        if time.time() < 1679281200:
+        exam = False
+        if not exam:
             test_planet = input("Test Planet name: (leave empty for default)")
             if test_planet == "":
                 test_planet = "Anin"
