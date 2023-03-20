@@ -26,7 +26,6 @@ class Robot:
 
         # DEFS
         self.SPEED = 155  # speed of the motors, 150 is working
-
         self.controller = controller
         self.color: ms.ColorDetector = None
         self.obj_detec: ms.ObjectDetector = None

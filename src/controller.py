@@ -80,6 +80,11 @@ class Controller:
         # Euer Roboter wird vom Mutterschiff auf einem fernen Planeten nahe einer beliebigen Versorgungsstation
         # abgesetzt, Anfahrtsweg fahren
         self.robot.begin()
+
+
+        # have another short tone to indicate that we are ready to go
+        ev3.Sound.tone([(1000, 100, 50)]).wait()
+
         self.communication.ready()
 
         while True:
@@ -200,7 +205,7 @@ class Controller:
         self.planet = Planet()
 
         # setup odometry
-        self.odometry = Odometry(self.robot)
+        self.odometry = Odometry()
         self.odometry.set_position((startX, startY))
         self.odometry.set_direction(startOrientation)
 
@@ -288,8 +293,14 @@ class Controller:
                                         currentNodeColor=self.current_node_color)
         self.last_node_color = self.current_node_color
 
+        """
         end_position = Position(self.odometry.get_position()[0], self.odometry.get_position()[1],
                                 (self.odometry.get_direction()) % 360)
+        """
+
+        end_position = Position(start_position.x+self.odometry.get_delta()[0], start_position.y+self.odometry.get_delta()[1], self.odometry.get_direction())
+
+        print("ODO via DELTA: from " + str(start_position.x) + " " + str(start_position.y) + " " + str(start_position.direction) + " to " + str(end_position.x) + " " + str(end_position.y) + " " + str(end_position.direction))
 
         is_path_blocked = self.robot.was_path_blocked
 

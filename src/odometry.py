@@ -19,6 +19,8 @@ class Odometry:
         self.count_per_rot = 360
         self.grid_size = 50#cm
 
+        self.delta = (0,0)
+
         self.x_position = 0
         self.y_position = 0
         self.direction = Direction.NORTH
@@ -45,10 +47,11 @@ class Odometry:
 
             oldL = d[0]
             oldR = d[1]
-        print("Deltas in cm: ",deltaX,";",deltaY)
 
         roundedGridX = round(deltaX/self.grid_size)
         roundedGridY = round(deltaY/self.grid_size)
+
+        print("ODO rounded deltas: ", roundedGridX, " ", roundedGridY)
 
         self.direction = Direction((round(math.degrees(self.direction)/90)*90)%360)
 
@@ -72,10 +75,11 @@ class Odometry:
 
                 self.x_position,self.y_position = dDict[min(dDict.keys())]  
                 return          
-        
+
         self.x_position += roundedGridX
         self.y_position += roundedGridY
-        
+
+        self.delta = (roundedGridX, roundedGridY)
 
     def __calculateDelta(self, d: Tuple[int,int]):
         dl = (d[0]/self.count_per_rot)*self.wheel_diameter*math.pi
@@ -89,8 +93,6 @@ class Odometry:
         delY = s*math.cos(self.direction+beta)
         delDir = 2*beta
 
-        print("ODO Delta: ",delX,";",delY,";",delDir)
-
         return (delX,delY,delDir)
 
     def set_position(self, coord: Tuple[int, int]):
@@ -101,9 +103,10 @@ class Odometry:
         self.direction = direct
 
     def get_position(self):
-        print("ODO Counter: ",self.counter)
-        self.counter = 0
         return (self.x_position, self.y_position)
+
+    def get_delta(self):
+        return self.delta
 
     def get_direction(self):
         return self.direction
