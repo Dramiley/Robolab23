@@ -1,6 +1,6 @@
 import ev3dev.ev3 as ev3
 
-from src.odometry import Color
+from odometry import Color
 
 
 class ColorDetector:
@@ -40,7 +40,7 @@ class ColorDetector:
                 elif self.greytone > 100 and self.greytone < 230:
                     self.subname = 'grey'
         except Exception as e:
-            print("Could not initialize color sensors: {e}")
+            print(f"Could not color check: {e}")
 
 
 class ObjectDetector:

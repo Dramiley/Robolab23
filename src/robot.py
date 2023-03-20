@@ -23,12 +23,12 @@ class Robot:
 
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH,
-                 stop=False):
+                 stop=False, controller=None):
 
         # DEFS
         self.SPEED = 150 # speed of the motors, 150 is working
 
-        self.controller = None
+        self.controller = controller
         self.color: ms.ColorDetector = None
         self.obj_detec: ms.ObjectDetector = None
         self.middlegreytone = 170

@@ -64,9 +64,9 @@ class Controller:
         self.communication.test_planet(test_planet)
 
         from robot import Robot
-        self.robot = Robot()
-        self.robot.calibrate()
+        self.robot = Robot(controller=self)
         self.robot.set_controller(self)
+        self.robot.calibrate()
 
         # setup callbacks
         self.__init_callbacks()
@@ -274,13 +274,18 @@ class Controller:
         start_position = self.last_position
 
         end_position = None
-        self.odometry.calculatePosition(self.robot.motor_pos_list, lastNodeColor=self.last_node_color, currentNodeColor=self.current_node_color)
+        self.odometry.calculatePosition(self.robot.motor_pos_list, lastNodeColor=self.last_node_color,
+                                        currentNodeColor=self.current_node_color)
         self.last_node_color = self.current_node_color
-        end_coords = self.odometry.get_position()
+
         end_position = Position(self.odometry.get_position()[0], self.odometry.get_position()[1],
-                                self.odometry.get_direction())
+                                (self.odometry.get_direction()+180)%360)
 
         is_path_blocked = self.robot.was_path_blocked
+
+        print("ODO: from " + str(start_position.x) + " " + str(start_position.y) + " " + str(
+            start_position.direction) + " to " + str(end_position.x) + " " + str(end_position.y) + " " + str(
+            end_position.direction) + " " + (is_path_blocked and "blocked" or "free"))
 
         if is_path_blocked:
             # bugfix bug described in telegram audio memo from 2023-03-18 10:24 @Dominik

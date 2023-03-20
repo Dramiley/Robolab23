@@ -13,9 +13,9 @@ class Color(IntEnum):
     RED = 2
 
 class Odometry:
-    def __init__(self, wheel_distance, wheel_diameter):        
-        self.wheel_distance = wheel_distance
-        self.wheel_diameter = wheel_diameter
+    def __init__(self, wheel_distance=12.3, wheel_diameter=5.5):
+        self.wheel_distance = 12.3
+        self.wheel_diameter = 5.5
         self.count_per_rot = 360
         self.grid_size = 50#cm
 
