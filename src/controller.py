@@ -404,9 +404,10 @@ class Controller:
 
         print(f"next dir. move from {self.last_position.direction} to: {startDirection}")
 
-        self.rotate_robo_in_dir(Direction(startDirection))
-        print(startDirection)
-        self.robot.drive_until_communication_point()
+        # if startDirection  is noe None
+        if startDirection is not None:
+            self.rotate_robo_in_dir(Direction(startDirection))
+            self.robot.drive_until_communication_point()
 
     def receive_target(self, targetX, targetY):
         """
