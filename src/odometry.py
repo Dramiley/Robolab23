@@ -1,137 +1,95 @@
 # !/usr/bin/env python3
+
+# Attention: Do not import the ev3dev.ev3 module in this file
 import math
-import time
-import logging
-import pdb
-from threading import Thread
-from typing import Tuple, List
-from communication_facade import CommunicationFacade
-
 from planet import Direction
-from robot import Robot
+from typing import Tuple, List
+from enum import IntEnum, unique
 
+@unique
+class Color(IntEnum):
+    UNDEFINED = 0
+    BLUE = 1
+    RED = 2
 
 class Odometry:
+    def __init__(self, wheel_distance, wheel_diameter):        
+        self.wheel_distance = wheel_distance
+        self.wheel_diameter = wheel_diameter
+        self.count_per_rot = 360
+        self.grid_size = 50#cm
 
-    def __init__(self, robot: Robot, track_interval: int = 0.5):
-        """
-        Initializes odometry module
+        self.x_position = 0
+        self.y_position = 0
+        self.direction = Direction.NORTH
+    
+    def calculatePosition(self, motorValues: List[Tuple[int,int]], lastNodeColor: Color=Color.UNDEFINED, currentNodeColor: Color=Color.UNDEFINED):
+        deltaX = 0
+        deltaY = 0
 
-        Parameters:
-            track_interval (int): motor pos is read every track_interval seconds
-        """
+        oldL=motorValues[0][0]
+        oldR=motorValues[0][1]
 
-        # YOUR CODE FOLLOWS (remove pass, please!)
+        self.direction = math.radians(self.direction)
+        
+        for d in motorValues:
+            delta = self.__calculateDelta((d[0]-oldL,d[1]-oldR))
+            deltaX += delta[0]
+            deltaY += delta[1]
+            self.direction -= delta[2]
 
-        # TODO: wheel_d should be an attribute of Robot Class
-        self.wheel_d = 12.3  # wheel distance in cm
+            oldL = d[0]
+            oldR = d[1]
+        print("Deltas in cm: ",deltaX,";",deltaY)
 
-        self.robot = robot
+        roundedGridX = round(deltaX/self.grid_size)
+        roundedGridY = round(deltaY/self.grid_size)
 
-        self.tracking_interval = track_interval
+        self.direction = Direction((round(math.degrees(self.direction)/90)*90)%360)
 
-        # odometry should be running only when told so
-        self.running = False
+        if lastNodeColor is not Color.UNDEFINED and currentNodeColor is not Color.UNDEFINED:
+            if (lastNodeColor == currentNodeColor and (roundedGridX+roundedGridY)%2 != 0) or (lastNodeColor != currentNodeColor and (roundedGridX+roundedGridY)%2 == 0):
+                #korrektur
+                deltaX /= self.grid_size
+                deltaY /= self.grid_size
 
-        self.tracking_thread = None
+                cXn = roundedGridX-1
+                cXp = roundedGridX+1
+                cYn = roundedGridY-1
+                cYp = roundedGridY+1
 
-        self.__calc_parameters()
+                # verwende satz des pythagoras um nächstliegenden roten knoten zu berechnen
+                dDict = {}
+                dDict[(cXn-deltaX)**2+(roundedGridY-deltaY)**2] = (cXn,roundedGridY)
+                dDict[(roundedGridX-deltaX)**2+(cYp-deltaY)**2] = (roundedGridX, cYp)
+                dDict[(roundedGridX-deltaX)**2+(cYn-deltaY)**2] = (roundedGridX, cYn)
+                dDict[(cXp-deltaX)**2+(roundedGridY-deltaY)**2] = (cXp,roundedGridY)
 
-    def get_coords(self) -> Tuple[int, int]:
-        """
-        Returns current coords based on self.current_pos by rounding cm to coordinates (nearest multiple of 50cm)
-        """
-        RASTER_WIDTH = 50  # fixed
-        delta_x = self.current_pos[0]
-        delta_y = self.current_pos[1]
+                self.x_position,self.y_position = dDict[min(dDict.keys())]  
+                return          
+        
+        self.x_position += roundedGridX
+        self.y_position += roundedGridY
+        
 
-        sign_x = math.copysign(1, delta_x)  # because python has no built-in sign function :-|
-        sign_y = math.copysign(1, delta_y)  # because python has no built-in sign function :-|
+    def __calculateDelta(self, d: Tuple[int,int]):
+        dl = (d[0]/self.count_per_rot)*self.wheel_diameter*math.pi
+        dr = (d[1]/self.count_per_rot)*self.wheel_diameter*math.pi
+        beta = (dr-dl)/(self.wheel_distance*2)
+        try:
+            s = ((dr+dl)/(2*beta))*math.sin(beta)
+        except ZeroDivisionError:
+            s = dl
+        delX = s*math.sin(self.direction+beta)
+        delY = s*math.cos(self.direction+beta)
+        delDir = 2*beta
 
-        delta_coords_x = ((abs(delta_x) + RASTER_WIDTH / 2) // 50) * 50
-        delta_coords_y = ((abs(delta_y) + RASTER_WIDTH / 2) // 50) * 50
+        return (delX,delY,delDir)
 
-        new_coords_x = int(self.start_pos_coords[0] + sign_x * delta_coords_x)
-        new_coords_y = int(self.start_pos_coords[1] + sign_y * delta_coords_y)
-        # print(f"New coords x: {new_coords_x}, New coords y: {new_coords_y}")
+    def set_position(self, coord: Tuple[int, int]):
+        self.x_position = coord[0]
+        self.y_position = coord[1]
+    
+    def set_direction(self, direct: Direction):
+        self.direction = direct
 
-        return (new_coords_x, new_coords_y)
-
-    def get_dir(self) -> int:
-        """
-        Returns current orientation direction based on current_dir
-        """
-        self.current_dir = self.current_dir % 360  # makes sure self.current_dir is positive
-        return ((self.current_dir + 45) // 90) * 90  # +45 makes sure that values nearer to 90 than 0 are rounded up
-
-    def set_dir(self, dir: Direction):
-        self.current_dir = dir
-
-    def set_coords(self, coords: Tuple[int, int]):
-        self.start_pos_coords = coords
-
-    def __calc_parameters(self):
-        wheel_radius = 2.7  # in cm
-        wheel_circumference = 2 * math.pi * wheel_radius
-
-        # TODO: do count_per_rot have the same value for both motors?
-        tacho_c_per_rot_r = self.robot.motor_left.count_per_rot
-        # TODO: is distance_per_tick given somewhere??
-        self.distance_per_tick = wheel_circumference / tacho_c_per_rot_r
-
-    def calculate(self, track_list: List[Tuple[int, int]]):
-        """
-        Calculates all required values based on tracked pos_values
-
-        Note: list comprehension idea taken from https://stackoverflow.com/a/5314307/20675205
-        """
-        # current pos is relative
-        self.current_pos = (0, 0)
-
-        #  get diffs to calculate from
-        diffs = [[n_l - f_l, n_r - f_r] for [f_l, f_r], [n_l, n_r] in zip(track_list, track_list[1:])]
-
-        # based on diffs and distance_per_tick d_r and d_l can be calculated
-        distances = [[l * self.distance_per_tick, r * self.distance_per_tick] for [l, r] in diffs]
-        d_s = [0.5 * (d_l + d_r) for [d_l, d_r] in distances]
-        alpha = [(d_r - d_l) / self.wheel_d for [d_l, d_r] in distances]
-
-        r_s = [d / self.wheel_d for d in d_s]
-        # TODO: for alpha=0 we have to set s=d_l (or =d_r=d_s, doesn't matter)
-        s = [self.__get_driven_distance(r, al) for [r, al] in zip(r_s, alpha)]
-
-        # Calculate positions
-
-        for angle, distance in zip(alpha, s):
-            dir_vector = (math.cos(self.current_dir), math.sin(self.current_dir))  # unit vector denoting the direction
-
-            # get vector which points towards new point
-            rotated_vector = self.__rotate_vector_by_deg(dir_vector, angle / 2)
-            # calculate new position coordinates
-            new_pos_x = (distance * rotated_vector[0]) + self.current_pos[0]
-            new_pos_y = (distance * rotated_vector[1]) + self.current_pos[1]
-            self.current_pos = (new_pos_x, new_pos_y)
-            # update dir
-            self.current_dir += angle
-
-        # pdb.set_trace()
-
-    def __get_driven_distance(self, r: int, al: int) -> int:
-        """
-        Returns distance s traveled by a wheel on circle with radius r and al
-        """
-        if al:
-            return 2 * r * math.sin(al / 2)
-
-        # alpha=0 -> traveled straight line->s=d
-        return r * self.wheel_d
-
-    def __rotate_vector_by_deg(self, vec: Tuple[int, int], deg: int) -> Tuple[int, int]:
-        # rot_matrix = [
-        #     [math.cos(deg), -math.sin(deg)],
-        #     [math.sin(deg), math.cos(deg)]
-        # ]
-        # return dot product of rot_matrix and vec
-        x_new = vec[0] * math.cos(deg) - vec[1] * math.sin(deg)
-        y_new = vec[0] * math.sin(deg) + vec[1] * math.cos(deg)
-        return (x_new, y_new)
