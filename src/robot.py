@@ -65,6 +65,7 @@ class Robot:
         """
         motor_pos_left = self.motor_left.position
         motor_pos_right = self.motor_right.position
+        self.controller.odometry.counter += 1
         self.motor_pos_list.append([motor_pos_left, motor_pos_right])
 
     def __reset_motor_pos_list(self):
@@ -90,20 +91,19 @@ class Robot:
 
     def scan_turn(self, forward=True):
         starttime = time.time()
-        self.motor_left.run_timed(time_sp=1400+(0 if forward else 600), speed_sp=131 * (1 if forward else -1))
-        self.motor_right.run_timed(time_sp=1400+(0 if forward else 600), speed_sp=-131 * (1 if forward else -1))
+        self.motor_left.run_timed(time_sp=1400 + (0 if forward else 600), speed_sp=131 * (1 if forward else -1))
+        self.motor_right.run_timed(time_sp=1400 + (0 if forward else 600), speed_sp=-131 * (1 if forward else -1))
 
         while self.color.subname != 'black' and time.time() - starttime <= 2:
             self.color.color_check()
         self.stop()
-        
+
         if not forward:
             self.motor_left.run_timed(time_sp=400, speed_sp=-131)
             self.motor_right.run_timed(time_sp=400, speed_sp=131)
             while self.color.subname != 'white' and time.time() - starttime <= 1:
                 self.color.color_check()
             self.stop()
-            
 
     def __speak(self, text):
         try:
