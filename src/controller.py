@@ -283,7 +283,7 @@ class Controller:
         self.last_node_color = self.current_node_color
 
         end_position = Position(self.odometry.get_position()[0], self.odometry.get_position()[1],
-                                (self.odometry.get_direction() + 180) % 360)
+                                (self.odometry.get_direction()) % 360)
 
         is_path_blocked = self.robot.was_path_blocked
 
@@ -301,7 +301,7 @@ class Controller:
 
         # send path to mothership for verification
         self.communication.path(start_position.x, start_position.y, start_position.direction, end_position.x,
-                                end_position.y, end_position.direction, path_status)
+                                end_position.y, (end_position.direction + 180) % 360, path_status)
 
     def __target_reached(self):
         """
