@@ -57,11 +57,15 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        test_planet = input("Test Planet name: (leave empty for default)")
-        if test_planet == "":
-            test_planet = "Anin"
-        print("Test Planet: " + test_planet)
-        self.communication.test_planet(test_planet)
+        # if we are before 2023-03-20 04:00:00 GMT, we are in the test phase
+        if time.time() < 1679281200:
+            test_planet = input("Test Planet name: (leave empty for default)")
+            if test_planet == "":
+                test_planet = "Anin"
+            print("Test Planet: " + test_planet)
+            self.communication.test_planet(test_planet)
+        else:
+            print("Test phase over due to exam")
 
         from robot import Robot
         self.robot = Robot(controller=self)
@@ -279,7 +283,7 @@ class Controller:
         self.last_node_color = self.current_node_color
 
         end_position = Position(self.odometry.get_position()[0], self.odometry.get_position()[1],
-                                (self.odometry.get_direction()+180)%360)
+                                (self.odometry.get_direction() + 180) % 360)
 
         is_path_blocked = self.robot.was_path_blocked
 
