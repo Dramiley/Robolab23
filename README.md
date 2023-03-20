@@ -1,4 +1,8 @@
-# RoboLab Spring Template
+# RoboLab Spring 
+
+![Banner Image](banner.jpg)
+Der RL-2000X Master PRO auf Mission auf dem Planeten Curry.
+
 
 Template for the RoboLab course in spring which is conducted by the Systems Engineering Group at the Department of
 Computer Science, TU Dresden.
