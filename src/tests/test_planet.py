@@ -205,7 +205,26 @@ class TestRoboLabPlanet(unittest.TestCase):
         self.anin.add_possible_unexplored_path((13, 4), Direction.NORTH)
 
         # TODO: mothership unveals E
-
+    def setup_loop(self):
+        self.loop = Planet()
+        # (0,0)
+        self.loop.add_path(((0, 0), Direction.NORTH), ((0, 1), Direction.SOUTH), 1)
+        self.loop.add_path(((0, 0), Direction.EAST), ((1, 0), Direction.WEST), 1)
+        # (0,1)
+        self.loop.add_path(((0, 1), Direction.SOUTH), ((0, 0), Direction.NORTH), 1)
+        self.loop.add_path(((0, 1), Direction.EAST), ((1, 1), Direction.WEST), 1)
+        # (1,1)
+        self.loop.add_path(((1, 1), Direction.WEST), ((0, 1), Direction.EAST), 1)
+        self.loop.add_path(((1, 1), Direction.SOUTH), ((1, 0), Direction.NORTH), 1)
+        self.loop.add_path(((1, 1), Direction.NORTH), ((1, 2), Direction.SOUTH), 1)
+        # (1,0)
+        self.loop.add_path(((1, 0), Direction.NORTH), ((1, 1), Direction.SOUTH), 1)
+        self.loop.add_path(((1, 0), Direction.WEST), ((0, 0), Direction.EAST), 1)
+        # (1,2)
+        self.loop.add_path(((1, 2), Direction.SOUTH), ((1, 1), Direction.NORTH), 1)
+        self.loop.add_path(((1, 2), Direction.NORTH), ((1, 3), Direction.SOUTH), 1)
+        # (1,3)
+        self.loop.add_path(((1, 3), Direction.SOUTH), ((1, 2), Direction.NORTH), 1)
 
     def setup_john(self):
         """
@@ -349,8 +368,20 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Result: Target is reachable
         """
-        self.fail('implement me!')
-
+        self.setup_loop()
+        start = (0, 0)
+        target = (1, 3)
+        shortest_path = self.loop.get_shortest_path(start, target)
+        
+        shortest_path_should1 = [
+            ((0, 0), Direction.NORTH), ((0, 1), Direction.EAST), ((1, 1, Direction.NORTH)), ((1, 2), Direction.NORTH), ((1, 3), None)
+        ]
+        shortest_path_should2 = [
+            ((0, 0), Direction.EAST), ((1, 0), Direction.NORTH), ((1, 1), Direction.NORTH), ((1, 2), Direction.NORTH), ((1, 3), None)
+        ]
+        self.assertEqual(shortest_path, shortest_path_should1)
+        self.assertEqual(shortest_path, shortest_path_should2)
+        
     def test_target_not_reachable_with_loop(self):
         """
         This test should check that the shortest-path algorithm does not get stuck in a loop between two points while
