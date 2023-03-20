@@ -25,7 +25,7 @@ class Robot:
                  stop=False):
 
         # DEFS
-        self.SPEED = 150  # speed of the motors, 150 is working
+        self.SPEED = 155  # speed of the motors, 150 is working
 
         self.controller = None
         self.color: ms.ColorDetector = None
@@ -90,8 +90,8 @@ class Robot:
 
     def scan_turn(self, forward=True):
         starttime = time.time()
-        self.motor_left.run_timed(time_sp=1400+(0 if forward else 200), speed_sp=131 * (1 if forward else -1))
-        self.motor_right.run_timed(time_sp=1400+(0 if forward else 200), speed_sp=-131 * (1 if forward else -1))
+        self.motor_left.run_timed(time_sp=1400+(0 if forward else 600), speed_sp=131 * (1 if forward else -1))
+        self.motor_right.run_timed(time_sp=1400+(0 if forward else 600), speed_sp=-131 * (1 if forward else -1))
 
         while self.color.subname != 'black' and time.time() - starttime <= 2:
             self.color.color_check()
@@ -100,7 +100,7 @@ class Robot:
         if not forward:
             self.motor_left.run_timed(time_sp=400, speed_sp=-131)
             self.motor_right.run_timed(time_sp=400, speed_sp=131)
-            while self.color.subname != 'white' and time.time() - starttime <= 0.4:
+            while self.color.subname != 'white' and time.time() - starttime <= 1:
                 self.color.color_check()
             self.stop()
             
