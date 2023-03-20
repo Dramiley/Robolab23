@@ -89,6 +89,8 @@ class Odometry:
         delY = s*math.cos(self.direction+beta)
         delDir = 2*beta
 
+        print("ODO Delta: ",delX,";",delY,";",delDir)
+
         return (delX,delY,delDir)
 
     def set_position(self, coord: Tuple[int, int]):
