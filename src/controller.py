@@ -313,8 +313,7 @@ class Controller:
         if self.target_pos is None:
             print("Never got a target position! But we're done!")
             self.communication.exploration_completed()
-
-        if self.target_pos[0] == self.last_position.x and self.target_pos[1] == self.last_position.y:
+        elif self.target_pos[0] == self.last_position.x and self.target_pos[1] == self.last_position.y:
             print("Current position is target position!")
             self.communication.target_reached()
             number_of_beeps = 2
@@ -428,9 +427,15 @@ class Controller:
         # TODO: robot currently would sometimes rotate more than necessary (e.g. target_dir=270, current_dir=0)
         deg_to_rotate = (target_dir - current_dir) % 360
 
+        # instead of three times right, go left once
+        if deg_to_rotate >= 270:
+            self.robot.station_scan(forward=False)
+            deg_to_rotate += 90
+            deg_to_rotate = deg_to_rotate % 360
+
         while deg_to_rotate > 0:
             # use station scan for rotating bc turn_deg is VERY buggy
-            self.robot.station_scan()
+            self.robot.station_scan(forward=True)
             deg_to_rotate -= 90
 
         self.last_position.direction = target_dir
