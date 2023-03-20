@@ -143,6 +143,10 @@ class Controller:
 
         self.next_dir = next_dir
         time.sleep(3.2)  # wait for possible change of self.next_dir by path_select msg from server
+
+        # make a really short beep to indicate that the communication for this point is done
+        ev3.Sound.tone([(2000, 100, 50)]).wait()
+
         self.drive_to_next_dir()
 
     def __explore(self) -> Optional[Direction]:
@@ -270,6 +274,9 @@ class Controller:
         Mithilfe der Odometrie schätzt er dabei seine neue Position ab.
         :return: void
         """
+
+        # make a really short beep to indicate that we reached a communication point
+        ev3.Sound.tone([(2000, 100, 50)]).wait()
 
         if (self.last_position is None):
             return
@@ -435,12 +442,11 @@ class Controller:
         deg_to_rotate = (target_dir - current_dir) % 360
 
         # instead of three times right, go left once
-        
+
         if deg_to_rotate >= 270:
             self.robot.station_scan(forward=False)
             deg_to_rotate += 90
             deg_to_rotate = deg_to_rotate % 360
-        
 
         while deg_to_rotate > 0:
             # use station scan for rotating bc turn_deg is VERY buggy
