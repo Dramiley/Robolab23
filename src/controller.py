@@ -23,7 +23,7 @@ from ev3dev import ev3
 from ev3dev.core import Sound
 
 from communication import Communication
-from odometry import Odometry
+from odometry import Odometry, Color
 from planet import Planet, Direction
 
 
@@ -48,22 +48,29 @@ class Controller:
         self.last_position = None  # stores the last position we were at
         self.target_pos = None
 
+        self.last_node_color = Color.UNDEFINED
+        self.current_node_color = Color.UNDEFINED
+
         # setup communication
         self.communication = Communication(client, None).facade
 
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        test_planet = input("Test Planet name: (leave empty for default)")
-        if test_planet == "":
-            test_planet = "Anin"
-        print("Test Planet: " + test_planet)
-        self.communication.test_planet(test_planet)
+        exam = False
+        if not exam:
+            test_planet = input("Test Planet name: (leave empty for default)")
+            if test_planet == "":
+                test_planet = "Anin"
+            print("Test Planet: " + test_planet)
+            self.communication.test_planet(test_planet)
+        else:
+            print("Test phase over due to exam")
 
         from robot import Robot
-        self.robot = Robot()
-        self.robot.calibrate()
+        self.robot = Robot(controller=self)
         self.robot.set_controller(self)
+        self.robot.calibrate()
 
         # setup callbacks
         self.__init_callbacks()
@@ -190,8 +197,8 @@ class Controller:
 
         # setup odometry
         self.odometry = Odometry(self.robot)
-        self.odometry.set_coords((startX, startY))
-        self.odometry.set_dir(startOrientation)
+        self.odometry.set_position((startX, startY))
+        self.odometry.set_direction(startOrientation)
 
         print("Planet: " + planetName + ", init position: " + str(startX) + " " + str(startY) + " " + str(
             startOrientation))
@@ -271,12 +278,18 @@ class Controller:
         start_position = self.last_position
 
         end_position = None
-        self.odometry.calculate(self.robot.motor_pos_list)
-        end_coords = self.odometry.get_coords()
-        end_position = Position(self.odometry.get_coords()[0], self.odometry.get_coords()[1],
-                                self.odometry.get_dir())
+        self.odometry.calculatePosition(self.robot.motor_pos_list, lastNodeColor=self.last_node_color,
+                                        currentNodeColor=self.current_node_color)
+        self.last_node_color = self.current_node_color
+
+        end_position = Position(self.odometry.get_position()[0], self.odometry.get_position()[1],
+                                (self.odometry.get_direction() + 180) % 360)
 
         is_path_blocked = self.robot.was_path_blocked
+
+        print("ODO: from " + str(start_position.x) + " " + str(start_position.y) + " " + str(
+            start_position.direction) + " to " + str(end_position.x) + " " + str(end_position.y) + " " + str(
+            end_position.direction) + " " + (is_path_blocked and "blocked" or "free"))
 
         if is_path_blocked:
             # bugfix bug described in telegram audio memo from 2023-03-18 10:24 @Dominik
@@ -325,13 +338,20 @@ class Controller:
          Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
          siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
          """
+        # did we got corrected? is endX, endY, endDirection different from the ones we in last_position?
+        if (
+                self.last_position.x != endX or self.last_position.y != endY or self.last_position.direction != endDirection):
+            print("ODO: Got corrected by mothership!")
+            print(f"old: {self.last_position.x} {self.last_position.y} {self.last_position.direction}")
+            print(f"new: {endX} {endY} {endDirection}")
+
         # when arrived at a node that has been unveiled by server but not explored yet, remove it from unexplored_nodes
         if (endX, endY) in self.planet.unexplored_nodes:
             self.planet.unexplored_nodes.remove((endX, endY))
 
         # init odometry
-        self.odometry.set_coords((startX, startY))
-        self.odometry.set_dir(startDirection)
+        self.odometry.set_position((startX, startY))
+        self.odometry.set_direction(startDirection)
 
         # update odometry inside planet
         self.planet.add_path(((startX, startY), Direction(startDirection)), ((endX, endY), Direction(endDirection)),
@@ -386,13 +406,14 @@ class Controller:
         # NOTE: Make sure robo received the right path_select (ESPECIALLY NOT the fake server response)
 
         # update last position and path status
-        self.odometry.set_dir(startDirection)
+        self.odometry.set_direction(startDirection)
 
         print(f"next dir. move from {self.last_position.direction} to: {startDirection}")
 
-        self.rotate_robo_in_dir(Direction(startDirection))
-        print(startDirection)
-        self.robot.drive_until_communication_point()
+        # if startDirection  is noe None
+        if startDirection is not None:
+            self.rotate_robo_in_dir(Direction(startDirection))
+            self.robot.drive_until_communication_point()
 
     def receive_target(self, targetX, targetY):
         """
@@ -414,10 +435,12 @@ class Controller:
         deg_to_rotate = (target_dir - current_dir) % 360
 
         # instead of three times right, go left once
+        """
         if deg_to_rotate >= 270:
             self.robot.station_scan(forward=False)
             deg_to_rotate += 90
             deg_to_rotate = deg_to_rotate % 360
+        """
 
         while deg_to_rotate > 0:
             # use station scan for rotating bc turn_deg is VERY buggy

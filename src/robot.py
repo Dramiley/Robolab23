@@ -22,12 +22,12 @@ class Robot:
     """
 
     def __init__(self, left_port: str = "outB", right_port: str = "outD", start_dir: Direction = Direction.NORTH,
-                 stop=False):
+                 stop=False, controller=None):
 
         # DEFS
         self.SPEED = 155  # speed of the motors, 150 is working
 
-        self.controller = None
+        self.controller = controller
         self.color: ms.ColorDetector = None
         self.obj_detec: ms.ObjectDetector = None
         self.middlegreytone = 170
@@ -48,7 +48,7 @@ class Robot:
         self.current_dir = start_dir  # keeps track of robot's direction
 
         try:
-            self.color = ms.ColorDetector()
+            self.color = ms.ColorDetector(self.controller)
         except Exception as e:
             print("Could not initialize color sensors wrapper ")
             print(e)
