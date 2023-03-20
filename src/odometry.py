@@ -22,8 +22,13 @@ class Odometry:
         self.x_position = 0
         self.y_position = 0
         self.direction = Direction.NORTH
+
+        self.counter = 0
     
     def calculatePosition(self, motorValues: List[Tuple[int,int]], lastNodeColor: Color=Color.UNDEFINED, currentNodeColor: Color=Color.UNDEFINED):
+
+        self.counter += 1
+
         deltaX = 0
         deltaY = 0
 
@@ -94,6 +99,8 @@ class Odometry:
         self.direction = direct
 
     def get_position(self):
+        print("ODO Counter: ",self.counter)
+        self.counter = 0
         return (self.x_position, self.y_position)
 
     def get_direction(self):
