@@ -57,7 +57,7 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
-        exam = False
+        exam = True
         if not exam:
             test_planet = input("Test Planet name: (leave empty for default)")
             if test_planet == "":
@@ -286,7 +286,7 @@ class Controller:
                                         currentNodeColor=self.current_node_color)
         self.last_node_color = self.current_node_color
 
-        end_position = Position(self.odometry.get_postion()[0], self.odometry.get_position()[1],
+        end_position = Position(self.odometry.get_position()[0], self.odometry.get_position()[1],
                                 (self.odometry.get_direction()) % 360)
 
         is_path_blocked = self.robot.was_path_blocked

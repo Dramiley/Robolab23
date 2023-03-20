@@ -5,7 +5,7 @@
       "type": "lego-sensor/lego-ev3-us",
       "#type_description": "The name of the driver used for this ultrasonic-sensor. See the other sensors for valid values",
       "location": {
-        "forward_cm": 3.5,
+        "forward_cm": 7,
         "left_cm": 0,
         "rotation_deg": 0
       },
@@ -15,7 +15,7 @@
       "type": "lego-sensor/lego-ev3-color",
       "#type_description": "The name of the driver used for this color-sensor. See the other sensors for valid values",
       "location": {
-        "forward_cm": 5.4,
+        "forward_cm": 5,
         "left_cm": 0,
         "rotation_deg": 0
       },
