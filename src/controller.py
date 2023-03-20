@@ -338,6 +338,13 @@ class Controller:
          Das Mutterschiff bestätigt die Nachricht des Roboters, wobei es gegebenenfalls eine Korrektur in den Zielkoordinaten vornimmt (2). Es berechnet außerdem das Gewicht eines Pfades und hängt es der Nachricht an.
          siehe https://robolab.inf.tu-dresden.de/spring/task/communication/msg-path/
          """
+        # did we got corrected? is endX, endY, endDirection different from the ones we in last_position?
+        if (
+                self.last_position.x != endX or self.last_position.y != endY or self.last_position.direction != endDirection):
+            print("ODO: Got corrected by mothership!")
+            print(f"old: {self.last_position.x} {self.last_position.y} {self.last_position.direction}")
+            print(f"new: {endX} {endY} {endDirection}")
+
         # when arrived at a node that has been unveiled by server but not explored yet, remove it from unexplored_nodes
         if (endX, endY) in self.planet.unexplored_nodes:
             self.planet.unexplored_nodes.remove((endX, endY))
