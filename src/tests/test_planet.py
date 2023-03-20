@@ -350,14 +350,12 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Requirement: Minimum of two paths with same cost exists, only one is returned by the logic implemented
         """
-        # candle has two paths of same length 5 from (19, -2) to (19, 2)
-        start = (19, -2)
-        target = (19, 2)
-        shortest_path = self.planet.get_shortest_path(start, target)
+        start = (0, 0)
+        target = (1, 1)
+        shortest_path = self.loop.get_shortest_path(start, target)
 
         shortest_path_should = [
-            ((19, -2), Direction.EAST), ((20, -2), Direction.NORTH), ((20, 0), Direction.NORTH),
-            ((19, 1), Direction.NORTH), ((19, 2), None)
+            ((0, 0), Direction.NORTH), ((0, 1), Direction.EAST), ((1, 1), None),
         ]
         self.assertEqual(shortest_path, shortest_path_should)
 
@@ -389,7 +387,13 @@ class TestRoboLabPlanet(unittest.TestCase):
 
         Result: Target is not reachable
         """
-        self.fail('implement me!')
+        self.setup_loop()
+        start = (0, 0)
+        target = (5, 5)
+        shortest_path = self.loop.get_shortest_path(start, target)
+        
+        self.assertIsNone(shortest_path)
+        
 
     def test_next_exploration_dir(self):
         """
