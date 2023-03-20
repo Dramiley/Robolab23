@@ -284,6 +284,8 @@ class Controller:
         # calculate start and end position
         start_position = self.last_position
 
+        self.odometry.set_position((start_position.x, start_position.y))
+        self.odometry.set_direction(start_position.direction)
         end_position = None
         self.odometry.calculatePosition(self.robot.motor_pos_list, lastNodeColor=self.last_node_color,
                                         currentNodeColor=self.current_node_color)
