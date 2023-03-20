@@ -65,7 +65,8 @@ class Robot:
         """
         motor_pos_left = self.motor_left.position
         motor_pos_right = self.motor_right.position
-        self.controller.odometry.counter += 1
+        if self.controller is not None and self.controller.odometry is not None:
+            self.controller.odometry.counter += 1
         self.motor_pos_list.append([motor_pos_left, motor_pos_right])
 
     def __reset_motor_pos_list(self):
