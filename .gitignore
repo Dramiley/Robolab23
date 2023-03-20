@@ -315,3 +315,5 @@ $RECYCLE.BIN/
 logs/
 
 src/simulator/planets/current.txt
+
+docs/node_modules/
