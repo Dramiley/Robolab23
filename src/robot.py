@@ -276,14 +276,16 @@ class Robot:
         self.motor_right.run_timed(time_sp=ROT_TIME_FACTOR * deg, speed_sp=-speed)
         time.sleep(ROT_TIME_FACTOR * 10 ** -3 * deg)
 
-    def drive_until_communication_point(self):
+    def drive_until_communication_point(self, notify_controller=True):
         """
         Drives the robot to the next communication point
         """
         self.__followline()
         self.__station_center()
-        # tell the controller that we reached the communication point
-        self.controller.communication_point_reached()
+
+        if notify_controller:
+            # tell the controller that we reached the communication point
+            self.controller.communication_point_reached()
 
     def deadly_stop(self):
         while True:

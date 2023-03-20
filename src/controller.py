@@ -57,6 +57,9 @@ class Controller:
         # setup error handling
         self.communication.set_callback('error', lambda message: print("COMM. FEHLER GEMELDET: " + message))
 
+        # setup stack
+        self.directions_stack = []
+
         exam = False
         if not exam:
             test_planet = input("Test Planet name: (leave empty for default)")
@@ -137,6 +140,7 @@ class Controller:
 
         if next_dir == None:
             self.__target_reached()
+            return
         print("next dir: " + str(next_dir) + ". will publish path_select/")
         self.communication.path_select(self.last_position.x, self.last_position.y, next_dir)
         # actual movement is performed on receive_path_select :)
@@ -147,6 +151,10 @@ class Controller:
         # make a really short beep to indicate that the communication for this point is done
         ev3.Sound.tone([(1400, 200, 150)]).wait()
 
+        # remember direction to stack
+        self.directions_stack.append((next_dir + 180) % 360)
+
+        # drive to next dir
         self.drive_to_next_dir()
 
     def __explore(self) -> Optional[Direction]:
@@ -314,6 +322,16 @@ class Controller:
         Wird aufgerufen, wenn das Ziel erreicht wurde
         """
 
+        # while self.directions_stack has elements
+        if len(self.directions_stack) > 0:
+            # get the last direction and remove it from the stack
+            backtrack_direction = self.directions_stack.pop()
+
+            # turn to that direction
+            self.rotate_robo_in_dir(backtrack_direction)
+            self.robot.drive_until_communication_point()
+            return
+
         number_of_beeps = 1
 
         if self.target_pos is None:
@@ -400,6 +418,7 @@ class Controller:
         self.next_dir = startDirection
 
     def drive_to_next_dir(self):
+
         startDirection = self.next_dir
 
         """
