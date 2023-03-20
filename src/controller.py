@@ -252,9 +252,6 @@ class Controller:
 
             # time.sleep(3)
 
-            if i == 1:
-                # we already know that there is a path on the one we came from
-                continue
 
             if possible_path:
                 print_possible_paths.append(current_dir)
@@ -264,6 +261,7 @@ class Controller:
                 except Exception as e:
                     print(f"Error while adding path to planet: {e}")
 
+        # self.backtrack2_stack[self.last_position] = print_possible_paths
         print(f"possible paths: {print_possible_paths}")
         print(f"unexplored: {self.planet.unexplored}")
 
@@ -288,7 +286,7 @@ class Controller:
                                         currentNodeColor=self.current_node_color)
         self.last_node_color = self.current_node_color
 
-        end_position = Position(self.odometry.get_position()[0], self.odometry.get_position()[1],
+        end_position = Position(self.odometry.get_postion()[0], self.odometry.get_position()[1],
                                 (self.odometry.get_direction()) % 360)
 
         is_path_blocked = self.robot.was_path_blocked
@@ -356,8 +354,9 @@ class Controller:
             self.planet.unexplored_nodes.remove((endX, endY))
 
         # init odometry
-        self.odometry.set_position((startX, startY))
-        self.odometry.set_direction(startDirection)
+        # odofix
+        self.odometry.set_position((endX, endY)) # start weg
+        self.odometry.set_direction(endDirection) # start weg
 
         # update odometry inside planet
         self.planet.add_path(((startX, startY), Direction(startDirection)), ((endX, endY), Direction(endDirection)),

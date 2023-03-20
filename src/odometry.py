@@ -87,9 +87,7 @@ class Odometry:
             s = dl
         delX = s*math.sin(self.direction+beta)
         delY = s*math.cos(self.direction+beta)
-        delDir = 2*beta
-
-        print("ODO Delta: ",delX,";",delY,";",delDir)
+        delDir = 2*beta       
 
         return (delX,delY,delDir)
 
