@@ -1,6 +1,6 @@
 # RL-2000X Master PRO - Group 46 
 
-![Banner Image](https://se-gitlab.inf.tu-dresden.de/robolab-spring/ws2022/group-046/-/raw/master/banner.jpg)
+![Banner Image](https://github.com/Dramiley/Robolab23/blob/master/banner.jpg)
 
 Der RL-2000X Master PRO auf Mission auf dem Planeten Curry.
 
